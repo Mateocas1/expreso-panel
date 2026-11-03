@@ -102,3 +102,5 @@ Asked by the parent after reviewing T1.1, accepted by Mateo (Log L8-L9).
 3. **Desktop verb.** "Tocá un envío para ver su estado." becomes "Elegí un envío para ver su estado." (both places it appears).
 4. **No empty band during the live replay.** While the replay runs, the legend moves up under the live counter and counts there; when it ends it returns under the final sentence without a jump (same motion rules: ease-out, ≤250ms, opacity-only under reduced motion).
 5. **Typeface by looking, not by reasoning.** Atkinson Hyperlegible Next draws 0 with a slash and has no unslashed alternate: good for codes, too technical in times and dates ("10:47", "2026-09-30"). New artboard `04-el-mapa-public-sans.html`: identical to 03 (with items 1-4) but set in Public Sans (USWDS, OFL), embedded the same way. Mateo picks one; the other is dropped.
+
+**Outcome (Log L10):** Mateo chose Public Sans. `03-el-mapa.html` now carries the Public Sans version and `04-el-mapa-public-sans.html` was removed. The Atkinson section above stays as history.

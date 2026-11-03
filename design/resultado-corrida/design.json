@@ -23,6 +23,13 @@
       "tradeoff": "One tile per shipment shows the whole batch at a glance and the same tiles fill in during the upload; the successes stay visible (quiet), motion only on demand (live replay of the run, selection, disclosures), and past a few hundred shipments the map needs grouping",
       "width": 1440,
       "height": 1730
+    },
+    {
+      "file": "04-estados.html",
+      "title": "Estados",
+      "tradeoff": "Shows the screen survives a second run, the calm day, API failures and runs that could not start, in one week of real kit data; static, so the live replay stays in 03",
+      "width": 1440,
+      "height": 5542
     }
   ]
 }

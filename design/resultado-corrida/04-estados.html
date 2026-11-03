@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estados · Una semana con el panel · Expreso Andino</title>
+<!--
+  Embedded font: Public Sans (variable, weights 400-600), subset to Latin-1 and Spanish punctuation.
+  Source: google/fonts, ofl/publicsans (PublicSans[wght].ttf). No Reserved Font Name is declared.
+  The font was subset and its weight axis limited (derivative file); the licence below applies to it.
+
+Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://scripts.sil.org/OFL
+
+
+* * *
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+* * *
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting - - in part or in whole - - any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+-->
+<style>
+  @font-face {
+    font-family: "Public Sans";
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url(data:font/woff2;base64,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) format("woff2");
+  }
+
+  :root {
+    /* Remito: ink on a pad of paper, one highlighter (same tokens as 03) */
+    --ground: oklch(0.972 0.006 250);
+    --paper: oklch(0.995 0.003 95);
+    --sunken: oklch(0.945 0.008 250);
+    --text: oklch(0.21 0.02 255);
+    --text-2: oklch(0.45 0.02 255);
+    --hair: oklch(0.21 0.02 255 / 0.12);
+    --line: oklch(0.62 0.02 255);
+    --accent: oklch(0.38 0.1 258);
+    --accent-hover: oklch(0.32 0.09 258);
+    --ok-fill: oklch(0.955 0.02 165);
+    --ok: oklch(0.42 0.09 165);
+    --ok-line: oklch(0.62 0.08 165);
+    --hatch: oklch(0.21 0.02 255 / 0.05);
+    --attn-fill: oklch(0.95 0.07 90);
+    --hl: oklch(0.9 0.12 88);
+    --attn-line: oklch(0.5 0.12 70);
+    --attn-ink: oklch(0.28 0.06 70);
+    --attn-wash: oklch(0.965 0.05 92);
+    /* New in 04. "Sin respuesta" reuses the neutral inks (no new hue); only the board gets a colour */
+    --none-line: var(--text-2);
+    --none-fill: var(--paper);
+    /* Design annotation lives on this darker board, outside every product frame */
+    --board: oklch(0.9 0.008 250);
+    --note-ink: oklch(0.3 0.02 255);
+
+    --r-xs: 2px; --r-sm: 4px; --r-md: 6px; --r-lg: 10px;
+    --t-sm: 0.8125rem; --t-md: 0.9375rem; --t-base: 1.0625rem; --t-lg: 1.5rem; --t-xl: 3rem;
+    --sans: "Public Sans", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Noto Sans Mono", monospace;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { margin: 0; background: var(--board); color: var(--text); font: 400 var(--t-base)/1.5 var(--sans); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  p { margin: 0; text-wrap: pretty; }
+  .num { font-variant-numeric: tabular-nums; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .skip { position: absolute; inset-inline-start: 1rem; inset-block-start: -3rem; background: var(--text); color: var(--paper); padding: 0.5rem 1rem; border-radius: var(--r-md); }
+  .skip:focus { inset-block-start: 1rem; }
+
+  .ico { flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .ico * { vector-effect: non-scaling-stroke; }
+  .ico.b { stroke-width: 1.75; }
+
+  /* ---- Board: annotation outside the product. Mono, small, on the darker board. ---- */
+  .board { max-width: 90rem; margin: 0 auto; padding: 2.5rem 0 4rem; }
+  .intro, .note { font-family: var(--mono); font-size: var(--t-sm); line-height: 1.5; color: var(--note-ink); padding-inline: 2.5rem; }
+  .intro h1 { font: 600 var(--t-md)/1.5 var(--mono); }
+  .intro p { margin-block-start: 0.25rem; max-width: 56rem; }
+  .scene { margin-block-start: 3rem; }
+  .note { padding-block-end: 1rem; max-width: 70rem; }
+  .note h2 { font: 600 var(--t-sm)/1.5 var(--mono); }
+  .note p { margin-block-start: 0.25rem; max-width: 52rem; }
+  .scene.side { display: flex; align-items: flex-start; gap: 2rem; padding-inline: 2.5rem; }
+  .scene.side .note { padding-inline: 0; padding-block-start: 0.5rem; flex: 1 1 0; min-width: 0; }
+
+  /* ---- Product frame: the result screen, full width ---- */
+  .frame { background: var(--ground); box-shadow: 0 0 0 1px var(--hair); }
+  .frame.small { flex: none; width: 45rem; }
+  .frame.small .page { padding-block-end: 3rem; }
+  .frame.small .answer h3.big { font-size: 2.25rem; }
+
+  .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 1rem 2.5rem; }
+  .brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }
+  .top .meta { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .top .meta span { white-space: nowrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 2.75rem; padding: 0 1.25rem; border-radius: var(--r-md); border: 1px solid transparent;
+    font: 500 var(--t-md)/1 var(--sans); cursor: pointer; text-decoration: none;
+  }
+  .btn-primary { background: var(--accent); color: var(--paper); }
+  .btn-quiet { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+
+  .page { padding: 2rem 2.5rem 4rem; }
+  .overview { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; align-items: start; }
+  .frame.small .overview { grid-template-columns: minmax(0, 1fr); }
+  .answer h3.big { font-size: var(--t-xl); line-height: 1.08; letter-spacing: -0.025em; font-weight: 500; }
+  .answer .hl { box-shadow: inset 0 -0.32em 0 var(--hl); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .answer .sub { margin-block-start: 1rem; color: var(--text-2); max-width: 28rem; }
+  .answer .actions { margin-block-start: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+
+  .legend { list-style: none; margin: 2.5rem 0 0; padding: 0; max-width: 24rem; border-block-start: 1px solid var(--hair); }
+  .legend li { display: grid; grid-template-columns: 1.75rem 1fr auto; gap: 1rem; align-items: center; padding-block: 0.5rem; border-block-end: 1px solid var(--hair); font-size: var(--t-md); line-height: 1.5; }
+  .legend .n { color: var(--text-2); text-align: end; min-width: 2ch; }
+  .sw { position: relative; isolation: isolate; width: 1.75rem; height: 1.75rem; border-radius: var(--r-sm); display: grid; place-items: center; }
+  .sw.ok { background: var(--ok-fill); color: var(--ok); }
+  .sw.prev { color: var(--text-2); background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); }
+  .sw.fix { background: var(--attn-fill); color: var(--attn-ink); box-shadow: inset 0 0 0 2px var(--attn-line); }
+  .sw.none { background: var(--none-fill); color: var(--text); box-shadow: inset 0 0 0 1.5px var(--none-line); }
+
+  .map-head { padding-block-end: 1rem; border-block-end: 1px solid var(--hair); }
+  .map-head h3, .sec { font-size: var(--t-lg); line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; }
+  .map-head p { margin-block-start: 0.25rem; color: var(--text-2); font-size: var(--t-md); line-height: 1.5; max-width: 40rem; }
+
+  .map { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.5rem; grid-auto-rows: 1fr; }
+  .tile {
+    position: relative; isolation: isolate; min-height: 5.5rem; padding: 0.75rem;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;
+    border-radius: var(--r-sm); border: 1px solid transparent; color: var(--text);
+    box-shadow: inset 0 0 0 var(--ring-in, 0px) var(--attn-line);
+  }
+  .tile .name { font-size: var(--t-md); line-height: 1.5; font-weight: 500; overflow-wrap: anywhere; }
+  .tile .row { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: var(--t-sm); line-height: 1.4; color: var(--text-2); }
+  .tile.ok { background: var(--ok-fill); }
+  .tile.ok .row svg { color: var(--ok); }
+  .tile.prev { background: transparent; }
+  .tile.fix { background: var(--attn-fill); --ring-in: 2px; }
+  .tile.fix .name { font-weight: 600; }
+  .tile.fix .row { color: var(--attn-ink); }
+  /* Sin respuesta: not LogiSur's fault, so no amber. Paper fill, thinner neutral ink ring, own icon, name in 600 like every tile that needs a person */
+  .tile.none { background: var(--none-fill); box-shadow: inset 0 0 0 1.5px var(--none-line); }
+  .tile.none .name { font-weight: 600; }
+  .tile.none .row { color: var(--text); }
+  .tile .hatch { position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); }
+  /* Nothing was loaded: the slot is empty, as in 03 while the upload has not started */
+  .tile.empty { background: var(--ground); }
+  .tile.empty::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; border: 1.5px dashed var(--line); pointer-events: none; }
+
+  .fixes { margin-block-start: 3rem; }
+  .sheet { background: var(--paper); border: 1px solid transparent; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--hair); padding: 2rem 2rem 1.5rem; }
+  .fixes-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem 2rem; flex-wrap: wrap; }
+  .fixes-head p { color: var(--text-2); max-width: 40rem; }
+  .group + .group { margin-block-start: 2.5rem; }
+  .fix-table { width: 100%; margin-block-start: 1.5rem; border-collapse: collapse; table-layout: fixed; }
+  .fix-table .num { white-space: nowrap; }
+  .fix-table th { text-align: start; font-weight: 500; font-size: var(--t-sm); line-height: 1.4; color: var(--text-2); padding: 0 1rem 0.5rem 0; }
+  .fix-table td { padding: 1rem 1rem 1rem 0; border-block-start: 1px solid var(--hair); vertical-align: top; overflow-wrap: anywhere; }
+  .fix-table tr:last-child td { border-block-end: 1px solid var(--hair); }
+  .what { display: flex; gap: 0.5rem; align-items: flex-start; font-weight: 600; }
+  .what svg { color: var(--attn-ink); margin-block-start: 0.2rem; }
+  .what.none svg { color: var(--text); }
+  .why { margin-block-start: 0.25rem; padding-inline-start: 1.75rem; color: var(--text-2); font-size: var(--t-md); line-height: 1.5; font-weight: 400; }
+  .who { font-weight: 500; }
+  .who-sub { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; }
+  .sheet-actions { margin-block-start: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+  details.tech summary { cursor: pointer; color: var(--text-2); font-size: var(--t-sm); line-height: 1.4; list-style: none; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap; }
+  details.tech summary::-webkit-details-marker { display: none; }
+  details[open].tech summary svg { transform: rotate(90deg); }
+  .tech-body { margin-block-start: 0.5rem; padding: 0.5rem 0.75rem; border-radius: var(--r-sm); background: var(--sunken); font: 400 var(--t-sm)/1.4 var(--mono); max-width: 24rem; white-space: normal; overflow-wrap: break-word; }
+
+  @media (forced-colors: active) {
+    .tile.fix { border-width: 3px; padding: calc(0.75rem - 2px); }
+    .tile.none { border: 2px solid CanvasText; padding: calc(0.75rem - 1px); }
+    .tile.empty { border-style: dashed; }
+    .sw { border: 1px solid CanvasText; }
+    .sw.fix { border-width: 3px; }
+    .sw.none { border-width: 2px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#s1">Ir al primer estado</a>
+<main class="board">
+  <header class="intro">
+    <h1>Estados · Una semana con el panel</h1>
+    <p>Cuatro estados de la pantalla de resultado con los datos del kit. Lo que está dentro de cada marco es el producto; esta tipografía chica y gris sobre fondo oscuro es anotación de diseño. Estático: la carga en vivo está en 03.</p>
+  </header>
+
+  <section class="scene" aria-labelledby="s1">
+    <div class="note"><h2 id="s1">Martes · Segunda carga, nada nuevo</h2><p>Se vuelve a cargar el mismo export. Los 20 que ya estaban aparecen como «Ya estaba», no como nuevos, y los 3 sin corregir siguen igual. Se ve que no se duplicó nada. Cargados: 0, por eso la leyenda no lo lista.</p></div>
+    <div class="frame" role="group" aria-label="Pantalla de resultado">
+      <div class="top">
+    <div class="brand">
+      <svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+      Envíos a Expreso Andino
+    </div>
+    <p class="meta num"><span>Carga de hoy, 09:12</span><span>remitos_2026-09-30.json</span></p>
+      </div>
+      <div class="page">
+        <div class="overview">
+        <div class="answer">
+          <h3 class="big"><span class="hl num">3 de 23 envíos</span> esperan un dato de LogiSur.</h3>
+          <p class="sub">Los otros 20 ya estaban en Expreso Andino desde una carga anterior. No se cargó nada dos veces.</p>
+          <div class="actions"><a class="btn btn-primary" href="#s1-fix">Ver qué falta</a></div>
+      <ul class="legend num" aria-label="Resumen por estado">
+        <li><span class="sw prev"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span>Ya estaba</span><span class="n">20</span></li>
+        <li><span class="sw fix"><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span>Para corregir</span><span class="n">3</span></li>
+      </ul>
+        </div>
+        <section class="map-section" aria-labelledby="s1-map">
+          <div class="map-head">
+            <h3 id="s1-map">Los 23 envíos de esta carga</h3>
+          </div>
+          <ul class="map" aria-label="Envíos de la carga, en orden de remito">
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>466</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000466: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Casa de Repuestos Tito</span><span class="row num" aria-hidden="true"><span>469</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000469: Ya estaba</span></li>
+        <li class="tile fix"><span class="name">Panadería La Espiga</span><span class="row num" aria-hidden="true"><span>477</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span class="vh">R-10000477: Para corregir</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>479</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000479: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Distribuidora Lucía</span><span class="row num" aria-hidden="true"><span>486</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000486: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Maderera El Pino</span><span class="row num" aria-hidden="true"><span>507</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000507: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>513</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000513: Ya estaba</span></li>
+        <li class="tile fix"><span class="name">Sanitarios Rivera</span><span class="row num" aria-hidden="true"><span>516</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span class="vh">R-10000516: Para corregir</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Mercado Los Álamos</span><span class="row num" aria-hidden="true"><span>519</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000519: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Librería Central</span><span class="row num" aria-hidden="true"><span>527</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000527: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>536</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000536: Ya estaba</span></li>
+        <li class="tile fix"><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>541</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span class="vh">R-10000541: Para corregir</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Veterinaria Patitas</span><span class="row num" aria-hidden="true"><span>548</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000548: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>554</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000554: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>567</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000567: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Ferretería El Tornillo</span><span class="row num" aria-hidden="true"><span>572</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000572: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>582</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000582: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Rotisería Doña Ana</span><span class="row num" aria-hidden="true"><span>589</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000589: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>590</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000590: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>612</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000612: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Neumáticos Sur</span><span class="row num" aria-hidden="true"><span>622</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000622: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>637</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000637: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Vinoteca Malbec</span><span class="row num" aria-hidden="true"><span>657</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000657: Ya estaba</span></li>
+          </ul>
+        </section>
+        </div>
+    <section class="fixes" id="s1-fix" aria-labelledby="s1-fix-t">
+      <div class="sheet">
+        <div class="group">
+          <div class="fixes-head">
+            <h3 class="sec" id="s1-fix-t">Para corregir en LogiSur</h3>
+            <p>Cuando los corrijas, volvé a cargar el export. No se duplica nada.</p>
+          </div>
+          <table class="fix-table" aria-labelledby="s1-fix-t">
+            <colgroup><col style="width:28%"><col style="width:20%"><col style="width:18%"><col style="width:11%"><col style="width:23%"></colgroup>
+            <thead><tr><th scope="col">Qué pasa</th><th scope="col">Envío para</th><th scope="col">Cliente</th><th scope="col">Remito</th><th scope="col"><span class="vh">Detalle técnico</span></th></tr></thead>
+            <tbody>
+          <tr>
+            <td><div class="what"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg>Falta el código postal</div><p class="why">El remito dice «Cliente no informó CP»: hay que pedírselo al cliente.</p></td>
+            <td><div class="who">Panadería La Espiga</div><div class="who-sub">Belgrano 2184, Pilar</div></td>
+            <td>Textil Del Plata SRL</td>
+            <td class="num">R-10000477</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000477</span></summary><div class="tech-body">HTTP 422 · destinatario.codigo_postal: required non-empty string</div></details></td>
+          </tr>
+          <tr>
+            <td><div class="what"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg>Falta la dirección</div><p class="why">En el remito quedó en blanco.</p></td>
+            <td><div class="who">Sanitarios Rivera</div><div class="who-sub">Caballito, CABA</div></td>
+            <td>Ferretería Industrial Norte SA</td>
+            <td class="num">R-10000516</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000516</span></summary><div class="tech-body">HTTP 422 · destinatario.direccion: required non-empty string</div></details></td>
+          </tr>
+          <tr>
+            <td><div class="what"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg>Los bultos figuran en 0</div><p class="why">Tiene que haber al menos 1 bulto.</p></td>
+            <td><div class="who">Carnicería El Gaucho</div><div class="who-sub">Italia 2823, San Miguel de Tucumán</div></td>
+            <td>Ferretería Industrial Norte SA</td>
+            <td class="num">R-10000541</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000541</span></summary><div class="tech-body">HTTP 422 · bultos: integer &gt;= 1</div></details></td>
+          </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="sheet-actions">
+          <a class="btn btn-quiet" href="#"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>Volver a cargar el export</a>
+        </div>
+      </div>
+    </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" aria-labelledby="s2">
+    <div class="note"><h2 id="s2">Miércoles · LogiSur corrigió los 3</h2><p>Los 3 pasan a «Cargado» (verde) entre los 20 de antes. Sin pendientes no queda hoja, ni botón, ni flecha: la pantalla no señala nada. La calma sale de la frase, del espacio y de que el único color es el verde casi gris.</p></div>
+    <div class="frame" role="group" aria-label="Pantalla de resultado">
+      <div class="top">
+    <div class="brand">
+      <svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+      Envíos a Expreso Andino
+    </div>
+    <p class="meta num"><span>Carga de hoy, 10:05</span><span>remitos_2026-09-30.json</span></p>
+      </div>
+      <div class="page">
+        <div class="overview">
+        <div class="answer">
+          <h3 class="big">No tenés que hacer nada.</h3>
+          <p class="sub">Los 23 envíos ya están en Expreso Andino: 3 se cargaron ahora y los otros 20 ya estaban. No se cargó nada dos veces.</p>
+      <ul class="legend num" aria-label="Resumen por estado">
+        <li><span class="sw ok"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Cargados</span><span class="n">3</span></li>
+        <li><span class="sw prev"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span>Ya estaba</span><span class="n">20</span></li>
+      </ul>
+        </div>
+        <section class="map-section" aria-labelledby="s2-map">
+          <div class="map-head">
+            <h3 id="s2-map">Los 23 envíos de esta carga</h3>
+          </div>
+          <ul class="map" aria-label="Envíos de la carga, en orden de remito">
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>466</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000466: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Casa de Repuestos Tito</span><span class="row num" aria-hidden="true"><span>469</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000469: Ya estaba</span></li>
+        <li class="tile ok"><span class="name">Panadería La Espiga</span><span class="row num" aria-hidden="true"><span>477</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000477: Cargado</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>479</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000479: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Distribuidora Lucía</span><span class="row num" aria-hidden="true"><span>486</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000486: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Maderera El Pino</span><span class="row num" aria-hidden="true"><span>507</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000507: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>513</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000513: Ya estaba</span></li>
+        <li class="tile ok"><span class="name">Sanitarios Rivera</span><span class="row num" aria-hidden="true"><span>516</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000516: Cargado</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Mercado Los Álamos</span><span class="row num" aria-hidden="true"><span>519</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000519: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Librería Central</span><span class="row num" aria-hidden="true"><span>527</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000527: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>536</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000536: Ya estaba</span></li>
+        <li class="tile ok"><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>541</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000541: Cargado</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Veterinaria Patitas</span><span class="row num" aria-hidden="true"><span>548</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000548: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>554</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000554: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>567</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000567: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Ferretería El Tornillo</span><span class="row num" aria-hidden="true"><span>572</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000572: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>582</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000582: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Rotisería Doña Ana</span><span class="row num" aria-hidden="true"><span>589</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000589: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>590</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000590: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>612</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000612: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Neumáticos Sur</span><span class="row num" aria-hidden="true"><span>622</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000622: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>637</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000637: Ya estaba</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Vinoteca Malbec</span><span class="row num" aria-hidden="true"><span>657</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000657: Ya estaba</span></li>
+          </ul>
+        </section>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" aria-labelledby="s3">
+    <div class="note"><h2 id="s3">Jueves · Expreso Andino no respondió para 2 envíos</h2><p>Hipotético: el kit no trae una corrida con fallas de la API, así que se parte de la del lunes. «Sin respuesta» tiene ícono (nube cortada) y borde propios, en tinta gris y no en amarillo, porque no es un dato de LogiSur. En la hoja va en su propio grupo.</p></div>
+    <div class="frame" role="group" aria-label="Pantalla de resultado">
+      <div class="top">
+    <div class="brand">
+      <svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+      Envíos a Expreso Andino
+    </div>
+    <p class="meta num"><span>Carga de hoy, 08:40</span><span>remitos_2026-09-30.json</span></p>
+      </div>
+      <div class="page">
+        <div class="overview">
+        <div class="answer">
+          <h3 class="big"><span class="hl num">5 de 23 envíos</span> no se cargaron.</h3>
+          <p class="sub">3 esperan un dato de LogiSur y 2 no tuvieron respuesta de Expreso Andino. Los otros 18 ya están cargados.</p>
+          <div class="actions"><a class="btn btn-primary" href="#s3-fix">Ver qué pasó</a></div>
+      <ul class="legend num" aria-label="Resumen por estado">
+        <li><span class="sw ok"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Cargados</span><span class="n">17</span></li>
+        <li><span class="sw prev"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span>Ya estaba</span><span class="n">1</span></li>
+        <li><span class="sw fix"><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span>Para corregir</span><span class="n">3</span></li>
+        <li><span class="sw none"><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 18.5h9.25a4 4 0 0 0 .9-7.9 6 6 0 0 0-11.2-1.4 4.6 4.6 0 0 0 1.05 9.3z"/><path d="M3.5 3.5l17 17"/></svg></span><span>Sin respuesta</span><span class="n">2</span></li>
+      </ul>
+        </div>
+        <section class="map-section" aria-labelledby="s3-map">
+          <div class="map-head">
+            <h3 id="s3-map">Los 23 envíos de esta carga</h3>
+          </div>
+          <ul class="map" aria-label="Envíos de la carga, en orden de remito">
+        <li class="tile ok"><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>466</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000466: Cargado</span></li>
+        <li class="tile ok"><span class="name">Casa de Repuestos Tito</span><span class="row num" aria-hidden="true"><span>469</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000469: Cargado</span></li>
+        <li class="tile fix"><span class="name">Panadería La Espiga</span><span class="row num" aria-hidden="true"><span>477</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span class="vh">R-10000477: Para corregir</span></li>
+        <li class="tile ok"><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>479</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000479: Cargado</span></li>
+        <li class="tile ok"><span class="name">Distribuidora Lucía</span><span class="row num" aria-hidden="true"><span>486</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000486: Cargado</span></li>
+        <li class="tile ok"><span class="name">Maderera El Pino</span><span class="row num" aria-hidden="true"><span>507</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000507: Cargado</span></li>
+        <li class="tile ok"><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>513</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000513: Cargado</span></li>
+        <li class="tile fix"><span class="name">Sanitarios Rivera</span><span class="row num" aria-hidden="true"><span>516</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span class="vh">R-10000516: Para corregir</span></li>
+        <li class="tile ok"><span class="name">Mercado Los Álamos</span><span class="row num" aria-hidden="true"><span>519</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000519: Cargado</span></li>
+        <li class="tile prev"><span class="hatch" aria-hidden="true"></span><span class="name">Librería Central</span><span class="row num" aria-hidden="true"><span>527</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span class="vh">R-10000527: Ya estaba</span></li>
+        <li class="tile ok"><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>536</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000536: Cargado</span></li>
+        <li class="tile fix"><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>541</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span class="vh">R-10000541: Para corregir</span></li>
+        <li class="tile ok"><span class="name">Veterinaria Patitas</span><span class="row num" aria-hidden="true"><span>548</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000548: Cargado</span></li>
+        <li class="tile ok"><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>554</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000554: Cargado</span></li>
+        <li class="tile ok"><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>567</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000567: Cargado</span></li>
+        <li class="tile ok"><span class="name">Ferretería El Tornillo</span><span class="row num" aria-hidden="true"><span>572</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000572: Cargado</span></li>
+        <li class="tile ok"><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>582</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000582: Cargado</span></li>
+        <li class="tile ok"><span class="name">Rotisería Doña Ana</span><span class="row num" aria-hidden="true"><span>589</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000589: Cargado</span></li>
+        <li class="tile ok"><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>590</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000590: Cargado</span></li>
+        <li class="tile none"><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>612</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 18.5h9.25a4 4 0 0 0 .9-7.9 6 6 0 0 0-11.2-1.4 4.6 4.6 0 0 0 1.05 9.3z"/><path d="M3.5 3.5l17 17"/></svg></span><span class="vh">R-10000612: Sin respuesta</span></li>
+        <li class="tile none"><span class="name">Neumáticos Sur</span><span class="row num" aria-hidden="true"><span>622</span><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 18.5h9.25a4 4 0 0 0 .9-7.9 6 6 0 0 0-11.2-1.4 4.6 4.6 0 0 0 1.05 9.3z"/><path d="M3.5 3.5l17 17"/></svg></span><span class="vh">R-10000622: Sin respuesta</span></li>
+        <li class="tile ok"><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>637</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000637: Cargado</span></li>
+        <li class="tile ok"><span class="name">Vinoteca Malbec</span><span class="row num" aria-hidden="true"><span>657</span><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="vh">R-10000657: Cargado</span></li>
+          </ul>
+        </section>
+        </div>
+    <section class="fixes" id="s3-fix" aria-labelledby="s3-fix-t">
+      <div class="sheet">
+        <div class="group">
+          <div class="fixes-head">
+            <h3 class="sec" id="s3-fix-t">Para corregir en LogiSur</h3>
+            <p>Cuando los corrijas, volvé a cargar el export. No se duplica nada.</p>
+          </div>
+          <table class="fix-table" aria-labelledby="s3-fix-t">
+            <colgroup><col style="width:28%"><col style="width:20%"><col style="width:18%"><col style="width:11%"><col style="width:23%"></colgroup>
+            <thead><tr><th scope="col">Qué pasa</th><th scope="col">Envío para</th><th scope="col">Cliente</th><th scope="col">Remito</th><th scope="col"><span class="vh">Detalle técnico</span></th></tr></thead>
+            <tbody>
+          <tr>
+            <td><div class="what"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg>Falta el código postal</div><p class="why">El remito dice «Cliente no informó CP»: hay que pedírselo al cliente.</p></td>
+            <td><div class="who">Panadería La Espiga</div><div class="who-sub">Belgrano 2184, Pilar</div></td>
+            <td>Textil Del Plata SRL</td>
+            <td class="num">R-10000477</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000477</span></summary><div class="tech-body">HTTP 422 · destinatario.codigo_postal: required non-empty string</div></details></td>
+          </tr>
+          <tr>
+            <td><div class="what"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg>Falta la dirección</div><p class="why">En el remito quedó en blanco.</p></td>
+            <td><div class="who">Sanitarios Rivera</div><div class="who-sub">Caballito, CABA</div></td>
+            <td>Ferretería Industrial Norte SA</td>
+            <td class="num">R-10000516</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000516</span></summary><div class="tech-body">HTTP 422 · destinatario.direccion: required non-empty string</div></details></td>
+          </tr>
+          <tr>
+            <td><div class="what"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg>Los bultos figuran en 0</div><p class="why">Tiene que haber al menos 1 bulto.</p></td>
+            <td><div class="who">Carnicería El Gaucho</div><div class="who-sub">Italia 2823, San Miguel de Tucumán</div></td>
+            <td>Ferretería Industrial Norte SA</td>
+            <td class="num">R-10000541</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000541</span></summary><div class="tech-body">HTTP 422 · bultos: integer &gt;= 1</div></details></td>
+          </tr>
+            </tbody>
+          </table>
+        </div>
+      <div class="group">
+        <h3 class="sec" id="s3-fix-n">Sin respuesta de Expreso Andino</h3>
+        <table class="fix-table" aria-labelledby="s3-fix-n">
+          <colgroup><col style="width:28%"><col style="width:20%"><col style="width:18%"><col style="width:11%"><col style="width:23%"></colgroup>
+          <thead class="vh"><tr><th scope="col">Qué pasa</th><th scope="col">Envío para</th><th scope="col">Cliente</th><th scope="col">Remito</th><th scope="col"><span class="vh">Detalle técnico</span></th></tr></thead>
+          <tbody>
+          <tr>
+            <td><div class="what none"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 18.5h9.25a4 4 0 0 0 .9-7.9 6 6 0 0 0-11.2-1.4 4.6 4.6 0 0 0 1.05 9.3z"/><path d="M3.5 3.5l17 17"/></svg>Expreso Andino no respondió</div><p class="why">No se perdió nada: volvé a cargar el export en unos minutos.</p></td>
+            <td><div class="who">Pinturerías del Oeste</div><div class="who-sub">Sarmiento 3021, Mar del Plata</div></td>
+            <td>Distribuidora Pampa SA</td>
+            <td class="num">R-10000612</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000612</span></summary><div class="tech-body">la API respondió 503 en los 4 intentos</div></details></td>
+          </tr>
+          <tr>
+            <td><div class="what none"><svg class="ico b" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 18.5h9.25a4 4 0 0 0 .9-7.9 6 6 0 0 0-11.2-1.4 4.6 4.6 0 0 0 1.05 9.3z"/><path d="M3.5 3.5l17 17"/></svg>Expreso Andino no respondió</div><p class="why">No se perdió nada: volvé a cargar el export en unos minutos.</p></td>
+            <td><div class="who">Neumáticos Sur</div><div class="who-sub">Moreno 3472, San Miguel de Tucumán</div></td>
+            <td>Ferretería Industrial Norte SA</td>
+            <td class="num">R-10000622</td>
+            <td><details class="tech"><summary><svg class="ico" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span class="vh"> de R-10000622</span></summary><div class="tech-body">la API respondió 503 en los 4 intentos</div></details></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+        <div class="sheet-actions">
+          <a class="btn btn-quiet" href="#"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>Volver a cargar el export</a>
+        </div>
+      </div>
+    </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" aria-labelledby="s4">
+    <div class="note"><h2 id="s4">Viernes · No se pudo correr</h2><p>No hay resultado que mostrar. En el lugar del mapa queda la vista previa del export, con los 23 casilleros vacíos, para que se vea que no se tocó nada.</p></div>
+    <div class="frame" role="group" aria-label="Pantalla de resultado">
+      <div class="top">
+    <div class="brand">
+      <svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+      Envíos a Expreso Andino
+    </div>
+    <p class="meta num"><span>Carga de hoy, 08:55</span><span>remitos_2026-09-30.json</span></p>
+      </div>
+      <div class="page">
+        <div class="overview">
+        <div class="answer">
+          <h3 class="big">Expreso Andino no responde.</h3>
+          <p class="sub">No se cargó ningún envío. Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.</p>
+          <div class="actions"><button class="btn btn-primary" type="button">Volver a intentar</button></div>
+
+        </div>
+        <section class="map-section" aria-labelledby="s4-map">
+          <div class="map-head">
+            <h3 id="s4-map">23 envíos para Expreso Andino</h3><p class="num">remitos_2026-09-30.json · El archivo tiene 51 remitos. Los otros 27 van con otros transportistas y no se tocan.</p>
+          </div>
+          <ul class="map" aria-label="Envíos de la carga, en orden de remito">
+        <li class="tile empty"><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>466</span></span><span class="vh">R-10000466: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Casa de Repuestos Tito</span><span class="row num" aria-hidden="true"><span>469</span></span><span class="vh">R-10000469: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Panadería La Espiga</span><span class="row num" aria-hidden="true"><span>477</span></span><span class="vh">R-10000477: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>479</span></span><span class="vh">R-10000479: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Distribuidora Lucía</span><span class="row num" aria-hidden="true"><span>486</span></span><span class="vh">R-10000486: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Maderera El Pino</span><span class="row num" aria-hidden="true"><span>507</span></span><span class="vh">R-10000507: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>513</span></span><span class="vh">R-10000513: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Sanitarios Rivera</span><span class="row num" aria-hidden="true"><span>516</span></span><span class="vh">R-10000516: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Mercado Los Álamos</span><span class="row num" aria-hidden="true"><span>519</span></span><span class="vh">R-10000519: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Librería Central</span><span class="row num" aria-hidden="true"><span>527</span></span><span class="vh">R-10000527: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>536</span></span><span class="vh">R-10000536: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>541</span></span><span class="vh">R-10000541: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Veterinaria Patitas</span><span class="row num" aria-hidden="true"><span>548</span></span><span class="vh">R-10000548: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>554</span></span><span class="vh">R-10000554: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Corralón San Martín</span><span class="row num" aria-hidden="true"><span>567</span></span><span class="vh">R-10000567: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Ferretería El Tornillo</span><span class="row num" aria-hidden="true"><span>572</span></span><span class="vh">R-10000572: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Tienda Sofía</span><span class="row num" aria-hidden="true"><span>582</span></span><span class="vh">R-10000582: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Rotisería Doña Ana</span><span class="row num" aria-hidden="true"><span>589</span></span><span class="vh">R-10000589: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Carnicería El Gaucho</span><span class="row num" aria-hidden="true"><span>590</span></span><span class="vh">R-10000590: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Pinturerías del Oeste</span><span class="row num" aria-hidden="true"><span>612</span></span><span class="vh">R-10000612: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Neumáticos Sur</span><span class="row num" aria-hidden="true"><span>622</span></span><span class="vh">R-10000622: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Kiosco El Sol</span><span class="row num" aria-hidden="true"><span>637</span></span><span class="vh">R-10000637: Sin cargar</span></li>
+        <li class="tile empty"><span class="name">Vinoteca Malbec</span><span class="row num" aria-hidden="true"><span>657</span></span><span class="vh">R-10000657: Sin cargar</span></li>
+          </ul>
+        </section>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="scene side" aria-labelledby="s4b">
+    <div class="frame small" role="group" aria-label="Pantalla de resultado">
+      <div class="top">
+    <div class="brand">
+      <svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+      Envíos a Expreso Andino
+    </div>
+    <p class="meta num"><span>Carga de hoy, 08:48</span></p>
+      </div>
+      <div class="page">
+        <div class="overview">
+        <div class="answer">
+          <h3 class="big">No se pudo leer el archivo.</h3>
+          <p class="sub">«planilla_octubre.xlsx» no parece un export de LogiSur o está dañado. Descargalo de nuevo desde LogiSur y volvé a elegirlo. No se cargó ningún envío.</p>
+          <div class="actions"><button class="btn btn-primary" type="button">Elegir otro archivo</button></div>
+
+        </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="note"><h2 id="s4b">Viernes · Variante: el archivo no se puede leer</h2><p>Pasa antes de saber cuántos envíos hay, así que no hay mapa ni vista previa: solo la frase y un botón. Marco más chico a propósito.</p></div>
+  </section>
+</main>
+</body>
+</html>

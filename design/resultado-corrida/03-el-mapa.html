@@ -49,29 +49,47 @@
   }
   .btn-primary { background: var(--ink); color: var(--surface); }
   .btn-quiet { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--hair); }
+  .btn-sm { min-height: 2.25rem; padding: 0 0.875rem; font-size: 0.875rem; }
+  .btn { transition: background-color 150ms var(--ease); }
   @media (hover: hover) {
     .btn-primary:hover { background: oklch(0.32 0.015 100); }
     .btn-quiet:hover { background: var(--sunken); }
   }
   @media (prefers-reduced-motion: no-preference) {
-    .btn { transition: background-color 150ms var(--ease), transform 150ms var(--ease); }
+    .btn { transition: background-color 150ms var(--ease), transform 130ms var(--ease); }
     .btn:active { transform: scale(0.97); }
   }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
   .page { padding: 2rem 2.5rem 4rem; max-width: 90rem; margin: 0 auto; }
 
   /* Answer + map */
   .overview { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; align-items: start; }
-  .answer h1 { font-size: 3rem; line-height: 1.08; letter-spacing: -0.025em; font-weight: 500; }
+  .answer .stack { display: grid; }
+  .answer .stack > * { grid-area: 1 / 1; }
+  .answer .live { align-self: start; visibility: hidden; opacity: 0; }
+  .answer .big, .answer h1 { font-size: 3rem; line-height: 1.08; letter-spacing: -0.025em; font-weight: 500; }
   .answer h1 .hl { color: var(--attention); }
+  /* Replay: the live counter and the final sentence share one grid cell, so nothing jumps */
+  .answer .final { transition: opacity 220ms var(--ease), visibility 0s; }
+  .answer .live { transition: opacity 120ms var(--ease), visibility 0s linear 120ms; }
+  .running .final { opacity: 0; visibility: hidden; transition: opacity 120ms var(--ease), visibility 0s linear 120ms; }
+  .running .live { opacity: 1; visibility: visible; transition: opacity 200ms var(--ease), visibility 0s; }
+  @media (prefers-reduced-motion: no-preference) {
+    .answer .final { transition: opacity 220ms var(--ease), transform 220ms var(--ease), visibility 0s; }
+    .answer .live { transform: translateY(5px); transition: opacity 120ms var(--ease), transform 120ms var(--ease), visibility 0s linear 120ms; }
+    .running .final { transform: translateY(5px); transition: opacity 120ms var(--ease), transform 120ms var(--ease), visibility 0s linear 120ms; }
+    .running .live { transform: none; transition: opacity 200ms var(--ease), transform 200ms var(--ease), visibility 0s; }
+  }
   .answer .sub { margin-block-start: 1.25rem; font-size: 1.25rem; color: var(--text-2); max-width: 28rem; }
   .answer .actions { margin-block-start: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
   .answer .note { color: var(--text-2); font-size: 0.9375rem; }
 
   .map-wrap { background: var(--surface); border-radius: 20px; padding: 1.5rem; box-shadow: 0 0 0 1px oklch(0.22 0.012 100 / 0.07), 0 1px 2px -1px oklch(0.22 0.012 100 / 0.07), 0 4px 12px 0 oklch(0.22 0.012 100 / 0.04); border: 1px solid transparent; }
-  .map-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .map-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
   .map-head h2 { font-size: 1rem; font-weight: 500; }
   .legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; list-style: none; margin: 0; padding: 0; font-size: 0.875rem; color: var(--text-2); }
+  .map-head .legend { flex-basis: 100%; }
   .legend li { display: inline-flex; align-items: center; gap: 0.375rem; }
   .legend .ok { color: var(--ok); } .legend .prev { color: var(--prev); } .legend .att { color: var(--attention); }
 
@@ -85,17 +103,37 @@
   }
   .tile .name { font-size: 0.8125rem; line-height: 1.3; font-weight: 500; overflow-wrap: anywhere; }
   .tile .row { display: flex; justify-content: space-between; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--text-2); }
+  /* One box-shadow stack: fix ring (inset), selection gap, selection ring. Same shape in every state so it interpolates. */
+  .tile {
+    --ring-in: 0px; --ring-gap: 0px; --ring-out: 0px;
+    box-shadow: inset 0 0 0 var(--ring-in) var(--attention-line), 0 0 0 var(--ring-gap) var(--surface), 0 0 0 var(--ring-out) var(--ink);
+    transition: background-color 200ms var(--ease), box-shadow 180ms var(--ease), filter 150ms var(--ease);
+  }
   .tile.ok { background: var(--ok-fill); }
   .tile.ok svg { color: var(--ok); }
   .tile.prev { background: var(--prev-fill); }
   .tile.prev svg { color: var(--prev); }
-  .tile.fix { background: var(--surface); box-shadow: inset 0 0 0 2px var(--attention-line); }
+  .tile.fix { background: var(--surface); --ring-in: 2px; }
   .tile.fix svg { color: var(--attention); }
   .tile.fix .name { font-weight: 600; }
-  .tile[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
-  @media (hover: hover) { .tile:hover { filter: brightness(0.98); } }
+  .tile[aria-pressed="true"] { --ring-gap: 2px; --ring-out: 4px; }
+  .tile:focus-visible { outline-offset: 5px; }
+  /* Empty state, used while the live replay runs: dashed edge, no icon, no fill */
+  .tile::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; border: 1.5px dashed oklch(0.22 0.012 100 / 0.3); opacity: 0; pointer-events: none; transition: opacity 200ms var(--ease); }
+  .tile.pend { background: var(--surface); --ring-in: 0px; cursor: default; }
+  .tile.pend::before { opacity: 1; }
+  .tile svg { transition: opacity 200ms var(--ease); }
+  .tile.pend svg { opacity: 0; transition-duration: 120ms; }
+  @media (hover: hover) { .tile:not(.pend):hover { filter: brightness(0.98); } }
+  @media (prefers-reduced-motion: no-preference) {
+    .tile { transition: background-color 200ms var(--ease), box-shadow 180ms var(--ease), filter 150ms var(--ease), transform 120ms var(--ease); }
+    .tile:not(.pend):active { transform: scale(0.98); }
+    .tile svg { transition: transform 300ms var(--ease), opacity 300ms var(--ease), filter 300ms var(--ease); }
+    .tile.pend svg { transform: scale(0.25); filter: blur(4px); transition-duration: 150ms; }
+  }
 
-  .picked { margin-block-start: 1rem; min-height: 3rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--sunken); font-size: 0.9375rem; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: center; }
+  .picked { transition: opacity 120ms var(--ease); margin-block-start: 1rem; min-height: 3rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--sunken); font-size: 0.9375rem; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: center; }
+  .picked.swap { opacity: 0; transition-duration: 60ms; }
   .picked .k { color: var(--text-2); }
   .picked code { font-family: var(--mono); font-size: 0.8125rem; }
 
@@ -113,13 +151,34 @@
   .why { margin-block-start: 0.25rem; padding-inline-start: 1.75rem; color: var(--text-2); font-size: 0.9375rem; font-weight: 400; }
   .who { font-weight: 500; }
   .who-sub { color: var(--text-2); font-size: 0.9375rem; }
+  .fix-table td { transition: background-color 200ms var(--ease); }
   .fix-table tr.lit td { background: var(--attention-soft); }
-  .fix-table tr.lit td:first-child { border-start-start-radius: 0; }
+  /* One-time attention highlight after "Ver cómo corregirlo"; fades out, never loops */
+  .fix-table tr.flash td { animation: attn 1000ms ease-out; }
+  @keyframes attn { from { background-color: oklch(0.9 0.09 78); } }
+  .fix-table tr:focus-visible { outline-offset: -2px; }
+  /* During the replay the rows wait; they settle in once the run is over */
+  .fix-table tr { transition: opacity 220ms var(--ease); transition-delay: calc(var(--n, 0) * 40ms); }
+  .fix-table tr.hold { opacity: 0; transition-duration: 120ms; transition-delay: 0ms; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fix-table tr { transition: opacity 220ms var(--ease), transform 220ms var(--ease); transition-delay: calc(var(--n, 0) * 40ms); }
+    .fix-table tr.hold { transform: translateY(6px); transition-duration: 120ms; transition-delay: 0ms; }
+  }
 
   details.tech summary { cursor: pointer; color: var(--text-2); font-size: 0.875rem; list-style: none; display: inline-flex; align-items: center; gap: 0.375rem; white-space: nowrap; }
   details.tech summary::-webkit-details-marker { display: none; }
   details[open].tech summary svg { transform: rotate(90deg); }
   @media (prefers-reduced-motion: no-preference) { details.tech summary svg { transition: transform 200ms var(--ease); } }
+  /* Disclosure: height + opacity where ::details-content is supported, plain toggle elsewhere */
+  @supports selector(::details-content) {
+    details.tech::details-content { opacity: 0; transition: opacity 140ms var(--ease), content-visibility 140ms allow-discrete; }
+    details.tech[open]::details-content { opacity: 1; transition-duration: 200ms; }
+    @media (prefers-reduced-motion: no-preference) {
+      details.tech { interpolate-size: allow-keywords; }
+      details.tech::details-content { block-size: 0; overflow: clip; transition: block-size 200ms var(--ease), opacity 140ms var(--ease), content-visibility 200ms allow-discrete; }
+      details.tech[open]::details-content { block-size: auto; transition-duration: 240ms, 200ms, 240ms; }
+    }
+  }
   .tech-body { margin-block-start: 0.5rem; padding: 0.625rem 0.75rem; border-radius: 8px; background: var(--sunken); font: 400 0.8125rem/1.6 var(--mono); max-width: 22rem; white-space: normal; }
 
   /* Moments */
@@ -162,21 +221,31 @@
 <main id="main" class="page">
   <div class="overview">
     <div class="answer">
-      <h1 tabindex="-1"><span class="hl num">3 de 23 envíos</span> esperan un dato de LogiSur.</h1>
-      <p class="sub">Los otros 20 ya están en Expreso Andino. No hace falta hacer nada con ellos.</p>
-      <div class="actions">
-        <a class="btn btn-primary" href="#para-corregir">Ver qué falta</a>
-        <span class="note">Después, volvé a cargar el export.</span>
+      <div class="stack">
+        <div class="final">
+          <h1 tabindex="-1"><span class="hl num">3 de 23 envíos</span> esperan un dato de LogiSur.</h1>
+          <p class="sub">Los otros 20 ya están en Expreso Andino. No hace falta hacer nada con ellos.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#para-corregir">Ver qué falta</a>
+            <span class="note">Después, volvé a cargar el export.</span>
+          </div>
+        </div>
+        <div class="live" aria-hidden="true">
+          <p class="big num">Cargando <span id="live-n">0</span> de 23…</p>
+          <p class="sub">Cada casillero se completa cuando Expreso Andino confirma el envío.</p>
+        </div>
       </div>
+      <p class="vh" role="status" id="announce"></p>
     </div>
 
     <section class="map-wrap" aria-labelledby="map-title">
       <div class="map-head">
         <h2 id="map-title">Los 23 envíos de esta carga</h2>
+        <button type="button" class="btn btn-quiet btn-sm" id="replay"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l12 7-12 7z"/></svg><span id="replay-label">Ver la carga en vivo</span></button>
         <ul class="legend num">
-          <li><svg class="ok" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Cargados (19)</li>
-          <li><svg class="prev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg>Ya estaba (1)</li>
-          <li><svg class="att" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>Falta un dato (3)</li>
+          <li><svg class="ok" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Cargados (<span data-count="ok">19</span>)</span></li>
+          <li><svg class="prev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg><span>Ya estaba (<span data-count="prev">1</span>)</span></li>
+          <li><svg class="att" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><span>Falta un dato (<span data-count="fix">3</span>)</span></li>
         </ul>
       </div>
       <ul class="map" id="map" aria-label="Envíos de la carga, en orden de remito"></ul>
@@ -285,17 +354,126 @@
     </button></li>`).join("");
 
   const picked = document.getElementById("picked");
+  const idle = '<span class="k">Tocá un envío para ver su estado.</span>';
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const tiles = [...map.querySelectorAll(".tile")];
+  const rows = [...document.querySelectorAll(".fix-table tbody tr")];
+  rows.forEach((tr, n) => tr.style.setProperty("--n", n));
+  let swapTimer = 0;
+
+  // Content swap: quick fade out, replace, fade in. The panel keeps its min-height, so nothing jumps.
+  const showPicked = html => {
+    clearTimeout(swapTimer);
+    if (picked.innerHTML === html) return;
+    picked.classList.add("swap");
+    swapTimer = setTimeout(() => { picked.innerHTML = html; picked.classList.remove("swap"); }, 60);
+  };
+  const clearSelection = () => {
+    tiles.forEach(t => t.setAttribute("aria-pressed", "false"));
+    rows.forEach(tr => tr.classList.remove("lit"));
+    clearTimeout(swapTimer);
+    picked.classList.remove("swap");
+    picked.innerHTML = idle;
+  };
+
   map.addEventListener("click", e => {
     const b = e.target.closest(".tile");
-    if (!b) return;
-    map.querySelectorAll(".tile").forEach(t => t.setAttribute("aria-pressed", String(t === b)));
+    if (!b || b.classList.contains("pend")) return;
+    tiles.forEach(t => t.setAttribute("aria-pressed", String(t === b)));
     const [remito, to, state, info, extra] = shipments[Number(b.dataset.i)];
-    document.querySelectorAll(".fix-table tr").forEach(tr => tr.classList.toggle("lit", tr.dataset.remito === remito));
-    if (state === "fix") {
-      picked.innerHTML = `<strong>${to}</strong><span>${info}.</span><a href="#para-corregir" style="color:inherit">Ver cómo corregirlo</a>`;
-    } else {
-      picked.innerHTML = `<strong>${to}</strong><span>${stateText[state]}${extra ? ". " + extra : ""}</span><span class="k">Seguimiento</span><code>${info}</code><span class="k">${remito}</span>`;
-    }
+    rows.forEach(tr => tr.classList.toggle("lit", tr.dataset.remito === remito));
+    showPicked(state === "fix"
+      ? `<strong>${to}</strong><span>${info}.</span><a href="#para-corregir" data-remito="${remito}" style="color:inherit">Ver cómo corregirlo</a>`
+      : `<strong>${to}</strong><span>${stateText[state]}${extra ? ". " + extra : ""}</span><span class="k">Seguimiento</span><code>${info}</code><span class="k">${remito}</span>`);
+  });
+
+  // "Ver cómo corregirlo": smooth scroll (only if motion is welcome), then one attention highlight that fades out.
+  const flash = row => {
+    row.classList.remove("flash");
+    void row.offsetWidth;
+    row.classList.add("flash");
+    row.addEventListener("animationend", () => row.classList.remove("flash"), { once: true });
+  };
+  picked.addEventListener("click", e => {
+    const a = e.target.closest("a[data-remito]");
+    const row = a && rows.find(tr => tr.dataset.remito === a.dataset.remito);
+    if (!row) return;
+    e.preventDefault();
+    const smooth = !reduceMotion.matches;
+    row.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "center" });
+    row.tabIndex = -1;
+    row.focus({ preventScroll: true });
+    if (!smooth) return flash(row);
+    let done = false;
+    const go = () => { if (!done) { done = true; flash(row); } };
+    addEventListener("scrollend", go, { once: true });
+    setTimeout(go, 700);
+  });
+  document.querySelector('.answer a[href="#para-corregir"]').addEventListener("click", e => {
+    if (reduceMotion.matches) return;
+    e.preventDefault();
+    document.getElementById("para-corregir").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // Live replay: the result screen empties and fills again in remito order.
+  const STEP = 100, START = 250, TAIL = 350;
+  const total = shipments.length;
+  const root = document.querySelector(".answer");
+  const live = document.getElementById("live-n");
+  const announce = document.getElementById("announce");
+  const replayBtn = document.getElementById("replay");
+  const replayLabel = document.getElementById("replay-label");
+  const labels = tiles.map(t => t.getAttribute("aria-label"));
+  const finalCounts = { ok: 0, prev: 0, fix: 0 };
+  shipments.forEach(([, , state]) => finalCounts[state]++);
+  let timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+
+  const setCounts = c => document.querySelectorAll("[data-count]").forEach(el => { el.textContent = c[el.dataset.count]; });
+
+  const finish = () => {
+    timers.forEach(clearTimeout);
+    timers = [];
+    tiles.forEach((t, i) => {
+      t.classList.remove("pend");
+      t.removeAttribute("aria-disabled");
+      t.setAttribute("aria-label", labels[i]);
+    });
+    setCounts(finalCounts);
+    document.body.classList.remove("running");
+    rows.forEach(tr => tr.classList.remove("hold"));
+    replayLabel.textContent = "Ver la carga en vivo";
+  };
+
+  replayBtn.addEventListener("click", () => {
+    timers.forEach(clearTimeout);
+    timers = [];
+    clearSelection();
+    const counts = { ok: 0, prev: 0, fix: 0 };
+    setCounts(counts);
+    live.textContent = "0";
+    tiles.forEach((t, i) => {
+      t.classList.add("pend");
+      t.setAttribute("aria-disabled", "true");
+      t.setAttribute("aria-label", `${shipments[i][1]}, ${shipments[i][0]}: esperando`);
+    });
+    rows.forEach(tr => tr.classList.add("hold"));
+    document.body.classList.add("running");
+    replayLabel.textContent = "Volver a empezar";
+    announce.textContent = `Cargando ${total} envíos.`;
+    shipments.forEach(([, , state], i) => later(() => {
+      counts[state]++;
+      tiles[i].classList.remove("pend");
+      tiles[i].removeAttribute("aria-disabled");
+      tiles[i].setAttribute("aria-label", labels[i]);
+      setCounts(counts);
+      live.textContent = String(i + 1);
+      if (i + 1 === 12) announce.textContent = `Van 12 de ${total}.`;
+    }, START + i * STEP));
+    later(() => {
+      finish();
+      announce.textContent = `Carga terminada: ${finalCounts.ok} cargados, ${finalCounts.prev} ya estaba, ${finalCounts.fix} con un dato faltante.`;
+    }, START + total * STEP + TAIL);
   });
 
   const fill = (id, n) => {

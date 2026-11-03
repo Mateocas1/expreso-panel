@@ -20,7 +20,7 @@
     {
       "file": "03-el-mapa.html",
       "title": "El mapa",
-      "tradeoff": "One tile per shipment shows the whole batch at a glance and the same tiles fill in during the upload; the successes stay visible (quiet), and past a few hundred shipments the map needs grouping",
+      "tradeoff": "One tile per shipment shows the whole batch at a glance and the same tiles fill in during the upload; the successes stay visible (quiet), motion only on demand (live replay of the run, selection, disclosures), and past a few hundred shipments the map needs grouping",
       "width": 1440,
       "height": 1700
     }

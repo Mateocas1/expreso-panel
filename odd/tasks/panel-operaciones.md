@@ -11,7 +11,7 @@ Diseño primero (3 direcciones), después implementación. Razonamiento y decisi
 
 ## Tasks
 
-- [ ] T1 · S1-S5 · Tres direcciones visuales en `design/<slug>/` con gentle-design, abiertas en el canvas; Mateo elige una. Registrar decisiones en la bitácora. Estado: tres direcciones en `design/resultado-corrida/` (01-la-nota, 02-la-bandeja, 03-el-mapa), abiertas en el canvas. Mateo eligió 03-el-mapa (L5); se pule con animaciones sutiles al estilo Emil Kowalski, y las otras dos quedan como alternativas.
+- [x] T1 · S1-S5 · Tres direcciones visuales en `design/<slug>/` con gentle-design, abiertas en el canvas; Mateo elige una. Registrar decisiones en la bitácora. Estado: tres direcciones en `design/resultado-corrida/` (01-la-nota, 02-la-bandeja, 03-el-mapa), abiertas en el canvas. Mateo eligió 03-el-mapa (L5); se pule con animaciones sutiles al estilo Emil Kowalski, y las otras dos quedan como alternativas. Commits: e7f3dfd, 5602442, b132a75, 33e62b2.
 - [ ] T2 · S2 · Tabla final de frases por resultado y por campo rechazado, revisada con better-writing; registrar en la bitácora.
 - [ ] T3 · S1-S3 · Implementar la dirección elegida sobre el puente, sin cambiar su lógica, con tests de que cada resultado muestra su frase.
 - [ ] T4 · S1-S3 · Prueba real contra la API del kit (primera y segunda corrida) y revisión final de UX.

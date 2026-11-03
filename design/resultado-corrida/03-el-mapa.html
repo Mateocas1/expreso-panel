@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 envíos para corregir · Carga de hoy · Expreso Andino</title>
+<style>
+  :root {
+    --bg: oklch(0.982 0.004 100);
+    --surface: oklch(0.998 0.002 100);
+    --sunken: oklch(0.955 0.006 100);
+    --text: oklch(0.22 0.012 100);
+    --text-2: oklch(0.46 0.012 100);
+    --hair: oklch(0.22 0.012 100 / 0.1);
+    --ink: oklch(0.24 0.015 100);
+
+    --ok-fill: oklch(0.93 0.05 155);
+    --ok: oklch(0.44 0.1 155);
+    --prev-fill: oklch(0.93 0.018 240);
+    --prev: oklch(0.45 0.06 240);
+    --attention: oklch(0.52 0.12 62);
+    --attention-line: oklch(0.6 0.14 65);
+    --attention-soft: oklch(0.965 0.03 80);
+    --focus: oklch(0.45 0.12 250);
+
+    --sans: system-ui, -apple-system, "Segoe UI", "Noto Sans", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Noto Sans Mono", monospace;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 1rem/1.5 var(--sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  p { margin: 0; text-wrap: pretty; }
+  .num { font-variant-numeric: tabular-nums; }
+  .skip { position: absolute; inset-inline-start: 1rem; inset-block-start: -3rem; background: var(--ink); color: var(--surface); padding: 0.5rem 0.75rem; border-radius: 6px; }
+  .skip:focus { inset-block-start: 1rem; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 2.5rem; }
+  .brand { display: flex; align-items: center; gap: 0.625rem; font-weight: 500; }
+  .top .meta { color: var(--text-2); font-size: 0.875rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 2.75rem; padding: 0 1.25rem; border-radius: 10px; border: 1px solid transparent;
+    font: 500 0.9375rem/1 var(--sans); cursor: pointer; text-decoration: none;
+  }
+  .btn-primary { background: var(--ink); color: var(--surface); }
+  .btn-quiet { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--hair); }
+  @media (hover: hover) {
+    .btn-primary:hover { background: oklch(0.32 0.015 100); }
+    .btn-quiet:hover { background: var(--sunken); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn { transition: background-color 150ms var(--ease), transform 150ms var(--ease); }
+    .btn:active { transform: scale(0.97); }
+  }
+
+  .page { padding: 2rem 2.5rem 4rem; max-width: 90rem; margin: 0 auto; }
+
+  /* Answer + map */
+  .overview { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; align-items: start; }
+  .answer h1 { font-size: 3rem; line-height: 1.08; letter-spacing: -0.025em; font-weight: 500; }
+  .answer h1 .hl { color: var(--attention); }
+  .answer .sub { margin-block-start: 1.25rem; font-size: 1.25rem; color: var(--text-2); max-width: 28rem; }
+  .answer .actions { margin-block-start: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  .answer .note { color: var(--text-2); font-size: 0.9375rem; }
+
+  .map-wrap { background: var(--surface); border-radius: 20px; padding: 1.5rem; box-shadow: 0 0 0 1px oklch(0.22 0.012 100 / 0.07), 0 1px 2px -1px oklch(0.22 0.012 100 / 0.07), 0 4px 12px 0 oklch(0.22 0.012 100 / 0.04); border: 1px solid transparent; }
+  .map-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .map-head h2 { font-size: 1rem; font-weight: 500; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; list-style: none; margin: 0; padding: 0; font-size: 0.875rem; color: var(--text-2); }
+  .legend li { display: inline-flex; align-items: center; gap: 0.375rem; }
+  .legend .ok { color: var(--ok); } .legend .prev { color: var(--prev); } .legend .att { color: var(--attention); }
+
+  .map { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(7.25rem, 1fr)); gap: 0.5rem; grid-auto-rows: 1fr; }
+  .map li { display: flex; }
+  .tile {
+    position: relative; width: 100%; min-height: 4.75rem; padding: 0.625rem 0.75rem;
+    display: flex; flex-direction: column; justify-content: space-between; gap: 0.375rem;
+    text-align: start; border-radius: 10px; border: 1px solid transparent; cursor: pointer;
+    font: inherit; color: var(--text);
+  }
+  .tile .name { font-size: 0.8125rem; line-height: 1.3; font-weight: 500; overflow-wrap: anywhere; }
+  .tile .row { display: flex; justify-content: space-between; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--text-2); }
+  .tile.ok { background: var(--ok-fill); }
+  .tile.ok svg { color: var(--ok); }
+  .tile.prev { background: var(--prev-fill); }
+  .tile.prev svg { color: var(--prev); }
+  .tile.fix { background: var(--surface); box-shadow: inset 0 0 0 2px var(--attention-line); }
+  .tile.fix svg { color: var(--attention); }
+  .tile.fix .name { font-weight: 600; }
+  .tile[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+  @media (hover: hover) { .tile:hover { filter: brightness(0.98); } }
+
+  .picked { margin-block-start: 1rem; min-height: 3rem; padding: 0.75rem 1rem; border-radius: 10px; background: var(--sunken); font-size: 0.9375rem; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: center; }
+  .picked .k { color: var(--text-2); }
+  .picked code { font-family: var(--mono); font-size: 0.8125rem; }
+
+  /* Fixes as rows */
+  .fixes { margin-block-start: 3.5rem; }
+  .fixes-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .fixes h2 { font-size: 1.375rem; font-weight: 500; letter-spacing: -0.01em; }
+  .fixes-head p { color: var(--text-2); }
+  .fix-table { width: 100%; margin-block-start: 1rem; border-collapse: collapse; }
+  .fix-table th { text-align: start; font-weight: 500; font-size: 0.875rem; color: var(--text-2); padding: 0 1rem 0.625rem 0; }
+  .fix-table td { padding: 1.125rem 1rem 1.125rem 0; border-block-start: 1px solid var(--hair); vertical-align: top; overflow-wrap: anywhere; }
+  .fix-table tr:last-child td { border-block-end: 1px solid var(--hair); }
+  .what { display: flex; gap: 0.625rem; align-items: flex-start; font-weight: 600; }
+  .what svg { color: var(--attention); flex: none; margin-block-start: 0.2rem; }
+  .why { margin-block-start: 0.25rem; padding-inline-start: 1.75rem; color: var(--text-2); font-size: 0.9375rem; font-weight: 400; }
+  .who { font-weight: 500; }
+  .who-sub { color: var(--text-2); font-size: 0.9375rem; }
+  .fix-table tr.lit td { background: var(--attention-soft); }
+  .fix-table tr.lit td:first-child { border-start-start-radius: 0; }
+
+  details.tech summary { cursor: pointer; color: var(--text-2); font-size: 0.875rem; list-style: none; display: inline-flex; align-items: center; gap: 0.375rem; white-space: nowrap; }
+  details.tech summary::-webkit-details-marker { display: none; }
+  details[open].tech summary svg { transform: rotate(90deg); }
+  @media (prefers-reduced-motion: no-preference) { details.tech summary svg { transition: transform 200ms var(--ease); } }
+  .tech-body { margin-block-start: 0.5rem; padding: 0.625rem 0.75rem; border-radius: 8px; background: var(--sunken); font: 400 0.8125rem/1.6 var(--mono); max-width: 22rem; white-space: normal; }
+
+  /* Moments */
+  .moments { margin-block-start: 4.5rem; border-block-start: 1px solid var(--hair); padding-block-start: 2.5rem; }
+  .moments > h2 { font-size: 1rem; font-weight: 500; color: var(--text-2); }
+  .moments-grid { margin-block-start: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1.5rem; }
+  .frame { background: var(--surface); border-radius: 20px; padding: 1.75rem; box-shadow: 0 0 0 1px oklch(0.22 0.012 100 / 0.07), 0 2px 6px oklch(0.22 0.012 100 / 0.04); border: 1px solid transparent; min-width: 0; }
+  .frame-label { color: var(--text-2); font-size: 0.875rem; }
+  .frame h3 { margin-block-start: 0.375rem; font-size: 1.5rem; font-weight: 500; letter-spacing: -0.01em; }
+  .frame p.small { margin-block-start: 0.5rem; color: var(--text-2); }
+  .mini { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0.375rem; }
+  .mini li { aspect-ratio: 1.4; border-radius: 6px; box-shadow: inset 0 0 0 1px oklch(0.22 0.012 100 / 0.25); }
+  .mini li.ok { background: var(--ok-fill); box-shadow: none; }
+  .mini li.fix { box-shadow: inset 0 0 0 2px var(--attention-line); }
+  .mini li.prev { background: var(--prev-fill); box-shadow: none; }
+  .mini li.now { box-shadow: inset 0 0 0 2px var(--ink); }
+  .frame .row { margin-block-start: 1.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+
+  @media (max-width: 64rem) {
+    .overview { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+    .page { padding: 1.5rem 1.25rem 3rem; }
+    .answer h1 { font-size: 2.25rem; }
+    .fix-table thead { display: none; }
+    .fix-table tr, .fix-table td { display: block; }
+    .fix-table td { border: 0; padding: 0.25rem 0; }
+    .fix-table tr { padding-block: 1rem; border-block-start: 1px solid var(--hair); }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Ir al resultado</a>
+<header class="top">
+  <div class="brand">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+    Envíos a Expreso Andino
+  </div>
+  <p class="meta num"><span>Carga de hoy, 10:47</span><span>remitos_2026-09-30.json</span></p>
+</header>
+
+<main id="main" class="page">
+  <div class="overview">
+    <div class="answer">
+      <h1 tabindex="-1"><span class="hl num">3 de 23 envíos</span> esperan un dato de LogiSur.</h1>
+      <p class="sub">Los otros 20 ya están en Expreso Andino. No hace falta hacer nada con ellos.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#para-corregir">Ver qué falta</a>
+        <span class="note">Después, volvé a cargar el export.</span>
+      </div>
+    </div>
+
+    <section class="map-wrap" aria-labelledby="map-title">
+      <div class="map-head">
+        <h2 id="map-title">Los 23 envíos de esta carga</h2>
+        <ul class="legend num">
+          <li><svg class="ok" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Cargados (19)</li>
+          <li><svg class="prev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg>Ya estaba (1)</li>
+          <li><svg class="att" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>Falta un dato (3)</li>
+        </ul>
+      </div>
+      <ul class="map" id="map" aria-label="Envíos de la carga, en orden de remito"></ul>
+      <p class="picked" id="picked" aria-live="polite"><span class="k">Tocá un envío para ver su estado.</span></p>
+    </section>
+  </div>
+
+  <section class="fixes" id="para-corregir" aria-labelledby="fixes-title">
+    <div class="fixes-head">
+      <h2 id="fixes-title">Para corregir en LogiSur</h2>
+      <p>Cuando estén corregidos, volvé a cargar el export. Lo que ya está en Expreso Andino no se carga dos veces.</p>
+    </div>
+    <table class="fix-table">
+      <thead><tr><th scope="col">Qué pasa</th><th scope="col">Envío para</th><th scope="col">Cliente</th><th scope="col">Remito</th><th scope="col"><span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Detalle técnico</span></th></tr></thead>
+      <tbody>
+        <tr data-remito="R-10000477">
+          <td><div class="what"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>Falta el código postal</div><p class="why">El remito dice «Cliente no informó CP»: hay que pedírselo al cliente.</p></td>
+          <td><div class="who">Panadería La Espiga</div><div class="who-sub">Belgrano 2184, Pilar</div></td>
+          <td>Textil Del Plata SRL</td>
+          <td class="num">R-10000477</td>
+          <td><details class="tech"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)"> de R-10000477</span></summary><div class="tech-body">HTTP 422 · destinatario.codigo_postal: required non-empty string</div></details></td>
+        </tr>
+        <tr data-remito="R-10000516">
+          <td><div class="what"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>Falta la dirección</div><p class="why">En el remito quedó en blanco.</p></td>
+          <td><div class="who">Sanitarios Rivera</div><div class="who-sub">Caballito, CABA</div></td>
+          <td>Ferretería Industrial Norte SA</td>
+          <td class="num">R-10000516</td>
+          <td><details class="tech"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)"> de R-10000516</span></summary><div class="tech-body">HTTP 422 · destinatario.direccion: required non-empty string</div></details></td>
+        </tr>
+        <tr data-remito="R-10000541">
+          <td><div class="what"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>Los bultos figuran en 0</div><p class="why">Tiene que haber al menos 1 bulto.</p></td>
+          <td><div class="who">Carnicería El Gaucho</div><div class="who-sub">Italia 2823, San Miguel de Tucumán</div></td>
+          <td>Ferretería Industrial Norte SA</td>
+          <td class="num">R-10000541</td>
+          <td><details class="tech"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)"> de R-10000541</span></summary><div class="tech-body">HTTP 422 · bultos: integer &gt;= 1</div></details></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-block-start: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+      <a class="btn btn-quiet" href="#cargar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+        Volver a cargar el export
+      </a>
+      <details class="tech"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico de la carga</summary><div class="tech-body">reports/corrida_2026-11-03T104727_649636.md · código de salida 1<br>Cargado 19 · Ya existía 1 · Duplicado en el export 1 · Rechazado 3 · Falló 0</div></details>
+    </div>
+  </section>
+
+  <section class="moments" id="cargar" aria-labelledby="moments-title">
+    <h2 id="moments-title">Los dos momentos anteriores, con los mismos casilleros</h2>
+    <div class="moments-grid">
+      <article class="frame" aria-label="Elegir el export">
+        <p class="frame-label">Antes de cargar · remitos_2026-09-30.json</p>
+        <h3 class="num">23 envíos para Expreso Andino</h3>
+        <p class="small num">El archivo tiene 51 remitos. Los otros 27 van con otros transportistas y no se tocan.</p>
+        <ul class="mini" aria-hidden="true" id="mini-empty"></ul>
+        <div class="row"><button class="btn btn-primary" type="button">Cargar 23 envíos</button><button class="btn btn-quiet" type="button">Elegir otro archivo</button></div>
+      </article>
+      <article class="frame" aria-label="Carga en curso">
+        <p class="frame-label">Mientras carga</p>
+        <h3 class="num" role="status">14 de 23</h3>
+        <p class="small">Cada casillero se completa cuando Expreso Andino confirma el envío.</p>
+        <ul class="mini" role="progressbar" aria-label="Avance de la carga" aria-valuemin="0" aria-valuemax="23" aria-valuenow="14" id="mini-progress"></ul>
+      </article>
+    </div>
+  </section>
+</main>
+
+<script>
+  const shipments = [
+    ["R-10000466", "Corralón San Martín", "ok", "ANDC4BD591C"],
+    ["R-10000469", "Casa de Repuestos Tito", "ok", "ANDBC0F442A"],
+    ["R-10000477", "Panadería La Espiga", "fix", "Falta el código postal"],
+    ["R-10000479", "Pinturerías del Oeste", "ok", "ANDED024A60"],
+    ["R-10000486", "Distribuidora Lucía", "ok", "AND3E68D82C"],
+    ["R-10000507", "Maderera El Pino", "ok", "ANDE08AB5D0", "Venía repetido en el archivo. Se cargó una sola vez."],
+    ["R-10000513", "Kiosco El Sol", "ok", "AND66DEDF3D"],
+    ["R-10000516", "Sanitarios Rivera", "fix", "Falta la dirección"],
+    ["R-10000519", "Mercado Los Álamos", "ok", "ANDB617F8CA"],
+    ["R-10000527", "Librería Central", "prev", "AND5A8C356E"],
+    ["R-10000536", "Corralón San Martín", "ok", "AND609207E9"],
+    ["R-10000541", "Carnicería El Gaucho", "fix", "Los bultos figuran en 0"],
+    ["R-10000548", "Veterinaria Patitas", "ok", "AND8E87909B"],
+    ["R-10000554", "Tienda Sofía", "ok", "AND07BF7D36"],
+    ["R-10000567", "Corralón San Martín", "ok", "ANDF9B2D380"],
+    ["R-10000572", "Ferretería El Tornillo", "ok", "ANDCCF97549"],
+    ["R-10000582", "Tienda Sofía", "ok", "ANDE19FF019"],
+    ["R-10000589", "Rotisería Doña Ana", "ok", "ANDF13BB944"],
+    ["R-10000590", "Carnicería El Gaucho", "ok", "AND6E6DF578"],
+    ["R-10000612", "Pinturerías del Oeste", "ok", "ANDA184CDD3"],
+    ["R-10000622", "Neumáticos Sur", "ok", "AND2E317D56"],
+    ["R-10000637", "Kiosco El Sol", "ok", "AND6B4EAA78"],
+    ["R-10000657", "Vinoteca Malbec", "ok", "AND0E7830F9"]
+  ];
+  const icons = {
+    ok: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    prev: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg>',
+    fix: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>'
+  };
+  const stateText = { ok: "Cargado", prev: "Ya estaba de antes", fix: "Falta un dato" };
+
+  const map = document.getElementById("map");
+  map.innerHTML = shipments.map(([remito, to, state], i) => `
+    <li><button type="button" class="tile ${state}" aria-pressed="false" data-i="${i}" aria-label="${to}, ${remito}: ${stateText[state]}">
+      <span class="name">${to}</span>
+      <span class="row num"><span>${remito.slice(-3)}</span>${icons[state]}</span>
+    </button></li>`).join("");
+
+  const picked = document.getElementById("picked");
+  map.addEventListener("click", e => {
+    const b = e.target.closest(".tile");
+    if (!b) return;
+    map.querySelectorAll(".tile").forEach(t => t.setAttribute("aria-pressed", String(t === b)));
+    const [remito, to, state, info, extra] = shipments[Number(b.dataset.i)];
+    document.querySelectorAll(".fix-table tr").forEach(tr => tr.classList.toggle("lit", tr.dataset.remito === remito));
+    if (state === "fix") {
+      picked.innerHTML = `<strong>${to}</strong><span>${info}.</span><a href="#para-corregir" style="color:inherit">Ver cómo corregirlo</a>`;
+    } else {
+      picked.innerHTML = `<strong>${to}</strong><span>${stateText[state]}${extra ? ". " + extra : ""}</span><span class="k">Seguimiento</span><code>${info}</code><span class="k">${remito}</span>`;
+    }
+  });
+
+  const fill = (id, n) => {
+    document.getElementById(id).innerHTML = shipments.map(([, , state], i) => {
+      if (i < n) return `<li class="${state}"></li>`;
+      if (i === n) return '<li class="now"></li>';
+      return "<li></li>";
+    }).join("");
+  };
+  fill("mini-empty", -1);
+  fill("mini-progress", 14);
+</script>
+</body>
+</html>

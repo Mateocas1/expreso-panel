@@ -1,0 +1,28 @@
+{
+  "title": "Resultado de una carga",
+  "brief": "Result screen of a LogiSur to Expreso Andino upload run, for non-technical operations staff: answer '¿Tengo que hacer algo?' first, then what to fix and where, successes collapsed, technical detail behind 'Ver detalle técnico'. Real kit data.",
+  "feature": "odd/tasks/panel-operaciones.md",
+  "artboards": [
+    {
+      "file": "01-la-nota.html",
+      "title": "La nota",
+      "tradeoff": "Reads like a short note from a colleague: calm and personal, fixes written as sentences; scans worse when there are many pending items",
+      "width": 1440,
+      "height": 1900
+    },
+    {
+      "file": "02-la-bandeja.html",
+      "title": "La bandeja",
+      "tradeoff": "A worklist with list and detail, step-by-step fixes and 'Ya lo corregí' checks; scales to many items and has room for Atrasados, but it is the most app-like and has the most chrome",
+      "width": 1440,
+      "height": 1520
+    },
+    {
+      "file": "03-el-mapa.html",
+      "title": "El mapa",
+      "tradeoff": "One tile per shipment shows the whole batch at a glance and the same tiles fill in during the upload; the successes stay visible (quiet), and past a few hundred shipments the map needs grouping",
+      "width": 1440,
+      "height": 1700
+    }
+  ]
+}

@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 envíos para corregir · Carga de hoy · Expreso Andino</title>
+<style>
+  :root {
+    --bg: oklch(0.972 0.005 240);
+    --surface: oklch(0.998 0.002 240);
+    --sunken: oklch(0.955 0.007 240);
+    --text: oklch(0.23 0.015 250);
+    --text-2: oklch(0.47 0.015 250);
+    --hair: oklch(0.23 0.015 250 / 0.1);
+    --accent: oklch(0.45 0.09 220);
+    --accent-hover: oklch(0.4 0.09 220);
+    --accent-soft: oklch(0.95 0.025 220);
+    --attention: oklch(0.52 0.12 62);
+    --attention-soft: oklch(0.96 0.035 80);
+    --ok: oklch(0.47 0.1 150);
+    --focus: oklch(0.45 0.09 220);
+
+    --sans: system-ui, -apple-system, "Segoe UI", "Noto Sans", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Noto Sans Mono", monospace;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --ring: 0 0 0 1px oklch(0.23 0.015 250 / 0.07), 0 1px 2px -1px oklch(0.23 0.015 250 / 0.07), 0 2px 4px 0 oklch(0.23 0.015 250 / 0.04);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 1rem/1.5 var(--sans); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+  h1, h2, h3 { margin: 0; font-weight: 600; text-wrap: balance; }
+  p { margin: 0; text-wrap: pretty; }
+  .num { font-variant-numeric: tabular-nums; }
+  .skip { position: absolute; inset-inline-start: 1rem; inset-block-start: -3rem; background: var(--text); color: var(--surface); padding: 0.5rem 0.75rem; border-radius: 6px; z-index: 2; }
+  .skip:focus { inset-block-start: 1rem; }
+
+  .shell { display: grid; grid-template-columns: 16.5rem minmax(0, 1fr); min-height: 100dvh; }
+
+  /* Navigation */
+  .nav { background: var(--surface); border-inline-end: 1px solid var(--hair); padding: 1.25rem 0.75rem; }
+  .brand { display: flex; align-items: center; gap: 0.625rem; padding: 0 0.5rem 1.25rem; font-weight: 600; font-size: 0.9375rem; }
+  .brand svg { color: var(--accent); flex: none; }
+  .nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.125rem; }
+  .nav a {
+    display: flex; align-items: center; gap: 0.625rem; min-height: 2.5rem; padding: 0 0.75rem;
+    border-radius: 8px; color: var(--text-2); text-decoration: none; font-size: 0.9375rem;
+  }
+  .nav a[aria-current="page"] { background: var(--accent-soft); color: var(--text); font-weight: 500; }
+  .nav a .count { margin-inline-start: auto; color: var(--text-2); }
+  @media (hover: hover) { .nav a:not([aria-current]):hover { background: var(--sunken); color: var(--text); } }
+
+  /* Main */
+  .main { padding: 2.5rem 3rem 4rem; min-width: 0; }
+  .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem; max-width: 72rem; }
+  .head h1 { font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.015em; }
+  .head .sub { margin-block-start: 0.5rem; color: var(--text-2); font-size: 1.0625rem; }
+  .meta { margin-block-start: 0.75rem; color: var(--text-2); font-size: 0.875rem; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+  .meta span { display: inline-flex; align-items: center; gap: 0.375rem; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 2.75rem; padding: 0 1.125rem; border-radius: 8px; border: 1px solid transparent;
+    font: 500 0.9375rem/1 var(--sans); cursor: pointer; text-decoration: none; white-space: nowrap;
+  }
+  .btn-secondary { background: var(--surface); color: var(--text); box-shadow: var(--ring); }
+  .btn-primary { background: var(--accent); color: oklch(0.99 0 0); }
+  @media (hover: hover) {
+    .btn-secondary:hover { background: var(--sunken); }
+    .btn-primary:hover { background: var(--accent-hover); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn { transition: background-color 150ms var(--ease), color 150ms var(--ease), box-shadow 150ms var(--ease), transform 150ms var(--ease); }
+    .btn:active { transform: scale(0.97); }
+  }
+
+  /* Checklist progress */
+  .tracker {
+    margin-block-start: 2rem; max-width: 72rem;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1rem 1rem 1rem 1.25rem; background: var(--surface); border-radius: 12px; box-shadow: var(--ring);
+    border: 1px solid transparent;
+  }
+  .tracker-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+  .dots { display: flex; gap: 0.375rem; }
+  .dots span { width: 0.75rem; height: 0.75rem; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--attention); }
+  .dots span.on { background: var(--ok); box-shadow: none; }
+  .tracker-text { font-weight: 500; }
+  .tracker-hint { color: var(--text-2); font-size: 0.9375rem; }
+
+  /* List + detail */
+  .work { margin-block-start: 1.5rem; max-width: 72rem; display: grid; grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+  .queue { list-style: none; margin: 0; padding: 0.375rem; background: var(--surface); border-radius: 12px; box-shadow: var(--ring); border: 1px solid transparent; display: grid; gap: 0.125rem; }
+  .queue button {
+    width: 100%; display: grid; grid-template-columns: 1.125rem minmax(0, 1fr); column-gap: 0.75rem; align-items: start;
+    text-align: start; padding: 0.75rem; border: 0; border-radius: 8px; background: transparent; color: var(--text);
+    font: inherit; cursor: pointer;
+  }
+  .queue button[aria-pressed="true"] { background: var(--accent-soft); }
+  @media (hover: hover) { .queue button[aria-pressed="false"]:hover { background: var(--sunken); } }
+  .queue .ico { color: var(--attention); margin-block-start: 0.125rem; }
+  .queue .done .ico { color: var(--ok); }
+  .q-title { font-weight: 500; overflow-wrap: anywhere; }
+  .q-sub { color: var(--text-2); font-size: 0.875rem; }
+  .queue .done .q-title { color: var(--text-2); text-decoration: line-through; text-decoration-color: oklch(0.47 0.015 250 / 0.6); }
+
+  .detail { background: var(--surface); border-radius: 16px; box-shadow: var(--ring); border: 1px solid transparent; padding: 2rem; min-width: 0; }
+  .d-state { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.875rem; color: var(--attention); font-weight: 500; }
+  .d-state.ok { color: var(--ok); }
+  .detail h2 { margin-block-start: 0.5rem; font-size: 1.375rem; line-height: 1.25; letter-spacing: -0.01em; }
+  .detail .lede { margin-block-start: 0.5rem; color: var(--text-2); font-size: 1.0625rem; max-width: 40rem; }
+  .facts { margin: 1.5rem 0 0; display: grid; grid-template-columns: 8rem minmax(0, 1fr); gap: 0.625rem 1.5rem; font-size: 0.9375rem; }
+  .facts dt { color: var(--text-2); }
+  .facts dd { margin: 0; overflow-wrap: anywhere; }
+  .facts .missing { color: var(--attention); font-weight: 500; }
+  .steps-title { margin-block-start: 1.75rem; font-size: 1rem; }
+  .steps { margin: 0.75rem 0 0; padding-inline-start: 1.25rem; display: grid; gap: 0.5rem; max-width: 40rem; }
+  .steps li::marker { color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+  .mark {
+    margin-block-start: 1.75rem; display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.875rem 1rem; border-radius: 10px; background: var(--sunken); cursor: pointer; font-weight: 500;
+  }
+  .mark input { width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--ok); flex: none; }
+
+  details.tech { margin-block-start: 1.25rem; }
+  details.tech summary { cursor: pointer; color: var(--text-2); font-size: 0.875rem; display: inline-flex; align-items: center; gap: 0.375rem; list-style: none; }
+  details.tech summary::-webkit-details-marker { display: none; }
+  details[open].tech summary svg { transform: rotate(90deg); }
+  @media (prefers-reduced-motion: no-preference) { details.tech summary svg { transition: transform 200ms var(--ease); } }
+  .tech-body { margin-block-start: 0.5rem; padding: 0.75rem 1rem; border-radius: 8px; background: var(--sunken); font: 400 0.8125rem/1.6 var(--mono); overflow-wrap: anywhere; }
+
+  /* Successes */
+  .done-box { margin-block-start: 1.5rem; max-width: 72rem; background: var(--surface); border-radius: 12px; box-shadow: var(--ring); border: 1px solid transparent; }
+  .done-box > summary { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; cursor: pointer; list-style: none; }
+  .done-box > summary::-webkit-details-marker { display: none; }
+  .done-box > summary > svg:first-child { color: var(--ok); flex: none; }
+  .done-title { font-weight: 500; }
+  .done-sub { color: var(--text-2); }
+  .done-box > summary .chev { margin-inline-start: auto; color: var(--text-2); flex: none; }
+  .done-box[open] > summary .chev { transform: rotate(180deg); }
+  .groups { padding: 0 1.25rem 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1.5rem; }
+  .groups h3 { font-size: 0.9375rem; font-weight: 500; color: var(--text-2); margin-block-end: 0.5rem; }
+  .groups ul { list-style: none; margin: 0; padding: 0; font-size: 0.9375rem; }
+  .groups li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.375rem 0; border-block-start: 1px solid var(--hair); }
+  .groups li span:last-child { font-family: var(--mono); font-size: 0.8125rem; color: var(--text-2); }
+
+  /* Moments */
+  .moments { margin-block-start: 4rem; max-width: 72rem; border-block-start: 1px solid var(--hair); padding-block-start: 2.5rem; }
+  .moments > h2 { font-size: 1rem; font-weight: 500; color: var(--text-2); }
+  .moments-grid { margin-block-start: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1.5rem; }
+  .frame { background: var(--surface); border-radius: 16px; box-shadow: var(--ring); border: 1px solid transparent; padding: 1.75rem; min-width: 0; }
+  .frame-label { color: var(--text-2); font-size: 0.875rem; }
+  .frame h3 { margin-block-start: 0.375rem; font-size: 1.25rem; }
+  .preview { margin-block-start: 1.25rem; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem 1rem; font-size: 0.9375rem; padding: 1rem; border-radius: 10px; background: var(--sunken); }
+  .preview .k { color: var(--text-2); }
+  .frame .row { margin-block-start: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .live { list-style: none; margin: 1rem 0 0; padding: 0; font-size: 0.9375rem; }
+  .live li { display: grid; grid-template-columns: 1rem minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; padding: 0.5rem 0; border-block-start: 1px solid var(--hair); }
+  .live .ok { color: var(--ok); }
+  .live .att { color: var(--attention); }
+  .live .wait { color: var(--text-2); }
+  .live .r { color: var(--text-2); font-size: 0.875rem; }
+  .bar { margin-block-start: 1rem; height: 6px; border-radius: 3px; background: var(--sunken); overflow: hidden; }
+  .bar span { display: block; height: 100%; width: 61%; background: var(--accent); }
+
+  @media (max-width: 60rem) {
+    .shell { grid-template-columns: minmax(0, 1fr); }
+    .nav { border-inline-end: 0; border-block-end: 1px solid var(--hair); }
+    .nav ul { grid-auto-flow: column; justify-content: start; }
+    .work { grid-template-columns: minmax(0, 1fr); }
+    .main { padding: 1.5rem 1.25rem 3rem; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Ir al resultado</a>
+<div class="shell">
+  <nav class="nav" aria-label="Principal">
+    <div class="brand">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+      Envíos a Expreso Andino
+    </div>
+    <ul>
+      <li><a href="#cargar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>Cargar export</a></li>
+      <li><a href="#main" aria-current="page"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Cargas</a></li>
+      <li><a href="#atrasados"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Atrasados<span class="count num">2</span></a></li>
+    </ul>
+  </nav>
+
+  <main id="main" class="main">
+    <div class="head">
+      <div>
+        <h1 tabindex="-1">3 envíos necesitan un dato en LogiSur</h1>
+        <p class="sub">Los otros 20 ya están en Expreso Andino. No tenés que hacer nada con ellos.</p>
+        <p class="meta num"><span>Carga de hoy, 10:47</span><span>remitos_2026-09-30.json</span><span>23 envíos para Expreso Andino</span></p>
+      </div>
+    </div>
+
+    <div class="tracker">
+      <div class="tracker-left">
+        <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <p class="tracker-text num" id="tracker-text" role="status">0 de 3 corregidos</p>
+          <p class="tracker-hint" id="tracker-hint">Marcá cada uno cuando lo corrijas en LogiSur.</p>
+        </div>
+      </div>
+      <a class="btn btn-secondary" id="reload" href="#cargar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+        Volver a cargar el export
+      </a>
+    </div>
+
+    <div class="work">
+      <ul class="queue" aria-label="Envíos para corregir" id="queue"></ul>
+      <section class="detail" id="detail" aria-label="Envío seleccionado"></section>
+    </div>
+
+    <details class="done-box">
+      <summary>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+        <span><span class="done-title num">20 envíos en orden</span> <span class="done-sub num">· 19 cargados ahora y 1 que ya estaba de antes</span></span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="groups">
+        <div>
+          <h3 class="num">Cargados ahora (19)</h3>
+          <ul>
+            <li><span>Corralón San Martín</span><span>ANDC4BD591C</span></li>
+            <li><span>Casa de Repuestos Tito</span><span>ANDBC0F442A</span></li>
+            <li><span>Pinturerías del Oeste</span><span>ANDED024A60</span></li>
+            <li><span>Distribuidora Lucía</span><span>AND3E68D82C</span></li>
+            <li><span>Maderera El Pino</span><span>ANDE08AB5D0</span></li>
+            <li><span>Y 14 más</span><span></span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Ya estaba de antes (1)</h3>
+          <ul><li><span>Librería Central</span><span>AND5A8C356E</span></li></ul>
+          <h3 style="margin-block-start: 1rem">Repetido en el archivo</h3>
+          <p style="font-size: 0.9375rem; color: var(--text-2)">El remito R-10000507 (Maderera El Pino) venía dos veces. Se cargó una sola vez.</p>
+        </div>
+      </div>
+    </details>
+
+    <section class="moments" id="cargar" aria-labelledby="moments-title">
+      <h2 id="moments-title">Los dos momentos anteriores, en el mismo estilo</h2>
+      <div class="moments-grid">
+        <article class="frame" aria-label="Cargar export">
+          <p class="frame-label">Cargar export</p>
+          <h3>Revisá el archivo antes de cargarlo</h3>
+          <div class="preview num">
+            <span>remitos_2026-09-30.json</span><button class="btn btn-secondary" type="button" style="min-height:2rem;padding:0 0.75rem;font-size:0.875rem">Cambiar</button>
+            <span class="k">Remitos en el archivo</span><span>51</span>
+            <span class="k">Van por Expreso Andino</span><span>23 envíos</span>
+            <span class="k">Van con otros transportistas</span><span>27, no se tocan</span>
+          </div>
+          <div class="row"><button class="btn btn-primary" type="button">Cargar 23 envíos</button></div>
+        </article>
+        <article class="frame" aria-label="Carga en curso">
+          <p class="frame-label">Mientras carga</p>
+          <h3 class="num" role="status">14 de 23 envíos</h3>
+          <div class="bar" role="progressbar" aria-label="Avance de la carga" aria-valuemin="0" aria-valuemax="23" aria-valuenow="14"><span></span></div>
+          <ul class="live">
+            <li><svg class="att" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><span>Sanitarios Rivera</span><span class="r">Falta la dirección</span></li>
+            <li><svg class="ok" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Mercado Los Álamos</span><span class="r">Cargado</span></li>
+            <li><svg class="wait" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/></svg><span>Librería Central</span><span class="r">Cargando…</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const items = [
+    {
+      remito: "R-10000477", to: "Panadería La Espiga", short: "Falta el código postal",
+      title: "Falta el código postal de Panadería La Espiga",
+      lede: "El remito dice «Cliente no informó CP», así que hay que pedírselo al cliente.",
+      facts: [["Falta", "Código postal", true], ["Para", "Panadería La Espiga, Belgrano 2184, Pilar"], ["Cliente", "Textil Del Plata SRL"], ["Remito", "R-10000477"]],
+      steps: ["Pedile el código postal a Textil Del Plata SRL.", "Cargalo en el remito R-10000477 de LogiSur.", "Marcalo acá como corregido."],
+      tech: "HTTP 422 · destinatario.codigo_postal: required non-empty string<br>observaciones: Cliente no informó CP"
+    },
+    {
+      remito: "R-10000516", to: "Sanitarios Rivera", short: "Falta la dirección",
+      title: "Falta la dirección de Sanitarios Rivera",
+      lede: "En el remito la dirección quedó en blanco.",
+      facts: [["Falta", "Dirección", true], ["Para", "Sanitarios Rivera, Caballito, CABA"], ["Cliente", "Ferretería Industrial Norte SA"], ["Remito", "R-10000516"]],
+      steps: ["Completá la dirección en el remito R-10000516 de LogiSur.", "Marcalo acá como corregido."],
+      tech: "HTTP 422 · destinatario.direccion: required non-empty string"
+    },
+    {
+      remito: "R-10000541", to: "Carnicería El Gaucho", short: "Bultos en 0",
+      title: "Los bultos de Carnicería El Gaucho figuran en 0",
+      lede: "Expreso Andino necesita al menos 1 bulto para aceptar el envío.",
+      facts: [["Revisar", "Cantidad de bultos: 0", true], ["Para", "Carnicería El Gaucho, Italia 2823, San Miguel de Tucumán"], ["Cliente", "Ferretería Industrial Norte SA"], ["Remito", "R-10000541"]],
+      steps: ["Corregí la cantidad de bultos en el remito R-10000541 de LogiSur.", "Marcalo acá como corregido."],
+      tech: "HTTP 422 · bultos: integer &gt;= 1"
+    }
+  ];
+  const fixed = new Set();
+  let selected = 0;
+
+  const alertIcon = '<svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>';
+  const checkIcon = '<svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
+
+  function renderQueue() {
+    document.getElementById("queue").innerHTML = items.map((it, i) => `
+      <li class="${fixed.has(i) ? "done" : ""}">
+        <button type="button" aria-pressed="${i === selected}" data-i="${i}">
+          ${fixed.has(i) ? checkIcon : alertIcon}
+          <span><span class="q-title" style="display:block">${it.to}</span><span class="q-sub">${fixed.has(i) ? "Corregido" : it.short}</span></span>
+        </button>
+      </li>`).join("");
+  }
+
+  function renderDetail() {
+    const it = items[selected];
+    const isFixed = fixed.has(selected);
+    document.getElementById("detail").innerHTML = `
+      <p class="d-state ${isFixed ? "ok" : ""}">${isFixed ? "Corregido en LogiSur" : "Para corregir en LogiSur"}</p>
+      <h2 tabindex="-1">${it.title}</h2>
+      <p class="lede">${it.lede}</p>
+      <dl class="facts">${it.facts.map(([k, v, m]) => `<dt>${k}</dt><dd class="${m ? "missing" : ""}">${v}</dd>`).join("")}</dl>
+      <h3 class="steps-title">Cómo resolverlo</h3>
+      <ol class="steps">${it.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+      <label class="mark"><input type="checkbox" id="mark" ${isFixed ? "checked" : ""}> Ya lo corregí en LogiSur</label>
+      <details class="tech"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico de ${it.remito}</summary><div class="tech-body">${it.tech}</div></details>`;
+    document.getElementById("mark").addEventListener("change", e => {
+      e.target.checked ? fixed.add(selected) : fixed.delete(selected);
+      update();
+      const next = items.findIndex((_, i) => !fixed.has(i));
+      if (e.target.checked && next !== -1) { selected = next; renderQueue(); renderDetail(); }
+      const target = e.target.checked && next !== -1 ? document.querySelector("#detail h2") : document.getElementById("mark");
+      target.focus();
+    });
+  }
+
+  function update() {
+    const n = fixed.size;
+    document.getElementById("tracker-text").textContent = `${n} de 3 corregidos`;
+    document.getElementById("tracker-hint").textContent = n === 3
+      ? "Ya podés volver a cargar el export. Lo que ya está en Expreso Andino no se carga dos veces."
+      : "Marcá cada uno cuando lo corrijas en LogiSur.";
+    document.querySelectorAll(".dots span").forEach((d, i) => d.classList.toggle("on", i < n));
+    const btn = document.getElementById("reload");
+    btn.classList.toggle("btn-primary", n === 3);
+    btn.classList.toggle("btn-secondary", n !== 3);
+    renderQueue();
+    renderDetail();
+  }
+
+  document.getElementById("queue").addEventListener("click", e => {
+    const b = e.target.closest("button[data-i]");
+    if (!b) return;
+    selected = Number(b.dataset.i);
+    renderQueue();
+    renderDetail();
+  });
+
+  update();
+</script>
+</body>
+</html>

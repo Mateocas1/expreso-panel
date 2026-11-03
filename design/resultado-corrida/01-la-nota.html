@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 envíos para corregir · Carga de hoy · Expreso Andino</title>
+<style>
+  :root {
+    --paper: oklch(0.975 0.012 85);
+    --surface: oklch(0.992 0.006 85);
+    --ink: oklch(0.25 0.02 60);
+    --ink-2: oklch(0.45 0.02 60);
+    --hair: oklch(0.25 0.02 60 / 0.12);
+    --attention: oklch(0.5 0.12 60);
+    --attention-bg: oklch(0.95 0.045 80);
+    --ok: oklch(0.46 0.1 150);
+    --focus: oklch(0.45 0.13 250);
+
+    --serif: "Iowan Old Style", Charter, "Noto Serif", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", "Noto Sans", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Noto Sans Mono", monospace;
+
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 1rem/1.5 var(--sans);
+  }
+  ::selection { background: var(--attention-bg); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  h1, h2, h3 { margin: 0; font-weight: 500; text-wrap: balance; }
+  p { margin: 0; text-wrap: pretty; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .skip { position: absolute; inset-inline-start: 1rem; inset-block-start: -3rem; background: var(--ink); color: var(--surface); padding: 0.5rem 0.75rem; border-radius: 6px; }
+  .skip:focus { inset-block-start: 1rem; }
+
+  /* Top bar */
+  .bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1rem 2rem;
+    border-block-end: 1px solid var(--hair);
+  }
+  .brand { display: flex; align-items: center; gap: 0.625rem; font-weight: 500; }
+  .brand svg { color: var(--ink-2); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    min-height: 2.5rem; padding: 0 1rem;
+    border-radius: 8px; border: 1px solid transparent;
+    font: 500 0.9375rem/1 var(--sans); cursor: pointer; text-decoration: none;
+  }
+  .btn-quiet { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--hair); }
+  .btn-primary { background: var(--ink); color: var(--surface); min-height: 2.75rem; padding: 0 1.25rem; }
+  @media (hover: hover) {
+    .btn-quiet:hover { background: oklch(0.25 0.02 60 / 0.05); }
+    .btn-primary:hover { background: oklch(0.32 0.02 60); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn { transition: background-color 150ms var(--ease), transform 150ms var(--ease); }
+    .btn:active { transform: scale(0.97); }
+  }
+
+  /* Letter layout: margin note + one column */
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 42rem) minmax(0, 1fr);
+    column-gap: 3rem;
+    padding: 4rem 2rem 5rem;
+  }
+  .margin { grid-column: 1; justify-self: end; max-width: 14rem; padding-block-start: 0.5rem; color: var(--ink-2); font-size: 0.875rem; line-height: 1.5; }
+  .margin dt { color: var(--ink-2); }
+  .margin dd { margin: 0 0 1rem; color: var(--ink); overflow-wrap: anywhere; }
+  .letter { grid-column: 2; min-width: 0; }
+
+  .answer {
+    font-family: var(--serif);
+    font-size: 2.5rem; line-height: 1.15; letter-spacing: -0.015em;
+    font-weight: 400;
+  }
+  .answer-sub { margin-block-start: 1rem; font-size: 1.25rem; line-height: 1.5; color: var(--ink-2); max-width: 36rem; }
+
+  /* Fixes, written as prose */
+  .fixes { margin-block-start: 3.5rem; }
+  .fixes h2 { font-size: 1rem; color: var(--ink-2); font-weight: 500; }
+  .fix-list { list-style: none; margin: 1rem 0 0; padding: 0; }
+  .fix { display: grid; grid-template-columns: 1.25rem minmax(0, 1fr); column-gap: 1rem; padding-block: 1.5rem; border-block-start: 1px solid var(--hair); }
+  .fix:last-child { border-block-end: 1px solid var(--hair); }
+  .fix > svg { color: var(--attention); margin-block-start: 0.3rem; }
+  .fix-text { font-size: 1.125rem; line-height: 1.55; }
+  .fix-text strong { font-weight: 600; }
+  .fix-meta { margin-block-start: 0.5rem; color: var(--ink-2); font-size: 0.9375rem; }
+  .fix-meta span + span::before { content: "·"; margin-inline: 0.5rem; color: var(--ink-2); }
+
+  details.tech { margin-block-start: 0.75rem; }
+  details.tech summary {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    cursor: pointer; color: var(--ink-2); font-size: 0.875rem;
+    text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 3px;
+    list-style: none;
+  }
+  details.tech summary::-webkit-details-marker { display: none; }
+  details.tech summary svg { transition: none; }
+  details[open].tech summary svg { transform: rotate(90deg); }
+  @media (prefers-reduced-motion: no-preference) {
+    details.tech summary svg { transition: transform 200ms var(--ease); }
+  }
+  .tech-body {
+    margin-block-start: 0.5rem; padding: 0.75rem 1rem;
+    background: var(--surface); border-radius: 8px; box-shadow: 0 0 0 1px var(--hair);
+    font: 400 0.8125rem/1.6 var(--mono); color: var(--ink); overflow-wrap: anywhere;
+  }
+
+  .next { margin-block-start: 2.5rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+  .next p { color: var(--ink-2); max-width: 26rem; }
+
+  /* Successes, collapsed */
+  .done { margin-block-start: 4rem; }
+  .done > summary {
+    display: grid; grid-template-columns: 1.25rem minmax(0, 1fr) auto; column-gap: 1rem; align-items: start;
+    cursor: pointer; list-style: none; padding-block: 1rem;
+    border-block: 1px solid var(--hair);
+  }
+  .done > summary::-webkit-details-marker { display: none; }
+  .done > summary > svg:first-child { color: var(--ok); margin-block-start: 0.2rem; }
+  .done-title { font-size: 1.125rem; font-weight: 500; }
+  .done-sub { color: var(--ink-2); margin-block-start: 0.125rem; }
+  .done-toggle { display: inline-flex; align-items: center; gap: 0.375rem; color: var(--ink-2); font-size: 0.875rem; padding-block-start: 0.25rem; }
+  .done[open] .done-toggle svg { transform: rotate(180deg); }
+  .done-toggle .when-open { display: none; }
+  .done[open] .done-toggle .when-open { display: inline; }
+  .done[open] .done-toggle .when-closed { display: none; }
+
+  table { width: 100%; border-collapse: collapse; margin-block-start: 0.5rem; font-size: 0.9375rem; }
+  th { text-align: start; font-weight: 500; color: var(--ink-2); padding: 0.75rem 0.75rem 0.5rem 0; }
+  td { padding: 0.625rem 0.75rem 0.625rem 0; border-block-start: 1px solid var(--hair); vertical-align: top; overflow-wrap: anywhere; }
+  td.code { font-family: var(--mono); font-size: 0.8125rem; }
+
+  .footnote { margin-block-start: 1.5rem; color: var(--ink-2); font-size: 0.875rem; }
+
+  /* The other two moments, as hints */
+  .moments { border-block-start: 1px solid var(--hair); padding: 3rem 2rem 4rem; }
+  .moments > h2 { max-width: 72rem; margin: 0 auto; font-size: 1rem; color: var(--ink-2); }
+  .moments-grid { max-width: 72rem; margin: 1.5rem auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 2rem; }
+  .frame { background: var(--surface); border-radius: 16px; box-shadow: 0 0 0 1px var(--hair), 0 2px 6px oklch(0.25 0.02 60 / 0.05); padding: 2.5rem; min-width: 0; }
+  .frame-label { font-size: 0.875rem; color: var(--ink-2); margin-block-end: 1.5rem; }
+  .frame h3 { font-family: var(--serif); font-weight: 400; font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.01em; }
+  .drop {
+    margin-block-start: 1.5rem; padding: 1.5rem; border-radius: 12px;
+    border: 1px dashed oklch(0.25 0.02 60 / 0.3);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .file { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+  .file svg { color: var(--ink-2); flex: none; }
+  .file-name { font-weight: 500; overflow-wrap: anywhere; }
+  .file-sub { color: var(--ink-2); font-size: 0.9375rem; }
+  .frame .actions { margin-block-start: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .progress { margin-block-start: 1.5rem; height: 6px; border-radius: 3px; background: oklch(0.25 0.02 60 / 0.1); overflow: hidden; }
+  .progress > span { display: block; height: 100%; width: 61%; background: var(--ink); border-radius: inherit; }
+  .frame .muted { color: var(--ink-2); margin-block-start: 1rem; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Ir al resultado</a>
+
+<header class="bar">
+  <div class="brand">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+    Envíos a Expreso Andino
+  </div>
+  <a class="btn btn-quiet" href="#elegir">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+    Cargar otro export
+  </a>
+</header>
+
+<main id="main" class="page">
+  <aside class="margin" aria-label="Datos de la carga">
+    <dl>
+      <dt>Carga</dt>
+      <dd>Hoy, 10:47</dd>
+      <dt>Archivo</dt>
+      <dd>remitos_2026-09-30.json</dd>
+      <dt>Envíos para Expreso Andino</dt>
+      <dd class="num">23 envíos (24 remitos de 51)</dd>
+    </dl>
+  </aside>
+
+  <div class="letter">
+    <h1 class="answer" tabindex="-1">Hay 3 envíos que no se cargaron porque les falta un dato.</h1>
+    <p class="answer-sub">Los otros 20 ya están en Expreso Andino. Corregí estos 3 en LogiSur y volvé a cargar el export.</p>
+
+    <section class="fixes" aria-labelledby="fixes-title">
+      <h2 id="fixes-title">Para corregir en LogiSur</h2>
+      <ul class="fix-list">
+        <li class="fix">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>
+          <div>
+            <p class="fix-text"><strong>Falta el código postal</strong> de Panadería La Espiga, en Pilar. El remito dice «Cliente no informó CP»: hay que pedírselo a Textil Del Plata SRL.</p>
+            <p class="fix-meta"><span>Remito R-10000477</span><span>Cliente: Textil Del Plata SRL</span></p>
+            <details class="tech">
+              <summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico de R-10000477</summary>
+              <div class="tech-body">HTTP 422 · destinatario.codigo_postal: required non-empty string<br>observaciones: Cliente no informó CP</div>
+            </details>
+          </div>
+        </li>
+        <li class="fix">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>
+          <div>
+            <p class="fix-text"><strong>Falta la dirección</strong> de Sanitarios Rivera, en Caballito. En el remito quedó en blanco.</p>
+            <p class="fix-meta"><span>Remito R-10000516</span><span>Cliente: Ferretería Industrial Norte SA</span></p>
+            <details class="tech">
+              <summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico de R-10000516</summary>
+              <div class="tech-body">HTTP 422 · destinatario.direccion: required non-empty string</div>
+            </details>
+          </div>
+        </li>
+        <li class="fix">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>
+          <div>
+            <p class="fix-text"><strong>Los bultos figuran en 0</strong> para Carnicería El Gaucho, en San Miguel de Tucumán. Tiene que haber al menos 1.</p>
+            <p class="fix-meta"><span>Remito R-10000541</span><span>Cliente: Ferretería Industrial Norte SA</span></p>
+            <details class="tech">
+              <summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico de R-10000541</summary>
+              <div class="tech-body">HTTP 422 · bultos: integer &gt;= 1</div>
+            </details>
+          </div>
+        </li>
+      </ul>
+
+      <div class="next">
+        <a class="btn btn-primary" href="#elegir">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+          Volver a cargar el export
+        </a>
+        <p>Lo que ya está en Expreso Andino no se carga dos veces.</p>
+      </div>
+    </section>
+
+    <details class="done">
+      <summary>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+        <span>
+          <span class="done-title num">20 envíos en orden</span>
+          <span class="done-sub num" style="display:block">19 se cargaron ahora y 1 ya estaba de antes. Un remito venía repetido en el archivo y se cargó una sola vez.</span>
+        </span>
+        <span class="done-toggle"><span class="when-closed">Ver la lista</span><span class="when-open">Ocultar la lista</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
+      </summary>
+      <table>
+        <caption class="footnote" style="caption-side: bottom; text-align: start">El código de seguimiento es el que usa Expreso Andino para ubicar el envío.</caption>
+        <thead><tr><th scope="col">Remito</th><th scope="col">Para</th><th scope="col">Estado</th><th scope="col">Seguimiento</th></tr></thead>
+        <tbody>
+          <tr><td>R-10000466</td><td>Corralón San Martín</td><td>Cargado</td><td class="code">ANDC4BD591C</td></tr>
+          <tr><td>R-10000469</td><td>Casa de Repuestos Tito</td><td>Cargado</td><td class="code">ANDBC0F442A</td></tr>
+          <tr><td>R-10000479</td><td>Pinturerías del Oeste</td><td>Cargado</td><td class="code">ANDED024A60</td></tr>
+          <tr><td>R-10000486</td><td>Distribuidora Lucía</td><td>Cargado</td><td class="code">AND3E68D82C</td></tr>
+          <tr><td>R-10000507</td><td>Maderera El Pino</td><td>Cargado. Venía repetido en el archivo y se cargó una sola vez</td><td class="code">ANDE08AB5D0</td></tr>
+          <tr><td>R-10000513</td><td>Kiosco El Sol</td><td>Cargado</td><td class="code">AND66DEDF3D</td></tr>
+          <tr><td>R-10000519</td><td>Mercado Los Álamos</td><td>Cargado</td><td class="code">ANDB617F8CA</td></tr>
+          <tr><td>R-10000527</td><td>Librería Central</td><td>Ya estaba cargado de antes</td><td class="code">AND5A8C356E</td></tr>
+          <tr><td>R-10000536</td><td>Corralón San Martín</td><td>Cargado</td><td class="code">AND609207E9</td></tr>
+          <tr><td colspan="4" style="color: var(--ink-2)">Y 11 más, todos cargados. <a href="#" style="color: inherit">Ver los 20</a></td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details class="tech" style="margin-block-start: 1.5rem">
+      <summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>Ver detalle técnico de la carga</summary>
+      <div class="tech-body">
+        Resumen: reports/corrida_2026-11-03T104727_649636.md<br>
+        Código de salida: 1 (hay remitos rechazados)<br>
+        Cargado 19 · Ya existía 1 · Duplicado en el export 1 · Rechazado 3 · Falló 0<br>
+        R-10000612 (Pinturerías del Oeste): confirmado en el intento 2 tras un error de la API<br>
+        27 remitos de otros transportistas no se procesaron<br>R-10000507 aparece 2 veces en el export: se procesó solo la primera aparición
+      </div>
+    </details>
+  </div>
+</main>
+
+<section class="moments" id="elegir" aria-labelledby="moments-title">
+  <h2 id="moments-title">Los dos momentos anteriores, en el mismo estilo</h2>
+  <div class="moments-grid">
+    <article class="frame" aria-label="Elegir el export">
+      <p class="frame-label">Antes de cargar</p>
+      <h3>Elegí el export del día.</h3>
+      <div class="drop">
+        <div class="file">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+          <div>
+            <div class="file-name">remitos_2026-09-30.json</div>
+            <div class="file-sub num">51 remitos. 23 envíos van por Expreso Andino (uno viene repetido).</div>
+          </div>
+        </div>
+        <button class="btn btn-quiet" type="button">Cambiar archivo</button>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" type="button">Cargar 23 envíos</button>
+      </div>
+    </article>
+
+    <article class="frame" aria-label="Carga en curso">
+      <p class="frame-label">Mientras carga</p>
+      <h3 class="num" role="status">Cargando 14 de 23 envíos…</h3>
+      <div class="progress" role="progressbar" aria-label="Avance de la carga" aria-valuemin="0" aria-valuemax="23" aria-valuenow="14"><span></span></div>
+      <p class="muted">Podés seguir con otra cosa. Cuando termine, esta página te dice si hay algo para corregir.</p>
+    </article>
+  </div>
+</section>
+</body>
+</html>

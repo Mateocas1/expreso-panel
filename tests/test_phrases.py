@@ -473,6 +473,14 @@ class RunAnswerTests(unittest.TestCase):
         self.assertEqual(answer.button, None)
 
 
+class RunInProgressTests(unittest.TestCase):
+    def test_run_in_progress(self):
+        self.assertEqual(
+            phrases.run_in_progress(),
+            Answer("Ya hay una carga en curso.", "Esperá a que termine para cargar otro export.", None),
+        )
+
+
 class CannotRunTests(unittest.TestCase):
     def test_export_unreadable(self):
         self.assertEqual(

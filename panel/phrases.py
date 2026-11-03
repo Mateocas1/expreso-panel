@@ -328,6 +328,11 @@ def cannot_run(kind: str, export_name: str = "") -> Answer:
     raise KeyError(kind)
 
 
+def run_in_progress() -> Answer:
+    """A second load was asked for while one is still running."""
+    return Answer("Ya hay una carga en curso.", "Esperá a que termine para cargar otro export.", None)
+
+
 # --- Before and during the load ----------------------------------------------------------------
 
 def preview_title(shipments: int) -> str:

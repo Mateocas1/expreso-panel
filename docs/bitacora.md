@@ -67,12 +67,27 @@ Tres momentos: elegir el export y cargar, ver el avance en vivo, leer el resulta
 Los diseños usan los datos del kit del challenge, no datos inventados:
 
 - Primera corrida: 51 remitos en el export, 24 de Expreso Andino → 19 cargados, 1 ya existía, 1 duplicado en el export, 3 rechazados.
-- Rechazos: Panadería La Espiga (falta código postal), Sanitarios Rivera (falta dirección), Carnicería El Gaucho (bultos menor a 1).
+- Rechazos: Panadería La Espiga (falta código postal), Sanitarios Rivera (falta dirección), Carnicería El Gaucho (bultos menor a 1). Ojo: esos tres son **destinatarios**. Los clientes de LogiSur son Textil Del Plata SRL (R-10000477) y Ferretería Industrial Norte SA (R-10000516 y R-10000541).
 - Un envío confirmado en el segundo intento tras un error de la API (Pinturerías del Oeste).
 - Segunda corrida: 0 cargados, 20 ya existían. Nada se duplica.
 - Atrasados al 2026-10-03: ver `caso-expreso/reports/atrasados_2026-10-03.md`.
 
-## 9. Registro de decisiones
+## 9. Las tres direcciones visuales (T1)
+
+Están en `design/resultado-corrida/`, con el brief de trabajo en `brief.md`. Las tres responden lo mismo y en el mismo orden: primero la frase que contesta "¿Tengo que hacer algo?", después qué corregir y dónde, después lo que salió bien (plegado) y al final el detalle técnico. Donde se diferencian es en la forma de leer la pantalla:
+
+- **01 · La nota.** Una sola columna, como una nota que te deja un compañero antes de irse. La respuesta va en letra serif grande y los tres arreglos están escritos como frases, no como tarjetas. Es la más calma y la más humana. Su costo: si un día hay 30 rechazos, una lista de frases se vuelve larga de recorrer.
+- **02 · La bandeja.** Una aplicación con menú (Cargar export, Cargas, Atrasados), una lista de pendientes y, al lado, el detalle del que elegiste, con los pasos para resolverlo y un "Ya lo corregí". Cuando marcás los tres, el botón de volver a cargar pasa a ser el principal. Escala mejor y deja lugar para la vista de atrasados. Su costo: es la que más se parece a "un sistema" y la que más elementos muestra.
+- **03 · El mapa.** Cada envío es un casillero. Los 20 que están bien quedan verdes y quietos; los 3 que necesitan algo resaltan. Los mismos casilleros aparecen al elegir el archivo (vacíos) y durante la carga (se van llenando), así que los tres momentos se ven como una sola cosa. Su costo: lo que salió bien queda a la vista (en silencio, pero visible), y con cientos de envíos el mapa necesita agruparse.
+
+Cómo se aplicó el stack, con criterio y no como receta:
+
+- **impeccable** (modo Operate): la ambición está en la precisión y en lo que se saca, no en efectos. Sin métricas gigantes, sin etiquetas en mayúsculas arriba de los títulos, sin degradados ni vidrio.
+- **better-writing:** cada problema dice qué falta, para quién y qué hacer. Los botones arrancan con un verbo ("Volver a cargar el export"). Los "Ver detalle técnico" llevan el remito, para que tengan sentido leídos solos (un lector de pantalla los lista sin contexto).
+- **better-colors / better-accessibility:** colores en OKLCH, contraste medido (todo el texto por encima de 4,5:1; los bordes de los casilleros pendientes, por encima de 3:1). El estado nunca depende solo del color: siempre hay ícono y texto. Navegación con teclado, foco visible y respeto por "reducir movimiento".
+- **unslop:** se usó como lista de cosas a evitar (el aspecto de plantilla generada por IA) y para obligarnos a darle a cada dirección un carácter propio. Se clonó aparte y no se corrió ningún script.
+
+## 10. Registro de decisiones
 
 | Fecha | Decisión | Por qué | Descartado |
 | --- | --- | --- | --- |
@@ -80,3 +95,12 @@ Los diseños usan los datos del kit del challenge, no datos inventados:
 | 2026-11-03 | El panel no cambia la lógica del puente | La lógica ya está testeada; el problema es de comunicación, no de reglas | Reescribir el puente |
 | 2026-11-03 | Diseñar para la persona de operaciones de LogiSur | Una persona concreta define qué es "lo justo y necesario" | Diseñar para "no técnicos" en general |
 | 2026-11-03 | Tres direcciones visuales antes de implementar | Elegir viendo, no imaginando | Ir directo al código |
+| 2026-11-03 | Contar envíos (23), no filas del resumen (24) | R-10000507 viene dos veces en el export pero es un solo envío. Para operaciones son 3 para corregir y 20 en orden; la repetición se aclara aparte | Mostrar "21 sin acción pendiente" como el resumen técnico |
+| 2026-11-03 | Mostrar el cliente de LogiSur además del destinatario | El resultado del puente trae el destinatario; el cliente (a quien hay que llamar) sale del export. El panel puede leerlo sin tocar la lógica | Mostrar solo el destinatario, como el resumen técnico |
+| 2026-11-03 | Usar la observación del remito en la frase | "Cliente no informó CP" dice a quién pedirle el dato; ninguna frase genérica dice tanto | Frase genérica por campo |
+| 2026-11-03 | El reintento no se cuenta en la vista principal | Pinturerías del Oeste quedó cargado; "confirmado en el intento 2" es ruido interno y queda en el detalle técnico | Avisar del error de la API |
+| 2026-11-03 | Rechazado se marca en ámbar, nunca en rojo | El envío no se perdió y nadie hizo algo mal: es "falta un dato", no un error grave | Rojo de error |
+| 2026-11-03 | Detalle técnico detrás de "Ver detalle técnico de R-…" | Sistemas o soporte lo necesitan (HTTP 422, campo de la API, archivo del resumen, código de salida); operaciones no. El remito en el texto hace que el enlace se entienda solo | Borrarlo, o mostrarlo siempre |
+| 2026-11-03 | Textos en español con voseo, sin modismos | Así le habla el software argentino a sus usuarios (argentina.gob.ar también). Una sola forma en todo el flujo. Mateo puede pedir otra | "Usted" o tuteo |
+| 2026-11-03 | Sin tipografías externas: fuentes del sistema | Las páginas tienen que funcionar sin internet y cargar al instante; la personalidad la dan el tamaño, el espacio y las palabras | Fuentes web |
+| 2026-11-03 | Las tres direcciones comparten contenido y orden, y cambian la forma de leer | Así la elección es sobre la experiencia (nota, bandeja de trabajo, mapa) y no sobre el texto | Variar solo colores |

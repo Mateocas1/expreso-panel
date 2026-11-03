@@ -20,7 +20,12 @@ Diseño primero (3 direcciones), después implementación. Razonamiento y decisi
 - [x] T1.3 · S3 · Cabos sueltos de verificación de `03-el-mapa.html`: ancho de celular después del cambio de la leyenda, captura del pulso final, Firefox y Safari (WebKit), modo de colores forzados; corregir lo que falle. Hecho; WebKit no disponible en esta máquina (faltan librerías del sistema), queda para T4.
 - [x] T2 · S2 · Tabla final de frases por resultado, por campo rechazado y por estado de la corrida (incluye fallas de la API y "no se pudo correr"), revisada con better-writing; registrar en la bitácora.
 - [x] T2.1 · S1-S3, S2 · Artboard `04-estados.html` con los estados del mapa usando las frases de T2: segunda corrida (nada nuevo, nada duplicado), día sin pendientes, envío que falló tras reintentar, no se pudo correr.
-- [ ] T3 · S1-S3 · Implementar la dirección elegida sobre el puente, sin cambiar su lógica, con tests de que cada resultado muestra su frase.
+- [ ] T3 · S1-S3 · Implementar la dirección elegida sobre el puente, sin cambiar su lógica, con tests de que cada resultado muestra su frase. Contrato técnico: `docs/t3-contract.md`. Rama `feat/panel-t3`.
+  - [ ] T3.1 · S1 · `vendor/caso-expreso` como submódulo fijado en 5147381 y adaptador `panel/bridge.py` (vista previa del export, carga con avance en vivo desde el log del puente, cliente desde el export, casos de "no se pudo correr"), con tests contra la API del kit.
+  - [ ] T3.2 · S2 · `panel/phrases.py`: las frases de T2 como código, test-first, un test por fila de la tabla.
+  - [ ] T3.3 · S1-S3 · `panel/server.py` y `python3 -m panel`: API JSON + eventos en vivo (SSE), sin dependencias, con tests.
+  - [ ] T3.4 · S1-S3 · `panel/static/`: la página real a partir de `03-el-mapa.html` y `04-estados.html` (elegir export, avance en vivo, resultado, estados).
+  - [ ] T3.5 · S1-S3 · Vista de atrasados y README con cómo correrlo.
 - [ ] T4 · S1-S3 · Prueba real contra la API del kit (primera y segunda corrida) y revisión final de UX.
 - [ ] T5 · S5 · Borrador del mail de seguimiento a partir de la bitácora (el envío lo decide Mateo).
 
@@ -39,3 +44,5 @@ Diseño primero (3 direcciones), después implementación. Razonamiento y decisi
 - L11 (2026-11-03, parent): propuesta tras L10: no otra ronda de pulido; cubrir estados no diseñados (segunda corrida, día sin pendientes, envío que falló, no se pudo correr) junto con T2, y cabos sueltos de verificación (celular, pulso final, Firefox y Safari).
 - L12 (2026-11-03, Mateo, verbatim): "excelente si, abarquemos todos los temas que nombraste, cabos sueltos de verificacion, y los estados"
 - L13 (2026-11-03, Mateo, verbatim): "y mas si hay que hacer mas"
+- L14 (2026-11-03, Mateo, verbatim): "dale, sigamos"
+- L15 (2026-11-03, parent): decisión técnica de T3: el panel importa las funciones públicas del puente en el mismo proceso (no corre la línea de comandos), con el puente como submódulo de git fijado en 5147381; el avance en vivo sale de la línea de log que el puente ya escribe por cada remito. Detalle en `docs/t3-contract.md`.

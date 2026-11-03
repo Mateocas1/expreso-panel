@@ -131,6 +131,21 @@ Tres momentos: elegir el export y cargar, ver el avance en vivo, leer el resulta
 - **Stack de diseño:** gentle-design (direcciones en un canvas), impeccable 4.8, la familia better (better-ui, better-writing, better-interface, better-layout, better-typography, better-colors, better-accessibility) y unslop (github.com/heydamir/unslop), aplicados con criterio propio, no como receta.
 - **Técnica (a confirmar al implementar):** un servidor Python chico que reutiliza el código del puente, y una página web simple. Sin frameworks pesados, para poder explicarlo entero.
 
+### Cómo se conecta el panel con el puente (T3)
+
+La regla era no tocar la lógica del puente. Había dos formas de respetarla:
+
+- **Correr el puente como lo corre una persona** (la línea de comandos) y leer el resumen en Markdown que deja. Es lo más desacoplado, pero el panel tendría que interpretar texto pensado para leer, y se perdería el resultado de cada remito tal como lo arma el puente.
+- **Usar el puente como una librería**: llamar a sus funciones públicas desde el panel, en el mismo proceso. El panel recibe cada resultado como dato (remito, resultado, seguimiento, detalle) y no tiene que adivinar nada.
+
+Elegimos la segunda, con tres cuidados:
+
+1. **El puente entra como submódulo de git, fijado en una versión exacta** (5147381, la que se entregó). El panel no copia ni modifica su código: si mañana el puente cambia, el panel sigue usando esa versión hasta que alguien decida actualizarla.
+2. **Solo se usan funciones públicas.** Las reglas de negocio (qué es de Expreso Andino, los duplicados, los reintentos, la validación) siguen viviendo en un solo lugar.
+3. **El avance en vivo sale de lo que el puente ya cuenta.** Por cada remito, el puente escribe una línea en su registro. El panel escucha esa línea mientras dura la carga y con eso va llenando los casilleros. No hizo falta agregarle nada al puente.
+
+Lo que el panel sí agrega es lo que el puente no tenía por qué saber: el cliente de cada remito (lo lee del export), las frases para operaciones y los avisos claros para los huecos que encontramos (un archivo con otra forma, la clave rechazada a mitad de camino).
+
 ## 8. Datos reales para diseñar
 
 Los diseños usan los datos del kit del challenge, no datos inventados:
@@ -266,3 +281,6 @@ Al ver los 20 "Ya estaba" juntos, la trama de carbónico ensuciaba justo el día
 | 2026-11-03 | Diseñar los estados como "una semana con el panel" (`04-estados.html`) | Una pantalla de resultados tiene que aguantar todos los días: segunda carga, día sin pendientes, falla de la API, carga que no arranca. Además cuenta el producto en un minuto | Diseñar solo el caso con pendientes |
 | 2026-11-03 | Si no se pudo correr, mostrar los casilleros vacíos del export en lugar del mapa | Deja claro que no se tocó ningún envío | Una pantalla de error genérica |
 | 2026-11-03 | Trama de "Ya estaba" más suave | Con 20 casilleros juntos ensuciaba el día tranquilo; el ícono ya lleva el estado | Mantener la trama original |
+| 2026-11-03 | El panel usa el puente como librería, en el mismo proceso, fijado como submódulo de git en 5147381 | Recibe cada resultado como dato sin interpretar texto; la lógica sigue en un solo lugar y en una versión exacta | Correr la línea de comandos y leer el Markdown; copiar el código del puente |
+| 2026-11-03 | El avance en vivo sale de la línea de registro que el puente ya escribe por cada remito | Permite llenar los casilleros a medida que llegan sin cambiar el puente | Modificar el puente para que avise el avance |
+| 2026-11-03 | Solo biblioteca estándar de Python y una página sin frameworks | Igual que el puente: nada que instalar y todo explicable de punta a punta | Flask, React u otros frameworks |

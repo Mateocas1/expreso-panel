@@ -17,7 +17,9 @@ Diseño primero (3 direcciones), después implementación. Razonamiento y decisi
 - [x] T1 · S1-S5 · Tres direcciones visuales en `design/<slug>/` con gentle-design, abiertas en el canvas; Mateo elige una. Registrar decisiones en la bitácora. Estado: tres direcciones en `design/resultado-corrida/` (01-la-nota, 02-la-bandeja, 03-el-mapa), abiertas en el canvas. Mateo eligió 03-el-mapa (L5); se pule con animaciones sutiles al estilo Emil Kowalski, y las otras dos quedan como alternativas. Commits: e7f3dfd, 5602442, b132a75, 33e62b2.
 - [x] T1.1 · S6-S8 · Ronda de pulido de `03-el-mapa.html`: auditoría de movimiento (remove → improve → performance, animate para lo nuevo) y visual (better-*, impeccable, unslop: paleta, radios, tipografía, cards); aplicar con criterio y registrar en la bitácora. Decisiones en `design/resultado-corrida/polish-t1-1.md` y bitácora ("Ronda de pulido").
 - [x] T1.2 · S3, S8 · Segunda pasada sobre el mapa (`polish-t1-1.md`, "Round 2"): amarillo más lavado, frase repetida, "Elegí un envío", franja vacía durante la carga en vivo, y comparación Atkinson vs Public Sans en un artboard 04 para que Mateo elija la fuente. Eligió Public Sans (L10): quedó en `03-el-mapa.html` y se borró el 04.
-- [ ] T2 · S2 · Tabla final de frases por resultado y por campo rechazado, revisada con better-writing; registrar en la bitácora.
+- [x] T1.3 · S3 · Cabos sueltos de verificación de `03-el-mapa.html`: ancho de celular después del cambio de la leyenda, captura del pulso final, Firefox y Safari (WebKit), modo de colores forzados; corregir lo que falle. Hecho; WebKit no disponible en esta máquina (faltan librerías del sistema), queda para T4.
+- [x] T2 · S2 · Tabla final de frases por resultado, por campo rechazado y por estado de la corrida (incluye fallas de la API y "no se pudo correr"), revisada con better-writing; registrar en la bitácora.
+- [x] T2.1 · S1-S3, S2 · Artboard `04-estados.html` con los estados del mapa usando las frases de T2: segunda corrida (nada nuevo, nada duplicado), día sin pendientes, envío que falló tras reintentar, no se pudo correr.
 - [ ] T3 · S1-S3 · Implementar la dirección elegida sobre el puente, sin cambiar su lógica, con tests de que cada resultado muestra su frase.
 - [ ] T4 · S1-S3 · Prueba real contra la API del kit (primera y segunda corrida) y revisión final de UX.
 - [ ] T5 · S5 · Borrador del mail de seguimiento a partir de la bitácora (el envío lo decide Mateo).
@@ -34,3 +36,6 @@ Diseño primero (3 direcciones), después implementación. Razonamiento y decisi
 - L8 (2026-11-03, parent): propuesta de cinco cambios tras la ronda T1.1 (amarillo saturado compite con la frase; cero con barra en horas y fechas; "Después, volvé a cargar el export" repetido; "Tocá" en escritorio; franja vacía durante la carga en vivo), con Atkinson y Public Sans lado a lado para elegir la fuente.
 - L9 (2026-11-03, Mateo, verbatim): "dale apliquemos eso"
 - L10 (2026-11-03, Mateo, verbatim): "si, 04 . si repetis la auditoria o revision que hiciste antes a esto, encontrarias mejoras?"
+- L11 (2026-11-03, parent): propuesta tras L10: no otra ronda de pulido; cubrir estados no diseñados (segunda corrida, día sin pendientes, envío que falló, no se pudo correr) junto con T2, y cabos sueltos de verificación (celular, pulso final, Firefox y Safari).
+- L12 (2026-11-03, Mateo, verbatim): "excelente si, abarquemos todos los temas que nombraste, cabos sueltos de verificacion, y los estados"
+- L13 (2026-11-03, Mateo, verbatim): "y mas si hay que hacer mas"

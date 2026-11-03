@@ -45,7 +45,76 @@ El puente ya clasifica cada remito en exactamente uno de cinco resultados. Cada 
 
 Un caso fino: un `503` seguido de un `409` en el reintento. Para la máquina son dos eventos; para operaciones es uno solo: "Listo, el envío está cargado". La interfaz no tiene que contar el ruido interno.
 
-Estas frases son un borrador: se ajustan durante el diseño.
+Estas frases son un borrador: se ajustan durante el diseño. La versión final está en "Frases finales (T2)", justo abajo.
+
+### Frases finales (T2)
+
+Salen de recorrer todos los mensajes que el puente puede producir (rechazos locales, las reglas de la API que dan `422`, las fallas después de reintentar y los errores que impiden correr), y de aplicarles better-writing: cada frase dice qué pasó y qué hacer, en palabras que se entienden cansado y a la primera, sin culpa, sin "ups" y sin signos de exclamación. El texto original del puente nunca se borra: queda en "Ver detalle técnico".
+
+**Vocabulario fijo** (una cosa, un nombre): *envío* para lo que viaja, *remito* para el papel de LogiSur y su número, *export* para el archivo del día, *cargar* para mandarlo a Expreso Andino, *LogiSur* para donde se corrige y *sistemas* para a quién avisar. Voseo, oraciones completas con punto, botones que empiezan con un verbo.
+
+**Estados de un envío.** Son los casilleros del mapa y la leyenda:
+
+| Resultado del puente | Etiqueta | Frase al elegir el casillero | Qué tiene que hacer la persona |
+| --- | --- | --- | --- |
+| Cargado (`201`) | Cargado | "Cargado. Seguimiento ANDC4BD591C." | Nada |
+| Cargado después de reintentar (`5xx` y después `409`) | Cargado | La misma que Cargado. "Confirmado en el intento 2" queda solo en el detalle técnico | Nada |
+| Ya existía (`409` al primer intento) | Ya estaba | "Ya estaba cargado de antes. No se duplicó." | Nada |
+| Duplicado en el export | No tiene casillero propio: es el mismo envío | En el casillero del primero: "Venía dos veces en el archivo. Se cargó una sola vez." | Nada |
+| Rechazado (dato que no se puede traducir, o `422`) | **Para corregir** (antes "Falta un dato") | Una frase por problema (tabla siguiente) | Corregir en LogiSur y volver a cargar el export |
+| Falló (`500`-`504` o sin conexión, después de 4 intentos) | **Sin respuesta** | "Expreso Andino no respondió. No se perdió nada: volvé a cargar el export en unos minutos." | Volver a cargar más tarde |
+| Falló (cualquier otra respuesta, por ejemplo `400` o `404`) | **Sin respuesta** | "Expreso Andino respondió algo inesperado. Volvé a cargar el export más tarde; si sigue igual, avisale a sistemas con el número de remito." | Volver a cargar; si se repite, avisar |
+
+La etiqueta "Falta un dato" se cambia por "Para corregir" porque no todos los rechazos son datos que faltan: unos bultos en 0 o una provincia mal escrita están, pero mal. "Para corregir" nombra lo que hay que hacer y sirve para todos.
+
+**Frases por problema en un envío para corregir.** Título en negrita, y debajo una pista que dice cómo dejarlo bien. Si el remito trae una observación, se agrega: "El remito dice «…»." Si hay más de un problema en el mismo remito, se listan todos.
+
+| Mensaje del puente (texto real) | Título | Pista |
+| --- | --- | --- |
+| `destinatario.razon_social: required non-empty string` | Falta el nombre del destinatario | Completalo en el remito. |
+| `destinatario.direccion: required non-empty string` | Falta la dirección | En el remito quedó en blanco. |
+| `destinatario.localidad: required non-empty string` | Falta la localidad | Completala en el remito. |
+| `destinatario.provincia: required non-empty string` | Falta la provincia | Completala en el remito. |
+| `destinatario.codigo_postal: required non-empty string` | Falta el código postal | Completalo en el remito. (Con observación: "El remito dice «Cliente no informó CP»: hay que pedírselo al cliente.") |
+| `provincia desconocida: '{valor}'` o `destinatario.provincia: unknown province, see GET /v1/provinces` | La provincia «{valor}» no se reconoce | Escribila completa, por ejemplo «Buenos Aires» o «Córdoba». |
+| `bultos: integer >= 1` | Los bultos figuran en {n} | Tiene que haber al menos 1 bulto. |
+| `peso inválido: '{valor}'` | El peso «{valor}» no se puede leer | Escribilo como número, por ejemplo 29,5. Sin separador de miles. |
+| `peso_kg: number > 0` | El peso figura en {n} | Tiene que ser mayor que 0. |
+| `servicio desconocido: '{valor}'` o `servicio: one of: standard, express` | El servicio «{valor}» no existe | Tiene que ser Normal o Urgente. |
+| `valor_declarado: number >= 0` | El valor declarado es negativo | Tiene que ser 0 o más. |
+| `nro_remito: required string` | El remito no tiene número | Revisalo en LogiSur antes de volver a cargar. |
+| `la API rechazó los datos sin detalle`, o cualquier mensaje que no esté en esta tabla | Expreso Andino rechazó este envío sin explicar por qué | Avisale a sistemas con el número de remito. |
+
+**La frase de arriba (la respuesta a "¿Tengo que hacer algo?").** Depende de la mezcla de resultados. Las cantidades se arman con reglas de plural (`Intl.PluralRules`), nunca pegando una "s":
+
+| Situación | Frase grande | Debajo | Botón |
+| --- | --- | --- | --- |
+| Hay envíos para corregir | "3 de 23 envíos esperan un dato de LogiSur." | "Los otros 20 ya están en Expreso Andino. No hace falta hacer nada con ellos." | Ver qué falta |
+| Hay para corregir y sin respuesta | "5 de 23 envíos no se cargaron." | "3 esperan un dato de LogiSur y 2 no tuvieron respuesta de Expreso Andino. Los otros 18 ya están cargados." | Ver qué pasó |
+| Solo sin respuesta | "2 de 23 envíos no se cargaron." | "Expreso Andino no respondió. No se perdió nada: volvé a cargar el export en unos minutos." | Volver a cargar el export |
+| Todo bien, primera carga | "No tenés que hacer nada." | "Los 23 envíos ya están en Expreso Andino." | Ninguno |
+| Segunda carga, nada nuevo, quedan para corregir | "3 de 23 envíos esperan un dato de LogiSur." | "Los otros 20 ya estaban en Expreso Andino desde una carga anterior. No se cargó nada dos veces." | Ver qué falta |
+| Segunda carga, todo bien | "No tenés que hacer nada." | "Los 23 envíos ya estaban en Expreso Andino. No se cargó nada dos veces." | Ninguno |
+
+**Cuando no se pudo correr.** No hay mapa que mostrar, así que la pantalla dice qué pasó, qué se tocó (nada) y a quién avisar:
+
+| Error del puente (texto real) | Frase grande | Debajo | Botón |
+| --- | --- | --- | --- |
+| `No se pudo leer el export {archivo}: {error}` | "No se pudo leer el archivo." | "«{archivo}» no parece un export de LogiSur o está dañado. Descargalo de nuevo desde LogiSur y volvé a elegirlo. No se cargó ningún envío." | Elegir otro archivo |
+| `Falta la variable de entorno EXPRESO_API_KEY.` | "El panel no está conectado con Expreso Andino." | "Falta configurar la clave de acceso. Avisale a sistemas. No se cargó ningún envío." | Ninguno |
+| `la API rechazó la API key (401)` al empezar | "Expreso Andino no aceptó la conexión." | "La clave de acceso del panel no es válida. Avisale a sistemas. No se cargó ningún envío." | Ninguno |
+| `sin conexión con la API tras 4 intentos: …` o `GET /v1/provinces respondió 503` al empezar | "Expreso Andino no responde." | "No se cargó ningún envío. Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas." | Volver a intentar |
+| `401` a mitad de la carga | "La carga se cortó a mitad de camino." | "Expreso Andino dejó de aceptar la conexión. Avisale a sistemas. Lo que se llegó a cargar no se va a duplicar cuando vuelvas a cargar el export." | Ninguno |
+
+**Antes y durante la carga.** "23 envíos para Expreso Andino" con "El archivo tiene 51 remitos. Los otros 27 van con otros transportistas y no se tocan." y el botón "Cargar 23 envíos". Durante la carga: "Cargando 14 de 23…" y "Cada casillero se completa cuando Expreso Andino confirma el envío."
+
+**Atrasados** (la vista aparte, para T3). El estado de la API pasa a palabras: `CREATED` → "Todavía no salió", `IN_TRANSIT` → "En viaje", `EXCEPTION` → "Con un problema en el viaje". Cada fila dice cuánto se atrasó: "Atrasado 1 día: tenía que llegar el 2 de octubre." Título: "2 envíos atrasados"; sin atrasados: "Ningún envío atrasado al 3 de octubre."
+
+**Huecos del puente que aparecieron al recorrer los mensajes** (el panel no cambia la lógica, pero tiene que cubrirlos al envolver la llamada, en T3):
+
+- Un archivo que es JSON pero no es una lista de remitos, o un remito sin `nro_remito`, rompe la corrida sin un mensaje claro (sale un error de Python). El panel tiene que atraparlo y mostrar "No se pudo leer el archivo."
+- Un `401` a mitad de la carga corta todo y no deja resumen, así que el panel no sabe qué se llegó a cargar. Por eso la frase no da cantidades.
+- "Sin conexión" y "respuesta inesperada" traen texto crudo de Python (`[Errno 111] Connection refused`, un diccionario impreso). Va solo al detalle técnico.
 
 ## 6. Qué se ve, en qué orden
 
@@ -139,6 +208,28 @@ Después de la ronda de pulido revisamos el resultado como lo haría alguien esc
 - **Sin hueco durante la carga en vivo.** La leyenda sube debajo del contador mientras corre y vuelve a su lugar al terminar.
 - **La tipografía se elige mirando.** El cero con barra de Atkinson ayuda en los códigos, pero en "10:47" o en una fecha la pantalla parece una terminal. En vez de decidirlo razonando, armamos el artboard 04: el mismo mapa en Public Sans (la tipografía del gobierno de EE. UU., licencia abierta), para elegir viéndolas lado a lado.
 
+### Estados y verificación (T1.3 y T2.1)
+
+Hasta acá habíamos diseñado un solo día: el lunes, con 3 envíos para corregir. Una pantalla de resultados tiene que aguantar todos los días, así que armamos `04-estados.html` como una semana con el panel:
+
+- **Martes, segunda carga.** No hay nada nuevo: los 20 ya estaban y siguen los mismos 3 para corregir. La frase lo dice sin alarma: "No se cargó nada dos veces." Es la prueba visible de que el puente no duplica.
+- **Miércoles, LogiSur corrigió los 3.** "No tenés que hacer nada." No hay hoja ni botón: la calma sale de la frase y de que no hay nada que llame la atención.
+- **Jueves, Expreso Andino no respondió para 2 envíos.** Aparece "Sin respuesta", con su propio ícono (una nube cortada) y borde gris tinta, no ámbar, porque no es un problema de LogiSur. En la hoja va en un grupo aparte, con otra indicación: volver a cargar en unos minutos.
+- **Viernes, no se pudo correr.** No hay resultado que mostrar, así que en el lugar del mapa van los 23 casilleros vacíos: se ve que no se tocó nada. Al lado, el caso del archivo que no se puede leer.
+
+Esta semana también sirve para venderlo: muestra en un minuto qué ve operaciones cada día, incluso cuando algo falla.
+
+En paralelo cerramos los cabos sueltos de verificación del mapa:
+
+- **Celular, tablet y zoom al 200%.** Funciona en una columna. Se arregló el encabezado, que en pantallas chicas partía el nombre del archivo.
+- **Pulso final.** Era demasiado tenue y se reforzó sin cambiar su duración.
+- **Firefox.** Anda bien. Se corrigió una línea finita que dibujaba en el borde de los casilleros.
+- **Safari (WebKit).** No se pudo probar en esta máquina, porque le faltan librerías del sistema. Queda pendiente para T4.
+- **Modo de colores forzados.** Lo usan personas con baja visión. Ahora cada estado se distingue por el ícono y por el tipo y grosor del borde.
+- **Teclado.** Se puede recorrer toda la pantalla y el foco siempre se ve.
+
+Al ver los 20 "Ya estaba" juntos, la trama de carbónico ensuciaba justo el día en que no había que hacer nada. Se aclaró un poco: el ícono sigue diciendo el estado.
+
 ## 10. Registro de decisiones
 
 | Fecha | Decisión | Por qué | Descartado |
@@ -168,3 +259,10 @@ Después de la ronda de pulido revisamos el resultado como lo haría alguien esc
 | 2026-11-03 | Cada indicación aparece una sola vez, donde se actúa | Repetir la misma frase cansa y le resta peso | Repetir "volvé a cargar el export" junto a cada botón |
 | 2026-11-03 | Comparar Atkinson Hyperlegible Next y Public Sans en dos artboards antes de elegir | El cero con barra ayuda en códigos pero endurece horas y fechas; la elección es visual | Decidir la fuente sin verla |
 | 2026-11-03 | Tipografía final: Public Sans (reemplaza a Atkinson Hyperlegible Next) | Vistas lado a lado, las horas, fechas y cantidades se leen como texto común; los códigos siguen siendo claros y la personalidad la ponen el casillero, el resaltador y la trama | Atkinson Hyperlegible Next (cero con barra) |
+| 2026-11-03 | Frases finales (T2): una por resultado, por problema y por estado de la carga, con el texto original siempre en el detalle técnico | Recorrimos todos los mensajes que puede producir el puente; ninguno llega a operaciones sin traducir | Mostrar el mensaje de la API, aunque sea con una explicación al lado |
+| 2026-11-03 | "Para corregir" en lugar de "Falta un dato" | No todos los rechazos son datos que faltan (bultos en 0, provincia mal escrita); la etiqueta nombra lo que hay que hacer | "Falta un dato", "Rechazado" |
+| 2026-11-03 | "Sin respuesta" como estado propio, separado de "Para corregir" | Si Expreso Andino no responde, no es un problema de LogiSur y la acción es otra (volver a cargar más tarde) | Mezclarlo con los rechazos |
+| 2026-11-03 | Cuando toda la carga está bien, la respuesta es "No tenés que hacer nada." | Responde literalmente la pregunta que guía todo el panel | "Carga exitosa", "Todo OK" |
+| 2026-11-03 | Diseñar los estados como "una semana con el panel" (`04-estados.html`) | Una pantalla de resultados tiene que aguantar todos los días: segunda carga, día sin pendientes, falla de la API, carga que no arranca. Además cuenta el producto en un minuto | Diseñar solo el caso con pendientes |
+| 2026-11-03 | Si no se pudo correr, mostrar los casilleros vacíos del export en lugar del mapa | Deja claro que no se tocó ningún envío | Una pantalla de error genérica |
+| 2026-11-03 | Trama de "Ya estaba" más suave | Con 20 casilleros juntos ensuciaba el día tranquilo; el ícono ya lleva el estado | Mantener la trama original |

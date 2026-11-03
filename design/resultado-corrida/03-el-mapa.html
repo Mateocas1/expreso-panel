@@ -125,7 +125,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     --ok-fill: oklch(0.955 0.02 165);
     --ok: oklch(0.42 0.09 165);
     --ok-line: oklch(0.62 0.08 165);
-    --hatch: oklch(0.21 0.02 255 / 0.07);
+    --hatch: oklch(0.21 0.02 255 / 0.05);
     --attn-fill: oklch(0.95 0.07 90);
     --hl: oklch(0.9 0.12 88);
     --attn-line: oklch(0.5 0.12 70);
@@ -156,9 +156,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   .ico * { vector-effect: non-scaling-stroke; }
   .ico.b { stroke-width: 1.75; }
 
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 2.5rem; }
+  .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 1rem 2.5rem; }
   .brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }
   .top .meta { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; display: flex; gap: 1rem; flex-wrap: wrap; }
+  .top .meta span { white-space: nowrap; }
 
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -233,22 +234,24 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   /* One box-shadow stack: fix ring (inset), selection gap, selection ring. Same shape in every state so it interpolates. */
   .tile {
     --ring-in: 0px; --ring-gap: 0px; --ring-out: 0px;
-    box-shadow: inset 0 0 0 var(--ring-in) var(--attn-line), 0 0 0 var(--ring-gap) var(--ground), 0 0 0 var(--ring-out) var(--accent);
+    /* Colours stay transparent while a ring is 0px: Firefox paints a hairline for a zero-width shadow */
+    --c-in: transparent; --c-gap: transparent; --c-out: transparent;
+    box-shadow: inset 0 0 0 var(--ring-in) var(--c-in), 0 0 0 var(--ring-gap) var(--c-gap), 0 0 0 var(--ring-out) var(--c-out);
     transition: background-color 200ms var(--ease-out), box-shadow 140ms var(--ease-out);
   }
   .tile.ok { background: var(--ok-fill); }
   .tile.ok .row svg { color: var(--ok); }
   .tile.prev { background: transparent; }
-  .tile.fix { background: var(--attn-fill); --ring-in: 2px; }
+  .tile.fix { background: var(--attn-fill); --ring-in: 2px; --c-in: var(--attn-line); }
   .tile.fix .name { font-weight: 600; }
   .tile.fix:not(.pend) .row { color: var(--attn-ink); }
-  .tile[aria-pressed="true"] { --ring-gap: 2px; --ring-out: 4px; }
+  .tile[aria-pressed="true"] { --ring-gap: 2px; --ring-out: 4px; --c-gap: var(--ground); --c-out: var(--accent); }
   .tile:focus-visible { outline-offset: 5px; }
   /* Carbon copy: diagonal hatch on its own layer so it can fade like a fill */
   .tile .hatch { position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); transition: opacity 200ms var(--ease-out); }
   /* Empty state, used while the live replay runs: dashed edge, no icon, no fill */
   .tile::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; border: 1.5px dashed var(--line); opacity: 0; pointer-events: none; transition: opacity 200ms var(--ease-out); }
-  .tile.pend { background: var(--ground); --ring-in: 0px; cursor: default; transition-duration: 120ms; }
+  .tile.pend { background: var(--ground); --ring-in: 0px; --c-in: transparent; cursor: default; transition-duration: 120ms; }
   .tile.pend::before { opacity: 1; transition-duration: 120ms; }
   .tile.pend .hatch { opacity: 0; transition-duration: 120ms; }
   .tile.pend .name { font-weight: 500; }
@@ -264,7 +267,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     .tile.pend .row svg { transform: scale(0.25); filter: blur(4px); transition-duration: 120ms; }
     .tile.ping::after { animation: ping 500ms var(--ease-out) calc(260ms + var(--p, 0) * 60ms); }
   }
-  @keyframes ping { from { opacity: 0.55; transform: scale(1); } to { opacity: 0; transform: scale(1.16); } }
+  @keyframes ping { from { opacity: 0.8; transform: scale(1); } 40% { opacity: 0.5; } to { opacity: 0; transform: scale(1.16); } }
 
   .picked { transition: opacity 120ms var(--ease-out); margin-block-start: 1rem; min-height: 3rem; padding-block-start: 0.75rem; border-block-start: 1px solid var(--hair); font-size: var(--t-md); line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: baseline; }
   .picked.swap { opacity: 0; transition-duration: 60ms; }
@@ -335,8 +338,24 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   .mini li.now { box-shadow: inset 0 0 0 2px var(--accent); }
   .moment .actions-row { margin-block-start: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
 
+  /* Forced colors: box-shadow rings and fills are dropped, so state is redrawn with borders and system colors */
+  @media (forced-colors: active) {
+    .tile.fix { border-width: 3px; padding: calc(0.75rem - 2px); }
+    .tile.pend { border-style: dashed; }
+    .tile.tile[aria-pressed="true"] { forced-color-adjust: none; background-color: Highlight; border-color: CanvasText; box-shadow: none; }
+    .tile.tile[aria-pressed="true"], .tile.tile[aria-pressed="true"] .name, .tile.tile[aria-pressed="true"] .row, .tile.tile[aria-pressed="true"] .row svg { color: HighlightText; }
+    .sw { border: 1px solid CanvasText; }
+    .sw.fix { border-width: 3px; }
+    .mini li { border: 1px dashed CanvasText; }
+    .mini li.ok, .mini li.prev { border-style: solid; }
+    .mini li.fix { border: 3px solid CanvasText; }
+    .mini li.now { border: 3px solid Highlight; }
+  }
+
   @media (max-width: 64rem) {
     .overview { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+    .top { padding-inline: 1.25rem; }
+    .top .meta { gap: 0 1rem; }
     .page { padding: 1.5rem 1.25rem 3rem; }
     .answer h1, .answer .big { font-size: 2.25rem; }
     .legend { max-width: none; }
@@ -382,7 +401,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       <ul class="legend num" aria-label="Resumen por estado">
         <li><span class="sw ok"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>Cargados</span><span class="n" data-count="ok">19</span></li>
         <li><span class="sw prev"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg></span><span>Ya estaba</span><span class="n" data-count="prev">1</span></li>
-        <li><span class="sw fix"><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span>Falta un dato</span><span class="n" data-count="fix">3</span></li>
+        <li><span class="sw fix"><svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg></span><span>Para corregir</span><span class="n" data-count="fix">3</span></li>
       </ul>
       <p class="vh" role="status" id="announce"></p>
     </div>
@@ -491,7 +510,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     prev: '<svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></svg>',
     fix: '<svg class="ico b" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M7 10v4"/></svg>'
   };
-  const stateText = { ok: "Cargado", prev: "Ya estaba de antes", fix: "Falta un dato" };
+  const stateText = { ok: "Cargado", prev: "Ya estaba de antes", fix: "Para corregir" };
 
   const map = document.getElementById("map");
   map.innerHTML = shipments.map(([remito, to, state], i) => `

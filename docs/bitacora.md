@@ -87,6 +87,31 @@ Cómo se aplicó el stack, con criterio y no como receta:
 - **better-colors / better-accessibility:** colores en OKLCH, contraste medido (todo el texto por encima de 4,5:1; los bordes de los casilleros pendientes, por encima de 3:1). El estado nunca depende solo del color: siempre hay ícono y texto. Navegación con teclado, foco visible y respeto por "reducir movimiento".
 - **unslop:** se usó como lista de cosas a evitar (el aspecto de plantilla generada por IA) y para obligarnos a darle a cada dirección un carácter propio. Se clonó aparte y no se corrió ningún script.
 
+### Por qué el mapa
+
+Mateo eligió el mapa y coincidimos. Las razones:
+
+- **Responde la pregunta de un vistazo.** Antes de leer una palabra ya se ve que casi todo está verde y que hay tres casilleros distintos. La frase de arriba lo confirma.
+- **Hace visible lo que antes había que explicar.** Que el puente no duplica envíos se entiende solo: en la segunda corrida los mismos casilleros aparecen como "ya estaba". No hace falta saber qué es un 409.
+- **Une los tres momentos.** Elegir el archivo, ver el avance y leer el resultado usan el mismo objeto. No hay que aprender tres pantallas.
+- **Se vende solo.** La pregunta de la entrevista fue cómo se lo venderíamos a un cliente. Ver los casilleros llenarse en vivo se entiende en una demo de diez segundos.
+- **El arreglo sigue siendo texto.** La tabla de abajo dice qué falta, para quién, de qué cliente y en qué remito. El mapa orienta; las frases resuelven.
+
+Lo que hay que cuidar al implementarlo:
+
+- **Volumen.** Con los 23 envíos de hoy funciona. Si un día son cientos, los verdes se agrupan en un solo bloque ("240 cargados") y solo se muestran sueltos los que necesitan algo.
+- **Pantallas chicas.** En el celular, lo que hay que corregir va antes que el mapa.
+- **Lo que salió bien queda a la vista.** Es el único punto donde el mapa se aparta del principio "resumido y plegado". Se compensa con verdes suaves y sin texto extra; si molesta en el uso real, el mapa se puede plegar.
+
+### Movimiento
+
+Mateo pidió sumar animaciones sutiles, al estilo de Emil Kowalski, que den sensación de cuidado y de fluidez. El criterio: el movimiento tiene que explicar algo, no decorar.
+
+- **La carga en vivo es el momento principal.** Cada casillero se completa cuando Expreso Andino confirma el envío. Ahí el movimiento es información: muestra el avance.
+- **Al abrir el resultado no se mueve nada.** Quien entra a ver qué tiene que hacer no tiene que esperar una coreografía.
+- **Todo lo demás responde a la persona.** Elegir un casillero, abrir un detalle o apretar un botón tiene una respuesta corta (menos de 300 ms) que confirma que algo pasó.
+- **Nada en loop y nada que distraiga.** Quien tiene activado "reducir movimiento" en su sistema ve los mismos cambios de estado, sin desplazamientos.
+
 ## 10. Registro de decisiones
 
 | Fecha | Decisión | Por qué | Descartado |
@@ -104,3 +129,5 @@ Cómo se aplicó el stack, con criterio y no como receta:
 | 2026-11-03 | Textos en español con voseo, sin modismos | Así le habla el software argentino a sus usuarios (argentina.gob.ar también). Una sola forma en todo el flujo. Mateo puede pedir otra | "Usted" o tuteo |
 | 2026-11-03 | Sin tipografías externas: fuentes del sistema | Las páginas tienen que funcionar sin internet y cargar al instante; la personalidad la dan el tamaño, el espacio y las palabras | Fuentes web |
 | 2026-11-03 | Las tres direcciones comparten contenido y orden, y cambian la forma de leer | Así la elección es sobre la experiencia (nota, bandeja de trabajo, mapa) y no sobre el texto | Variar solo colores |
+| 2026-11-03 | Dirección elegida: 03 · El mapa | Responde de un vistazo, hace visible que no se duplica nada, une los tres momentos en un solo objeto y se entiende en una demo. Las frases siguen resolviendo el arreglo | 01 · La nota (no escala), 02 · La bandeja (demasiado "sistema" para la tarea) |
+| 2026-11-03 | Animaciones solo con propósito: la carga en vivo, y respuestas cortas a lo que hace la persona | El movimiento tiene que explicar (avance, selección) y dar sensación de cuidado sin hacer esperar. Nada al abrir el resultado y nada en loop | Animación de entrada en cada visita, efectos decorativos |

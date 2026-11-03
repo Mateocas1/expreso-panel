@@ -129,6 +129,16 @@ Para darle identidad buscamos un mundo concreto: **el talonario de remitos**. Or
 
 Cuando las skills se contradecían (pasa entre better-ui, impeccable y unslop en sombras, radios, curvas y tipografía), decidió lo que dejaba más clara la pantalla para operaciones y, ante la duda, el pedido explícito de Mateo. La tabla de conflictos y cómo se resolvió cada uno está en `polish-t1-1.md`.
 
+### Segunda pasada (T1.2): mirar con ojo crítico
+
+Después de la ronda de pulido revisamos el resultado como lo haría alguien escéptico, y salieron cinco ajustes:
+
+- **El amarillo gritaba.** Relleno saturado, borde y negrita decían lo mismo tres veces, y los tres casilleros competían con la frase del título. El relleno pasó a un amarillo lavado; el borde y la negrita siguen marcando. El resaltador fuerte quedó solo para el "3 de 23 envíos" del título.
+- **Una idea, una vez.** "Volvé a cargar el export" aparecía dos veces. Quedó solo en la hoja de arreglos, que es donde se actúa: "Cuando los corrijas, volvé a cargar el export. No se duplica nada."
+- **"Elegí", no "Tocá".** Se usa en una computadora.
+- **Sin hueco durante la carga en vivo.** La leyenda sube debajo del contador mientras corre y vuelve a su lugar al terminar.
+- **La tipografía se elige mirando.** El cero con barra de Atkinson ayuda en los códigos, pero en "10:47" o en una fecha la pantalla parece una terminal. En vez de decidirlo razonando, armamos el artboard 04: el mismo mapa en Public Sans (la tipografía del gobierno de EE. UU., licencia abierta), para elegir viéndolas lado a lado.
+
 ## 10. Registro de decisiones
 
 | Fecha | Decisión | Por qué | Descartado |
@@ -154,3 +164,6 @@ Cuando las skills se contradecían (pasa entre better-ui, impeccable y unslop en
 | 2026-11-03 | Radios de 2, 4, 6 y 10 px | Esquinas de papel y de etiqueta; los radios grandes eran parte del aspecto genérico | Radios de 10 a 20 px |
 | 2026-11-03 | Menos cajas: mapa sobre la página, una sola hoja elevada para lo que hay que corregir, sin etiquetas arriba de los títulos | Cajas dentro de cajas agregan ruido y no agrupan nada que el espacio no agrupe | Tarjeta para cada bloque |
 | 2026-11-03 | Movimiento ajustado con el flujo de Emil Kowalski: sacar el hover de brillo, curva ease-out más marcada, carga en vivo de ~2 s, filas que aparecen cuando su casillero se resuelve, un solo pulso final en los pendientes | Cada movimiento explica algo (avance, causa y efecto); lo imperceptible se saca | Mantener la versión anterior sin auditar |
+| 2026-11-03 | Relleno amarillo lavado en los pendientes; resaltador fuerte solo en el título | Tres señales iguales hacían que los casilleros le ganaran a la frase, que es la respuesta | Amarillo saturado en todo |
+| 2026-11-03 | Cada indicación aparece una sola vez, donde se actúa | Repetir la misma frase cansa y le resta peso | Repetir "volvé a cargar el export" junto a cada botón |
+| 2026-11-03 | Comparar Atkinson Hyperlegible Next y Public Sans en dos artboards antes de elegir | El cero con barra ayuda en códigos pero endurece horas y fechas; la elección es visual | Decidir la fuente sin verla |

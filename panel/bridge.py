@@ -43,6 +43,7 @@ class Preview:
     export_total: int
     shipments: list[Shipment]
     duplicates: list[str]
+    andino_remitos: int    # Expreso Andino remitos in the file, repeats included
 
 
 class CannotRun(Exception):
@@ -89,9 +90,11 @@ def preview_export(path: Path) -> Preview:
     shipments: list[Shipment] = []
     seen: set[str] = set()
     duplicates: list[str] = []
+    andino_remitos = 0
     for remito in remitos:
         if not is_andino(remito):
             continue
+        andino_remitos += 1
         number = remito["nro_remito"]
         if number in seen:
             if number not in duplicates:
@@ -112,6 +115,7 @@ def preview_export(path: Path) -> Preview:
         export_total=len(remitos),
         shipments=shipments,
         duplicates=duplicates,
+        andino_remitos=andino_remitos,
     )
 
 

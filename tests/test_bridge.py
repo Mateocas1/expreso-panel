@@ -58,6 +58,7 @@ class PreviewExportTest(TempDirTestCase):
         self.assertEqual(len({s.remito for s in preview.shipments}), 23)
         self.assertEqual(len(preview.shipments), 23)
         self.assertEqual(preview.duplicates, ["R-10000507"])
+        self.assertEqual(preview.andino_remitos, 24)
 
     def test_shipment_carries_client_recipient_and_city(self):
         preview = preview_export(KIT_EXPORT)

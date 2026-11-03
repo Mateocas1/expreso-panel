@@ -48,6 +48,7 @@ class Preview:
     export_total: int      # every remito in the file
     shipments: list[Shipment]
     duplicates: list[str]  # remito numbers that appear more than once
+    andino_remitos: int    # Expreso Andino remitos in the file, repeats included (for "Los otros N")
 
 class CannotRun(Exception):
     kind: str              # "export_unreadable" | "missing_key" | "auth_rejected"
@@ -105,6 +106,8 @@ class Answer:
     button: str | None
 
 def run_answer(results: list[UploadResult]) -> Answer    # every row of the T2 "frase de arriba" table
+# problems() takes optional values={"bultos", "peso_kg", "servicio", "provincia"} read from the
+# export remito, because the bridge detail does not carry them ("Los bultos figuran en 0").
 def cannot_run(kind: str, export_name: str = "") -> Answer
 def plural(n: int, one: str, other: str) -> str         # Spanish one/other, never "+ s"
 ```

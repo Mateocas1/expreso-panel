@@ -1,0 +1,378 @@
+/*
+  Font: Public Sans (variable, weights 400-600), subset to Latin-1 and Spanish punctuation.
+  Source: google/fonts, ofl/publicsans (PublicSans[wght].ttf). No Reserved Font Name is declared.
+  The font was subset and its weight axis limited (derivative file); the licence below applies to it.
+
+Copyright 2015 The Public Sans Project Authors (https://github.com/uswds/public-sans)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+https://scripts.sil.org/OFL
+
+
+* * *
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+* * *
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting - - in part or in whole - - any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+*/
+@font-face {
+  font-family: "Public Sans";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(public-sans.woff2) format("woff2");
+}
+:root {
+  /* Remito: ink on a pad of paper, one highlighter */
+  --ground: oklch(0.972 0.006 250);
+  --paper: oklch(0.995 0.003 95);
+  --sunken: oklch(0.945 0.008 250);
+  --text: oklch(0.21 0.02 255);
+  --text-2: oklch(0.45 0.02 255);
+  --hair: oklch(0.21 0.02 255 / 0.12);
+  --line: oklch(0.62 0.02 255);
+  --accent: oklch(0.38 0.1 258);
+  --accent-hover: oklch(0.32 0.09 258);
+  --ok-fill: oklch(0.955 0.02 165);
+  --ok: oklch(0.42 0.09 165);
+  --hatch: oklch(0.21 0.02 255 / 0.05);
+  --attn-fill: oklch(0.95 0.07 90);
+  --hl: oklch(0.9 0.12 88);
+  --attn-line: oklch(0.5 0.12 70);
+  --attn-ink: oklch(0.28 0.06 70);
+  --attn-wash: oklch(0.965 0.05 92);
+  /* Sin respuesta is not LogiSur's to fix: paper and neutral ink, never amber */
+  --none-line: var(--text-2);
+  --none-fill: var(--paper);
+
+  --r-xs: 2px; --r-sm: 4px; --r-md: 6px; --r-lg: 10px;
+  --t-sm: 0.8125rem; --t-md: 0.9375rem; --t-base: 1.0625rem; --t-lg: 1.5rem; --t-xl: 3rem;
+  --sans: "Public Sans", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Noto Sans Mono", monospace;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { margin: 0; background: var(--ground); color: var(--text); font: 400 var(--t-base)/1.5 var(--sans); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+h2 { font-size: var(--t-lg); line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; }
+p { margin: 0; text-wrap: pretty; }
+.num { font-variant-numeric: tabular-nums; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip { position: absolute; inset-inline-start: 1rem; inset-block-start: -3rem; background: var(--text); color: var(--paper); padding: 0.5rem 1rem; border-radius: var(--r-md); z-index: 1; }
+.skip:focus { inset-block-start: 1rem; }
+
+/* One icon family: 24 grid, round caps, rendered stroke 1.5px (1.75px next to 600) at any size */
+.ico { flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.ico * { vector-effect: non-scaling-stroke; }
+.ico.b { stroke-width: 1.75; }
+
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 1rem 2.5rem; }
+.brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }
+.top .meta { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; display: flex; gap: 1rem; flex-wrap: wrap; }
+.top .meta span { white-space: nowrap; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0 1.25rem; border-radius: var(--r-md); border: 1px solid transparent;
+  font: 500 var(--t-md)/1 var(--sans); cursor: pointer; text-decoration: none;
+  transition: background-color 150ms ease;
+}
+.btn-primary { background: var(--accent); color: var(--paper); }
+.btn-quiet { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+@media (hover: hover) {
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-quiet:hover { background: var(--sunken); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn { transition: background-color 150ms ease, transform 150ms var(--ease-out); }
+  .btn:active { transform: scale(0.97); }
+}
+
+.page { padding: 2rem 2.5rem 4rem; max-width: 90rem; margin: 0 auto; }
+.big { font-size: var(--t-xl); line-height: 1.08; letter-spacing: -0.025em; font-weight: 500; }
+.sub { margin-block-start: 1rem; color: var(--text-2); max-width: 28rem; }
+
+/* Step 1: pick the export */
+.pick { max-width: 36rem; }
+.pick .sub + .sub { margin-block-start: 0.5rem; }
+.drop {
+  position: relative; margin-block-start: 2rem; padding: 2rem; display: grid; justify-items: start; gap: 1rem;
+  border: 1.5px dashed var(--line); border-radius: var(--r-sm); cursor: pointer;
+  transition: border-color 140ms var(--ease-out), background-color 140ms var(--ease-out);
+}
+.drop input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.drop:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 4px; }
+.drop.over { border-color: var(--accent); background: var(--paper); }
+.drop.busy { cursor: progress; border-style: solid; }
+.drop.busy input { cursor: progress; }
+.drop .t { color: var(--text-2); }
+.drop .btn { pointer-events: none; }
+@media (hover: hover) { .drop:hover .btn-primary { background: var(--accent-hover); } }
+
+/* Answer + map */
+.overview { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; align-items: start; }
+.overview.solo { grid-template-columns: minmax(0, 1fr); max-width: 45rem; }
+.answer .stack { display: grid; }
+.answer .stack > * { grid-area: 1 / 1; }
+.answer .live { align-self: start; }
+/* The count sits on a highlighter band: solid, repeated on each line it wraps to */
+.answer h1 .hl { box-shadow: inset 0 -0.32em 0 var(--hl); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+/* Headings are focus targets for the screen reader after a step change, not controls: no ring */
+.answer h1:focus, .live .big:focus, .pick h1:focus { outline: none; }
+/* Live: counter and final sentence share one grid cell, so nothing jumps.
+   Exit fast, enter slightly later; the old one is gone before the new one arrives. */
+.answer .live { visibility: hidden; opacity: 0; transition: opacity 120ms var(--ease-out), visibility 0s linear 120ms; }
+.answer .final { transition: opacity 220ms var(--ease-out) 80ms, visibility 0s; }
+.running .final { opacity: 0; visibility: hidden; transition: opacity 120ms var(--ease-out), visibility 0s linear 120ms; }
+.running .live { opacity: 1; visibility: visible; transition: opacity 200ms var(--ease-out) 60ms, visibility 0s; }
+@media (prefers-reduced-motion: no-preference) {
+  .answer .live { transform: translateY(5px); filter: blur(2px); transition: opacity 120ms var(--ease-out), transform 120ms var(--ease-out), filter 120ms var(--ease-out), visibility 0s linear 120ms; }
+  .answer .final { transition: opacity 220ms var(--ease-out) 80ms, transform 220ms var(--ease-out) 80ms, filter 220ms var(--ease-out) 80ms, visibility 0s; }
+  .running .final { transform: translateY(5px); filter: blur(2px); transition: opacity 120ms var(--ease-out), transform 120ms var(--ease-out), filter 120ms var(--ease-out), visibility 0s linear 120ms; }
+  .running .live { transform: none; filter: none; transition: opacity 200ms var(--ease-out) 60ms, transform 200ms var(--ease-out) 60ms, filter 200ms var(--ease-out) 60ms, visibility 0s; }
+}
+.answer .actions { margin-block-start: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+
+/* Legend: the tiles' own swatches, one row per state that has something in it */
+.legend { list-style: none; margin: 2.5rem 0 0; --lift: 0px; padding: 0; max-width: 24rem; border-block-start: 1px solid var(--hair); }
+/* While the load runs the live counter is shorter than the final sentence: the legend rises by the difference (--lift, measured in JS) so no empty band shows, and returns when the sentence does */
+.running .legend { margin-block-start: calc(2.5rem - var(--lift)); }
+@media (prefers-reduced-motion: no-preference) {
+  .legend { transition: margin-block-start 170ms var(--ease-out) 80ms; }
+  .running .legend { transition-duration: 190ms; transition-delay: 60ms; }
+}
+.legend li { display: grid; grid-template-columns: 1.75rem 1fr auto; gap: 1rem; align-items: center; padding-block: 0.5rem; border-block-end: 1px solid var(--hair); font-size: var(--t-md); line-height: 1.5; }
+.legend .n { color: var(--text-2); text-align: end; min-width: 2ch; }
+.sw { position: relative; isolation: isolate; width: 1.75rem; height: 1.75rem; border-radius: var(--r-sm); display: grid; place-items: center; }
+.sw.ok { background: var(--ok-fill); color: var(--ok); }
+.sw.prev { color: var(--text-2); background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); }
+.sw.fix { background: var(--attn-fill); color: var(--attn-ink); box-shadow: inset 0 0 0 2px var(--attn-line); }
+.sw.none { background: var(--none-fill); color: var(--text); box-shadow: inset 0 0 0 1.5px var(--none-line); }
+
+.map-head { padding-block-end: 1rem; border-block-end: 1px solid var(--hair); }
+.map-head p { margin-block-start: 0.25rem; color: var(--text-2); font-size: var(--t-md); line-height: 1.5; max-width: 40rem; }
+
+.map { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.5rem; grid-auto-rows: 1fr; }
+.map li { display: flex; }
+.tile {
+  position: relative; isolation: isolate; width: 100%; min-height: 5.5rem; padding: 0.75rem;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem;
+  text-align: start; border-radius: var(--r-sm); border: 1px solid transparent; cursor: pointer;
+  font: inherit; color: var(--text); background: transparent;
+}
+.tile .name { font-size: var(--t-md); line-height: 1.5; font-weight: 500; overflow-wrap: anywhere; }
+.tile .row { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: var(--t-sm); line-height: 1.4; color: var(--text-2); }
+.tile .ic { display: flex; min-width: 16px; min-height: 16px; }
+/* One box-shadow stack: state ring (inset), selection gap, selection ring. Same shape in every state so it interpolates. */
+.tile {
+  --ring-in: 0px; --ring-gap: 0px; --ring-out: 0px;
+  /* Colours stay transparent while a ring is 0px: Firefox paints a hairline for a zero-width shadow */
+  --c-in: transparent; --c-gap: transparent; --c-out: transparent;
+  box-shadow: inset 0 0 0 var(--ring-in) var(--c-in), 0 0 0 var(--ring-gap) var(--c-gap), 0 0 0 var(--ring-out) var(--c-out);
+  transition: background-color 200ms var(--ease-out), box-shadow 140ms var(--ease-out);
+}
+.tile.ok { background: var(--ok-fill); }
+.tile.ok .row svg { color: var(--ok); }
+.tile.prev { background: transparent; }
+.tile.fix { background: var(--attn-fill); --ring-in: 2px; --c-in: var(--attn-line); }
+.tile.fix .name { font-weight: 600; }
+.tile.fix:not(.pend) .row { color: var(--attn-ink); }
+/* Sin respuesta: paper fill, thinner neutral ink ring, own icon, name in 600 like every tile that needs a person */
+.tile.none { background: var(--none-fill); --ring-in: 1.5px; --c-in: var(--none-line); }
+.tile.none .name { font-weight: 600; }
+.tile.none:not(.pend) .row { color: var(--text); }
+.tile[aria-pressed="true"] { --ring-gap: 2px; --ring-out: 4px; --c-gap: var(--ground); --c-out: var(--accent); }
+.tile:focus-visible { outline-offset: 5px; }
+/* Carbon copy: diagonal hatch on its own layer so it can fade like a fill */
+.tile .hatch { position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 6px); transition: opacity 200ms var(--ease-out); }
+/* Empty state (preview, waiting, nothing loaded): dashed edge, no icon, no fill */
+.tile::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; border: 1.5px dashed var(--line); opacity: 0; pointer-events: none; transition: opacity 200ms var(--ease-out); }
+.tile.pend { background: var(--ground); --ring-in: 0px; --c-in: transparent; cursor: default; transition-duration: 120ms; }
+.tile.pend::before { opacity: 1; transition-duration: 120ms; }
+.tile.pend .hatch { opacity: 0; transition-duration: 120ms; }
+.tile.pend .name { font-weight: 500; }
+.tile .row svg { transition: opacity 240ms var(--ease-out); }
+.tile.pend .row svg { opacity: 0; transition-duration: 120ms; }
+/* Settle ping: once, after a load finishes by itself, one ring leaves each tile that needs a person */
+.tile.fix::after, .tile.none::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 2px solid var(--c-in); opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .tile { transition: background-color 200ms var(--ease-out), box-shadow 140ms var(--ease-out), transform 120ms var(--ease-out); }
+  .tile.pend { transition-duration: 120ms; }
+  .tile:not(.pend):active { transform: scale(0.97); }
+  .tile .row svg { transition: transform 240ms var(--ease-out), opacity 240ms var(--ease-out), filter 240ms var(--ease-out); }
+  .tile.pend .row svg { transform: scale(0.25); filter: blur(4px); transition-duration: 120ms; }
+  .tile.ping::after { animation: ping 500ms var(--ease-out) calc(260ms + var(--p, 0) * 60ms); }
+}
+@keyframes ping { from { opacity: 0.8; transform: scale(1); } 40% { opacity: 0.5; } to { opacity: 0; transform: scale(1.16); } }
+
+.picked { transition: opacity 120ms var(--ease-out); margin-block-start: 1rem; min-height: 3rem; padding-block-start: 0.75rem; border-block-start: 1px solid var(--hair); font-size: var(--t-md); line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: baseline; }
+.picked.swap { opacity: 0; transition-duration: 60ms; }
+.picked strong { font-weight: 500; }
+.picked .k { color: var(--text-2); }
+.link { color: var(--accent); text-underline-offset: 0.2em; text-decoration-thickness: from-font; }
+
+/* Fixes: the only raised surface, because it is the one thing to act on */
+.fixes { margin-block-start: 3rem; }
+.sheet { background: var(--paper); border: 1px solid transparent; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--hair); padding: 2rem 2rem 1.5rem; }
+.fixes-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem 2rem; flex-wrap: wrap; }
+.fixes-head p { color: var(--text-2); max-width: 40rem; }
+.group + .group { margin-block-start: 2.5rem; }
+.fix-table { width: 100%; margin-block-start: 1.5rem; border-collapse: collapse; table-layout: fixed; }
+.fix-table .num { white-space: nowrap; }
+.fix-table th { text-align: start; font-weight: 500; font-size: var(--t-sm); line-height: 1.4; color: var(--text-2); padding: 0 1rem 0.5rem 0; }
+.fix-table td { padding: 1rem 1rem 1rem 0; border-block-start: 1px solid var(--hair); vertical-align: top; overflow-wrap: anywhere; }
+.fix-table tr:last-child td { border-block-end: 1px solid var(--hair); }
+.what { display: flex; gap: 0.5rem; align-items: flex-start; font-weight: 600; }
+.what svg { color: var(--attn-ink); margin-block-start: 0.2rem; }
+.what.none svg { color: var(--text); }
+.why { margin-block-start: 0.25rem; padding-inline-start: 1.75rem; color: var(--text-2); font-size: var(--t-md); line-height: 1.5; font-weight: 400; }
+.prob + .prob { margin-block-start: 0.75rem; }
+.who { font-weight: 500; }
+.who-sub { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; }
+.fix-table td { transition: background-color 200ms ease; }
+.fix-table tr.lit td { background: var(--attn-wash); }
+/* One-time attention highlight after "Ver cómo corregirlo": holds the colour, then fades out; never loops */
+.fix-table tr.flash td { animation: attn 900ms ease-out; }
+@keyframes attn { 0%, 25% { background-color: var(--hl); } }
+.fix-table tr:focus-visible { outline-offset: -2px; }
+/* When the load ends each row is discovered, not dropped in */
+.fix-table tr { transition: opacity 220ms var(--ease-out); }
+.fix-table tr.hold { opacity: 0; transition-duration: 120ms; }
+@media (prefers-reduced-motion: no-preference) {
+  .fix-table tr { transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out); }
+  .fix-table tr.hold { transform: translateY(6px); transition-duration: 120ms; }
+}
+.sheet-actions { margin-block-start: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.answer .actions details.tech { align-self: center; }
+
+details.tech summary { cursor: pointer; color: var(--text-2); font-size: var(--t-sm); line-height: 1.4; list-style: none; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap; }
+details.tech summary::-webkit-details-marker { display: none; }
+details[open].tech summary svg { transform: rotate(90deg); }
+@media (prefers-reduced-motion: no-preference) { details.tech summary svg { transition: transform 200ms var(--ease-out); } }
+/* Disclosure: height + opacity where ::details-content is supported, plain toggle elsewhere */
+@supports selector(::details-content) {
+  details.tech::details-content { opacity: 0; transition: opacity 140ms var(--ease-out), content-visibility 140ms allow-discrete; }
+  details.tech[open]::details-content { opacity: 1; transition-duration: 200ms; }
+  @media (prefers-reduced-motion: no-preference) {
+    details.tech { interpolate-size: allow-keywords; }
+    details.tech::details-content { block-size: 0; overflow: clip; transition: block-size 200ms var(--ease-out), opacity 140ms var(--ease-out), content-visibility 200ms allow-discrete; }
+    details.tech[open]::details-content { block-size: auto; transition-duration: 240ms, 200ms, 240ms; }
+  }
+}
+.tech-body { margin-block-start: 0.5rem; padding: 0.5rem 0.75rem; border-radius: var(--r-sm); background: var(--sunken); font: 400 var(--t-sm)/1.4 var(--mono); max-width: 24rem; white-space: normal; overflow-wrap: break-word; }
+
+/* Forced colors: box-shadow rings and fills are dropped, so state is redrawn with borders and system colors */
+@media (forced-colors: active) {
+  .tile.fix { border-width: 3px; padding: calc(0.75rem - 2px); }
+  .tile.none { border: 2px solid CanvasText; padding: calc(0.75rem - 1px); }
+  .tile.pend { border-style: dashed; }
+  .tile.tile[aria-pressed="true"] { forced-color-adjust: none; background-color: Highlight; border-color: CanvasText; box-shadow: none; }
+  .tile.tile[aria-pressed="true"], .tile.tile[aria-pressed="true"] .name, .tile.tile[aria-pressed="true"] .row, .tile.tile[aria-pressed="true"] .row svg { color: HighlightText; }
+  .sw { border: 1px solid CanvasText; }
+  .sw.fix { border-width: 3px; }
+  .sw.none { border-width: 2px; }
+  .drop.over { border-style: solid; }
+}
+
+@media (max-width: 64rem) {
+  .overview, .overview.solo { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .top { padding-inline: 1.25rem; }
+  .top .meta { gap: 0 1rem; }
+  .page { padding: 1.5rem 1.25rem 3rem; }
+  .big { font-size: 2.25rem; }
+  .legend { max-width: none; }
+  .drop { padding: 1.5rem 1rem; }
+  .sheet { padding: 1.5rem 1rem 1rem; }
+  .fix-table col { display: none; }
+  .fix-table .num { white-space: normal; overflow-wrap: break-word; }
+  .fix-table thead { display: none; }
+  .fix-table tr, .fix-table td { display: block; }
+  .fix-table td { border: 0; padding: 0.25rem 0; }
+  .fix-table tr { padding-block: 1rem; border-block-start: 1px solid var(--hair); }
+}

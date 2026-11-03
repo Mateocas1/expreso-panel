@@ -8,7 +8,7 @@ import logging
 import sys
 import threading
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -17,6 +17,7 @@ if str(VENDOR_DIR) not in sys.path:
     sys.path.insert(0, str(VENDOR_DIR))
 
 from expreso_bridge.client import ApiError, AuthenticationError, ExpresoClient  # noqa: E402
+from expreso_bridge.overdue import find_overdue  # noqa: E402
 from expreso_bridge.remitos import is_andino, load_remitos  # noqa: E402
 from expreso_bridge.report import render_run_report  # noqa: E402
 from expreso_bridge.upload import Outcome, UploadResult, upload_remitos  # noqa: E402
@@ -188,3 +189,43 @@ def run_upload(
     report_path = reports_dir / f"corrida_{generated_at:%Y-%m-%dT%H%M%S_%f}.md"
     report_path.write_text(report, encoding="utf-8")
     return RunResult(results, report_path, generated_at, len(remitos))
+
+
+def find_overdue_shipments(
+    path: Path,
+    *,
+    base_url: str,
+    api_key: Optional[str],
+    today: date,
+    client_factory: Optional[Callable[[str, str], ExpresoClient]] = None,
+) -> list[dict]:
+    """The bridge's overdue shipments for the export's Andino remitos, with recipient, client and city.
+
+    The shipment dicts are the API's (tracking_id, external_ref, status, estimated_delivery) plus
+    `recipient`, `client` and `city` taken from the export ("" when the API knows a remito the export
+    does not carry).
+    """
+    remitos = _read_export(path)
+    if not api_key:
+        raise CannotRun("missing_key", "Falta la variable de entorno EXPRESO_API_KEY.")
+    external_refs = [remito["nro_remito"] for remito in remitos if is_andino(remito)]
+    context = {s.remito: s for s in preview_export(path).shipments}
+
+    client = (client_factory or ExpresoClient)(base_url, api_key)
+    try:
+        found = find_overdue(external_refs, client, today)
+    except AuthenticationError as error:
+        raise CannotRun("auth_rejected", str(error)) from error
+    except ApiError as error:
+        raise CannotRun("api_unavailable", str(error)) from error
+
+    enriched = []
+    for shipment in found:
+        known = context.get(shipment.get("external_ref"))
+        enriched.append(dict(
+            shipment,
+            recipient=known.recipient if known else "",
+            client=known.client if known else "",
+            city=known.city if known else "",
+        ))
+    return enriched

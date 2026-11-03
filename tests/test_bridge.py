@@ -6,10 +6,11 @@ import tempfile
 import threading
 import unittest
 from collections import Counter
+from datetime import date
 from pathlib import Path
 
 from panel import bridge  # first: puts vendor/caso-expreso on sys.path
-from panel.bridge import CannotRun, preview_export, run_upload
+from panel.bridge import CannotRun, find_overdue_shipments, preview_export, run_upload
 
 from expreso_bridge.client import AuthenticationError, ExpresoClient
 from expreso_bridge.upload import Outcome
@@ -200,6 +201,60 @@ class RunUploadTest(TempDirTestCase):
             worker.join(30)
         self.assertTrue(started.is_set())
         self.assertFalse(bridge.RUN_LOCK.locked())
+
+
+class FindOverdueTest(TempDirTestCase):
+    def overdue(self, base_url: str, today: date = date(2026, 10, 3), **kwargs):
+        kwargs.setdefault("api_key", API_KEY)
+        kwargs.setdefault("client_factory", fast_client)
+        return find_overdue_shipments(KIT_EXPORT, base_url=base_url, today=today, **kwargs)
+
+    def test_after_a_first_run_two_are_overdue_with_their_context(self):
+        with running_kit_api() as base_url:
+            run_upload(KIT_EXPORT, base_url=base_url, api_key=API_KEY, reports_dir=self.tmp / "runs",
+                       client_factory=fast_client)
+            found = self.overdue(base_url)
+
+        self.assertEqual(sorted(s["external_ref"] for s in found), ["R-10000513", "R-10000548"])
+        for shipment in found:
+            self.assertEqual(shipment["status"], "IN_TRANSIT")
+            self.assertEqual(shipment["estimated_delivery"], "2026-10-02")
+            self.assertRegex(shipment["tracking_id"], r"^AND")
+            self.assertTrue(shipment["recipient"])
+            self.assertTrue(shipment["client"])
+            self.assertTrue(shipment["city"])
+
+    def test_nothing_overdue_before_the_estimated_date(self):
+        with running_kit_api() as base_url:
+            run_upload(KIT_EXPORT, base_url=base_url, api_key=API_KEY, reports_dir=self.tmp / "runs",
+                       client_factory=fast_client)
+            self.assertEqual(self.overdue(base_url, today=date(2026, 10, 2)), [])
+
+    def test_empty_api_has_nothing_overdue(self):
+        with running_kit_api() as base_url:
+            self.assertEqual(self.overdue(base_url), [])
+
+    def assert_cannot_run(self, kind: str, **kwargs):
+        with self.assertRaises(CannotRun) as caught:
+            self.overdue(**kwargs)
+        self.assertEqual(caught.exception.kind, kind)
+        self.assertTrue(caught.exception.technical)
+
+    def test_missing_key(self):
+        self.assert_cannot_run("missing_key", base_url="http://127.0.0.1:1", api_key=None)
+
+    def test_wrong_key(self):
+        with running_kit_api() as base_url:
+            self.assert_cannot_run("auth_rejected", base_url=base_url, api_key="wrong")
+
+    def test_api_not_running(self):
+        self.assert_cannot_run("api_unavailable", base_url=f"http://127.0.0.1:{free_port()}")
+
+    def test_unreadable_export(self):
+        with self.assertRaises(CannotRun) as caught:
+            find_overdue_shipments(self.tmp / "nope.json", base_url="http://127.0.0.1:1", api_key=API_KEY,
+                                   today=date(2026, 10, 3))
+        self.assertEqual(caught.exception.kind, "export_unreadable")
 
 
 if __name__ == "__main__":

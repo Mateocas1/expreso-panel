@@ -5,6 +5,7 @@ import json
 import tempfile
 import threading
 import unittest
+from datetime import date
 from pathlib import Path
 
 from panel import bridge, phrases  # first: puts vendor/caso-expreso on sys.path
@@ -385,6 +386,82 @@ class RoutesTest(PanelTestCase):
             self.assertEqual(data, index.read_bytes())
         else:
             self.assertEqual(response.status, 404)
+
+
+class OverdueTest(PanelTestCase):
+    def overdue(self, export_id, query=""):
+        return self.panel.json("GET", "/api/exports/%s/overdue%s" % (export_id, query))
+
+    def test_after_a_first_run_two_are_late_one_day(self):
+        self.finish_kit_run()
+        export_id = next(iter(self.server.exports))
+
+        status, body = self.overdue(export_id, "?today=2026-10-03")
+
+        self.assertEqual(status, 200)
+        self.assertEqual(body["title"], "2 envíos atrasados")
+        self.assertEqual(body["empty"], "Ningún envío atrasado al 3 de octubre.")
+        items = sorted(body["items"], key=lambda item: item["remito"])
+        self.assertEqual([item["remito"] for item in items], ["R-10000513", "R-10000548"])
+        for item in items:
+            self.assertEqual(
+                sorted(item),
+                ["city", "client", "days_late", "estimated_delivery", "late_line", "recipient",
+                 "remito", "status", "status_text", "tracking"],
+            )
+            self.assertEqual(item["status"], "IN_TRANSIT")
+            self.assertEqual(item["status_text"], "En viaje")
+            self.assertEqual(item["days_late"], 1)
+            self.assertEqual(item["estimated_delivery"], "2026-10-02")
+            self.assertEqual(item["late_line"], "Atrasado 1 día: tenía que llegar el 2 de octubre.")
+            self.assertRegex(item["tracking"], r"^AND")
+            self.assertTrue(item["recipient"] and item["client"] and item["city"])
+
+    def test_nothing_late_gives_the_empty_sentence(self):
+        self.finish_kit_run()
+        export_id = next(iter(self.server.exports))
+
+        status, body = self.overdue(export_id, "?today=2026-10-02")
+
+        self.assertEqual(status, 200)
+        self.assertEqual(body["items"], [])
+        self.assertEqual(body["title"], "0 envíos atrasados")
+        self.assertEqual(body["empty"], "Ningún envío atrasado al 2 de octubre.")
+
+    def test_default_today_is_accepted(self):
+        self.finish_kit_run()
+        export_id = next(iter(self.server.exports))
+
+        status, body = self.overdue(export_id)
+
+        self.assertEqual(status, 200)
+        self.assertEqual(body["empty"], phrases.overdue_empty(date.today()))
+        self.assertEqual(body["title"], phrases.overdue_title(len(body["items"])))
+
+    def test_bad_date_is_400(self):
+        export_id = self.upload_kit()
+        for value in ("2026-13-01", "ayer", ""):
+            with self.subTest(value=value):
+                status, body = self.overdue(export_id, "?today=" + value)
+                self.assertEqual((status, body), (400, {"error": "bad_date"}))
+
+    def test_unknown_export_is_404(self):
+        status, body = self.overdue("0" * 32, "?today=2026-10-03")
+
+        self.assertEqual((status, body), (404, {"error": "unknown_export"}))
+
+
+class OverdueWithoutKeyTest(PanelTestCase):
+    api_key = None
+
+    def test_missing_key_is_a_cannot_run_answer(self):
+        export_id = self.upload_kit()
+
+        status, body = self.panel.json("GET", "/api/exports/%s/overdue?today=2026-10-03" % export_id)
+
+        self.assertEqual(status, 503)
+        self.assertEqual(body["answer"], answer_dict(phrases.cannot_run("missing_key")))
+        self.assertTrue(body["technical"])
 
 
 if __name__ == "__main__":

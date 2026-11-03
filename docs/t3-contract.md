@@ -76,6 +76,16 @@ def run_upload(path: Path, *, base_url: str, api_key: str | None, reports_dir: P
     # The UploadResult passed to on_result is rebuilt from record.args (outcome via Outcome(value)).
 ```
 
+```python
+def find_overdue_shipments(path: Path, *, base_url: str, api_key: str | None, today: date,
+                           client_factory: Callable[[str, str], ExpresoClient] | None = None) -> list[dict]
+    # The bridge's public overdue.find_overdue over the export's Andino remitos (is_andino, like the
+    # CLI's _overdue). Each dict is the API's shipment (tracking_id, external_ref, status,
+    # estimated_delivery) plus recipient, client and city from the export ("" if the export does not
+    # carry that remito). CannotRun like run_upload: export_unreadable, missing_key, auth_rejected,
+    # api_unavailable. The kit API only knows shipments created in its own process.
+```
+
 ## `panel/phrases.py` (T3.2)
 
 Pure functions, no I/O. Every string comes from the T2 table.
@@ -112,6 +122,8 @@ def cannot_run(kind: str, export_name: str = "") -> Answer
 def plural(n: int, one: str, other: str) -> str         # Spanish one/other, never "+ s"
 ```
 
+Overdue (docs/bitacora.md §5 "Atrasados"): `status_text(status)` (`CREATED` "Todavía no salió", `IN_TRANSIT` "En viaje", `EXCEPTION` "Con un problema en el viaje"; an unknown status is returned as is), `late_line(days_late, estimated_delivery)` ("Atrasado 1 día: tenía que llegar el 2 de octubre."), `overdue_title(n)` ("2 envíos atrasados"), `overdue_empty(today)` ("Ningún envío atrasado al 3 de octubre."), `spanish_date(day)` (month names in a tuple, no locale).
+
 Counting: shipments are results minus `DUPLICATE`. A run with 0 created and at least one already-existing is a second run ("desde una carga anterior"). Created > 0 and already-existing > 0 with nothing to fix uses the 04 sub-line ("3 se cargaron ahora y los otros 20 ya estaban").
 
 ## HTTP API (T3.3)
@@ -126,6 +138,7 @@ All JSON is UTF-8. Errors use `{"answer": Answer}` with the `cannot_run` phrases
 | `POST /api/runs` | `{"export_id"}` | `202 {"run_id"}`; `409 {"answer"}` if a run is active; `404` unknown export |
 | `GET /api/runs/<id>/events` | | `text/event-stream`: `event: result` per remito with a `ResultView`, then `event: done` with a `RunView`, or `event: failed` with `{"answer", "technical"}`. Late subscribers get the events so far, then the rest |
 | `GET /api/runs/<id>` | | `RunView` |
+| `GET /api/exports/<export_id>/overdue?today=YYYY-MM-DD` | | `200 OverdueView`; `today` defaults to the server's date. `400 {"error": "bad_date"}` if `today` is not a valid ISO date; `404 {"error": "unknown_export"}`; `{"answer", "technical"}` with the `cannot_run` phrases when it cannot run (`422` unreadable, `503` missing key, `502` key rejected or API down) |
 
 ```text
 ResultView = { index, remito, recipient, client, address, state (TileState|null), label,
@@ -135,6 +148,13 @@ RunView    = { run_id, export_name, export_total, shipments_total, generated_at,
                answer: Answer, counts: {ok, prev, fix, none}, results: [ResultView],
                report_file }
 ```
+
+```text
+OverdueView = { title, empty, items: [{ remito, recipient, client, city, tracking,
+                status, status_text, late_line, days_late, estimated_delivery }] }
+```
+
+`title` is "N envío(s) atrasado(s)" (also for 0), `empty` is the sentence for a day with none. The cannot-run phrases end in "No se cargó ningún envío.", which is wrong for this view; the overdue UI should use `technical` or its own wording until `cannot_run` learns about it.
 
 Configuration from the environment, read at start: `EXPRESO_API_URL` (default `http://localhost:8000`), `EXPRESO_API_KEY`. The key never reaches the browser.
 

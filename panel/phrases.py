@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import date
 from typing import Dict, List, Mapping, Optional
 
 from expreso_bridge.upload import Outcome, UploadResult
@@ -355,3 +356,39 @@ def load_button(shipments: int) -> str:
 
 def progress(done: int, total: int) -> str:
     return "Cargando %d de %d…" % (done, total)
+
+
+# --- Overdue shipments (docs/bitacora.md section 5, "Atrasados") -------------------------------
+
+# Spanish month names written out: the panel never depends on the machine's locale.
+MONTHS = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+          "septiembre", "octubre", "noviembre", "diciembre")
+
+_STATUS_TEXT = {
+    "CREATED": "Todavía no salió",
+    "IN_TRANSIT": "En viaje",
+    "EXCEPTION": "Con un problema en el viaje",
+}
+
+
+def spanish_date(day: date) -> str:
+    return "%d de %s" % (day.day, MONTHS[day.month - 1])
+
+
+def status_text(status: str) -> str:
+    """The API status in words; a status the table does not know is shown as the API wrote it."""
+    return _STATUS_TEXT.get(status, status)
+
+
+def late_line(days_late: int, estimated_delivery: date) -> str:
+    return "Atrasado %d %s: tenía que llegar el %s." % (
+        days_late, plural(days_late, "día", "días"), spanish_date(estimated_delivery),
+    )
+
+
+def overdue_title(n: int) -> str:
+    return "%d %s %s" % (n, plural(n, "envío", "envíos"), plural(n, "atrasado", "atrasados"))
+
+
+def overdue_empty(today: date) -> str:
+    return "Ningún envío atrasado al %s." % spanish_date(today)

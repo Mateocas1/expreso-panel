@@ -5,6 +5,7 @@ upload.py `_describe_validation_errors` (export field + API message), remitos.py
 (InvalidRemito), kit/expreso_api.py `_validate` (API messages), upload.py `_classify` and client.py.
 """
 import unittest
+from datetime import date
 
 from panel import phrases
 from panel.phrases import Answer, Problem
@@ -553,6 +554,35 @@ class BeforeAndDuringTests(unittest.TestCase):
         self.assertEqual(
             phrases.PROGRESS_HINT, "Cada casillero se completa cuando Expreso Andino confirma el envío."
         )
+
+
+class OverdueTests(unittest.TestCase):
+    def test_status_words(self):
+        self.assertEqual(phrases.status_text("CREATED"), "Todavía no salió")
+        self.assertEqual(phrases.status_text("IN_TRANSIT"), "En viaje")
+        self.assertEqual(phrases.status_text("EXCEPTION"), "Con un problema en el viaje")
+
+    def test_unknown_status_is_not_invented(self):
+        self.assertEqual(phrases.status_text("LOST"), "LOST")
+
+    def test_late_line(self):
+        self.assertEqual(
+            phrases.late_line(1, date(2026, 10, 2)), "Atrasado 1 día: tenía que llegar el 2 de octubre."
+        )
+        self.assertEqual(
+            phrases.late_line(3, date(2026, 12, 1)), "Atrasado 3 días: tenía que llegar el 1 de diciembre."
+        )
+
+    def test_every_month_name(self):
+        names = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+                 "septiembre", "octubre", "noviembre", "diciembre"]
+        for number, name in enumerate(names, start=1):
+            self.assertEqual(phrases.spanish_date(date(2026, number, 15)), "15 de %s" % name)
+
+    def test_title_and_empty(self):
+        self.assertEqual(phrases.overdue_title(2), "2 envíos atrasados")
+        self.assertEqual(phrases.overdue_title(1), "1 envío atrasado")
+        self.assertEqual(phrases.overdue_empty(date(2026, 10, 3)), "Ningún envío atrasado al 3 de octubre.")
 
 
 if __name__ == "__main__":

@@ -11,11 +11,12 @@ import json
 import re
 import threading
 import uuid
+from datetime import date
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from panel import bridge, phrases  # first: puts vendor/caso-expreso on sys.path
 
@@ -36,6 +37,9 @@ CONTENT_TYPES = {
 }
 
 _RUN_ID = r"[0-9a-f]{32}"
+
+# HTTP status of a cannot-run answer on the overdue endpoint.
+_CANNOT_RUN_STATUS = {"export_unreadable": 422, "missing_key": 503, "auth_rejected": 502, "api_unavailable": 502}
 
 
 def _answer(answer: phrases.Answer) -> dict:
@@ -146,6 +150,23 @@ def run_view(run: Run, outcome: bridge.RunResult, views: List[dict]) -> dict:
         "counts": counts,
         "results": views,
         "report_file": outcome.report_path.name,
+    }
+
+
+def overdue_item(shipment: dict, today: date) -> dict:
+    estimated = date.fromisoformat(shipment["estimated_delivery"])
+    days_late = (today - estimated).days
+    return {
+        "remito": shipment["external_ref"],
+        "recipient": shipment["recipient"],
+        "client": shipment["client"],
+        "city": shipment["city"],
+        "tracking": shipment["tracking_id"],
+        "status": shipment["status"],
+        "status_text": phrases.status_text(shipment["status"]),
+        "late_line": phrases.late_line(days_late, estimated),
+        "days_late": days_late,
+        "estimated_delivery": shipment["estimated_delivery"],
     }
 
 
@@ -312,6 +333,7 @@ class Handler(BaseHTTPRequestHandler):
             path = urlsplit(self.path).path
             events = re.fullmatch(r"/api/runs/(%s)/events" % _RUN_ID, path)
             run = re.fullmatch(r"/api/runs/(%s)" % _RUN_ID, path)
+            overdue = re.fullmatch(r"/api/exports/([0-9a-f]{32})/overdue", path)
             if path == "/":
                 self._static(STATIC_DIR / "index.html")
             elif path.startswith("/static/"):
@@ -320,6 +342,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._events(events.group(1))
             elif run:
                 self._run(run.group(1))
+            elif overdue:
+                self._overdue(overdue.group(1), urlsplit(self.path).query)
             else:
                 self._error(HTTPStatus.NOT_FOUND, "not_found")
         except (BrokenPipeError, ConnectionResetError):
@@ -410,6 +434,35 @@ class Handler(BaseHTTPRequestHandler):
             self._json(HTTPStatus.OK, dict(run.failure, run_id=run_id))
         else:
             self._json(HTTPStatus.ACCEPTED, {"run_id": run_id, "running": True})
+
+    def _overdue(self, export_id: str, query: str) -> None:
+        export = self.server.exports.get(export_id)
+        if export is None:
+            return self._error(HTTPStatus.NOT_FOUND, "unknown_export")
+        raw = parse_qs(query, keep_blank_values=True).get("today", [None])[0]
+        try:
+            today = date.today() if raw is None else date.fromisoformat(raw)
+        except ValueError:
+            return self._error(HTTPStatus.BAD_REQUEST, "bad_date")
+        try:
+            found = bridge.find_overdue_shipments(
+                export.path,
+                base_url=self.server.base_url,
+                api_key=self.server.api_key,
+                today=today,
+                client_factory=self.server.client_factory,
+            )
+        except bridge.CannotRun as error:
+            name = export.preview.export_name
+            payload = _answer(phrases.cannot_run(error.kind, name))
+            payload["technical"] = error.technical
+            return self._json(_CANNOT_RUN_STATUS.get(error.kind, HTTPStatus.BAD_GATEWAY), payload)
+        items = [overdue_item(shipment, today) for shipment in found]
+        self._json(HTTPStatus.OK, {
+            "title": phrases.overdue_title(len(items)),
+            "empty": phrases.overdue_empty(today),
+            "items": items,
+        })
 
     def _events(self, run_id: str) -> None:
         run = self.server.runs.get(run_id)

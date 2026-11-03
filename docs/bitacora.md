@@ -112,6 +112,23 @@ Mateo pidió sumar animaciones sutiles, al estilo de Emil Kowalski, que den sens
 - **Todo lo demás responde a la persona.** Elegir un casillero, abrir un detalle o apretar un botón tiene una respuesta corta (menos de 300 ms) que confirma que algo pasó.
 - **Nada en loop y nada que distraiga.** Quien tiene activado "reducir movimiento" en su sistema ve los mismos cambios de estado, sin desplazamientos.
 
+### Ronda de pulido (T1.1): que deje de parecer una plantilla
+
+Con el mapa elegido, Mateo pidió una ronda de pulido: el flujo de animación de Emil Kowalski (sacar, mejorar, revisar rendimiento y recién después agregar), más better-ui, impeccable y unslop, con criterio propio para salir de lo genérico. Las decisiones con sus valores están en `design/resultado-corrida/polish-t1-1.md`.
+
+El diagnóstico fue: **la estructura es nuestra, la piel es intercambiable**. Si se cambiaba "Expreso Andino" por otro nombre, la pantalla servía igual para cualquier producto. Lo que la hacía genérica era la fuente del sistema, las cajas redondeadas con sombra (y cajas dentro de cajas), un trío de colores pastel de catálogo, una palabra del título pintada de naranja y una etiqueta chica arriba de los títulos. Lo que la hacía propia, y se conserva, es el casillero por remito, la respuesta como frase, el ámbar en lugar del rojo y los textos con nombres reales.
+
+Para darle identidad buscamos un mundo concreto: **el talonario de remitos**. Original, duplicado y triplicado en papel carbónico, tinta de sello, resaltador. De ahí salen las decisiones:
+
+- **Tipografía: Atkinson Hyperlegible Next.** La diseñó el Braille Institute para que ningún carácter se confunda con otro (0 y O, 1, l e I). Es exactamente el riesgo de leer "R-10000477" o "AND4BD591C". No está entre las fuentes gastadas por las interfaces generadas con IA, tiene licencia abierta y va incrustada en la página, así que sigue funcionando sin internet. Un detalle que se aceptó a conciencia: su cero lleva una barra (Ø) y la fuente no trae un cero sin barra. En los códigos ayuda; en un texto como "los otros 20" se nota un poco técnico. Se queda porque el beneficio en remitos y seguimientos pesa más; si en el uso real molesta, el plan B es Public Sans.
+- **Una sola mancha de color, y es lo que requiere acción.** Los 20 envíos que están bien bajan a un verde casi gris. "Ya estaba" deja de ser celeste y pasa a una trama de carbónico. Los 3 pendientes van en amarillo de resaltador, y el "3 de 23 envíos" del título queda subrayado como con un resaltador, en vez de pintado.
+- **El azul de tinta de sello** une el botón principal, la selección y el foco.
+- **Radios más chicos (2, 4, 6 y 10 px).** Un remito, una etiqueta o un casillero de depósito tienen esquinas casi vivas. Los radios grandes eran justamente parte del aspecto de plantilla.
+- **Menos cajas.** El mapa va directo sobre la página; la única hoja elevada es la de "Para corregir en LogiSur", porque lo que hay que hacer es papel.
+- **El movimiento se ajustó con el flujo de Emil.** Se sacó un hover casi imperceptible. Las curvas pasaron a una ease-out más decidida y la carga en vivo dura 2 segundos en vez de 3. Las filas a corregir aparecen en el momento en que su casillero se resuelve, así se ve la causa y el efecto. Al terminar, los 3 casilleros ámbar hacen un único pulso que los ata a la frase del título.
+
+Cuando las skills se contradecían (pasa entre better-ui, impeccable y unslop en sombras, radios, curvas y tipografía), decidió lo que dejaba más clara la pantalla para operaciones y, ante la duda, el pedido explícito de Mateo. La tabla de conflictos y cómo se resolvió cada uno está en `polish-t1-1.md`.
+
 ## 10. Registro de decisiones
 
 | Fecha | Decisión | Por qué | Descartado |
@@ -131,3 +148,9 @@ Mateo pidió sumar animaciones sutiles, al estilo de Emil Kowalski, que den sens
 | 2026-11-03 | Las tres direcciones comparten contenido y orden, y cambian la forma de leer | Así la elección es sobre la experiencia (nota, bandeja de trabajo, mapa) y no sobre el texto | Variar solo colores |
 | 2026-11-03 | Dirección elegida: 03 · El mapa | Responde de un vistazo, hace visible que no se duplica nada, une los tres momentos en un solo objeto y se entiende en una demo. Las frases siguen resolviendo el arreglo | 01 · La nota (no escala), 02 · La bandeja (demasiado "sistema" para la tarea) |
 | 2026-11-03 | Animaciones solo con propósito: la carga en vivo, y respuestas cortas a lo que hace la persona | El movimiento tiene que explicar (avance, selección) y dar sensación de cuidado sin hacer esperar. Nada al abrir el resultado y nada en loop | Animación de entrada en cada visita, efectos decorativos |
+| 2026-11-03 | Mundo visual "Remito": talonario con carbónico, tinta de sello, resaltador | Darle a la pantalla una identidad que venga del oficio de quien la usa, y no de una plantilla | Paleta y estilo genéricos de SaaS |
+| 2026-11-03 | Tipografía Atkinson Hyperlegible Next, incrustada en la página (reemplaza la decisión de usar fuentes del sistema) | Está hecha para no confundir caracteres parecidos, que es el riesgo con códigos de remito y de seguimiento; no está gastada; al ir incrustada sigue funcionando sin internet | Fuente del sistema (genérica), Inter, DM Sans, Geist, IBM Plex y otras muy usadas |
+| 2026-11-03 | Una sola mancha de color: amarillo resaltador para lo que requiere acción; verde casi gris para lo que salió bien; trama para "ya estaba" | Lo que no requiere acción no tiene que competir con lo que sí | Verde menta, celeste y ámbar con el mismo peso |
+| 2026-11-03 | Radios de 2, 4, 6 y 10 px | Esquinas de papel y de etiqueta; los radios grandes eran parte del aspecto genérico | Radios de 10 a 20 px |
+| 2026-11-03 | Menos cajas: mapa sobre la página, una sola hoja elevada para lo que hay que corregir, sin etiquetas arriba de los títulos | Cajas dentro de cajas agregan ruido y no agrupan nada que el espacio no agrupe | Tarjeta para cada bloque |
+| 2026-11-03 | Movimiento ajustado con el flujo de Emil Kowalski: sacar el hover de brillo, curva ease-out más marcada, carga en vivo de ~2 s, filas que aparecen cuando su casillero se resuelve, un solo pulso final en los pendientes | Cada movimiento explica algo (avance, causa y efecto); lo imperceptible se saca | Mantener la versión anterior sin auditar |

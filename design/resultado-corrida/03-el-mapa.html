@@ -124,7 +124,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     --ok: oklch(0.42 0.09 165);
     --ok-line: oklch(0.62 0.08 165);
     --hatch: oklch(0.21 0.02 255 / 0.07);
-    --attn-fill: oklch(0.9 0.12 88);
+    --attn-fill: oklch(0.95 0.07 90);
+    --hl: oklch(0.9 0.12 88);
     --attn-line: oklch(0.5 0.12 70);
     --attn-ink: oklch(0.28 0.06 70);
     --attn-wash: oklch(0.965 0.05 92);
@@ -184,7 +185,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   .answer .live { align-self: start; }
   .answer .big, .answer h1 { font-size: var(--t-xl); line-height: 1.08; letter-spacing: -0.025em; font-weight: 500; }
   /* The count sits on a highlighter band: solid, repeated on each line it wraps to */
-  .answer h1 .hl { box-shadow: inset 0 -0.32em 0 var(--attn-fill); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .answer h1 .hl { box-shadow: inset 0 -0.32em 0 var(--hl); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   /* Replay: live counter and final sentence share one grid cell, so nothing jumps.
      Exit fast, enter slightly later; the old one is gone before the new one arrives. */
   .answer .live { visibility: hidden; opacity: 0; transition: opacity 120ms var(--ease-out), visibility 0s linear 120ms; }
@@ -199,10 +200,15 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   }
   .answer .sub { margin-block-start: 1rem; color: var(--text-2); max-width: 28rem; }
   .answer .actions { margin-block-start: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-  .answer .note { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; }
 
   /* Legend: the tiles' own swatches, one row per state */
-  .legend { list-style: none; margin: 2.5rem 0 0; padding: 0; max-width: 24rem; border-block-start: 1px solid var(--hair); }
+  .legend { list-style: none; margin: 2.5rem 0 0; --lift: 0px; padding: 0; max-width: 24rem; border-block-start: 1px solid var(--hair); }
+  /* While the replay runs the live counter is shorter than the final sentence: the legend rises by the difference (--lift, measured in JS) so no empty band shows, and returns when the sentence does */
+  .running .legend { margin-block-start: calc(2.5rem - var(--lift)); }
+  @media (prefers-reduced-motion: no-preference) {
+    .legend { transition: margin-block-start 170ms var(--ease-out) 80ms; }
+    .running .legend { transition-duration: 190ms; transition-delay: 60ms; }
+  }
   .legend li { display: grid; grid-template-columns: 1.75rem 1fr auto; gap: 1rem; align-items: center; padding-block: 0.5rem; border-block-end: 1px solid var(--hair); font-size: var(--t-md); line-height: 1.5; }
   .legend .n { color: var(--text-2); text-align: end; min-width: 2ch; }
   .sw { position: relative; isolation: isolate; width: 1.75rem; height: 1.75rem; border-radius: var(--r-sm); display: grid; place-items: center; }
@@ -233,7 +239,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   .tile.prev { background: transparent; }
   .tile.fix { background: var(--attn-fill); --ring-in: 2px; }
   .tile.fix .name { font-weight: 600; }
-  .tile.fix .row { color: var(--attn-ink); }
+  .tile.fix:not(.pend) .row { color: var(--attn-ink); }
   .tile[aria-pressed="true"] { --ring-gap: 2px; --ring-out: 4px; }
   .tile:focus-visible { outline-offset: 5px; }
   /* Carbon copy: diagonal hatch on its own layer so it can fade like a fill */
@@ -284,7 +290,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   .fix-table tr.lit td { background: var(--attn-wash); }
   /* One-time attention highlight after "Ver cómo corregirlo": holds the colour, then fades out; never loops */
   .fix-table tr.flash td { animation: attn 900ms ease-out; }
-  @keyframes attn { 0%, 25% { background-color: var(--attn-fill); } }
+  @keyframes attn { 0%, 25% { background-color: var(--hl); } }
   .fix-table tr:focus-visible { outline-offset: -2px; }
   /* During the replay each row waits for its tile and is discovered when the tile resolves */
   .fix-table tr { transition: opacity 220ms var(--ease-out); }
@@ -364,7 +370,6 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <p class="sub">Los otros 20 ya están en Expreso Andino. No hace falta hacer nada con ellos.</p>
           <div class="actions">
             <a class="btn btn-primary" href="#para-corregir">Ver qué falta</a>
-            <span class="note">Después, volvé a cargar el export.</span>
           </div>
         </div>
         <div class="live" aria-hidden="true">
@@ -386,7 +391,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <button type="button" class="btn btn-quiet btn-sm" id="replay"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5l11 6.5-11 6.5z"/></svg><span id="replay-label">Ver la carga en vivo</span></button>
       </div>
       <ul class="map" id="map" aria-label="Envíos de la carga, en orden de remito"></ul>
-      <p class="picked" id="picked" aria-live="polite"><span class="k">Tocá un envío para ver su estado.</span></p>
+      <p class="picked" id="picked" aria-live="polite"><span class="k">Elegí un envío para ver su estado.</span></p>
     </section>
   </div>
 
@@ -394,7 +399,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     <div class="sheet">
       <div class="fixes-head">
         <h2 id="fixes-title">Para corregir en LogiSur</h2>
-        <p>Cuando estén corregidos, volvé a cargar el export. Lo que ya está en Expreso Andino no se carga dos veces.</p>
+        <p>Cuando los corrijas, volvé a cargar el export. No se duplica nada.</p>
       </div>
       <table class="fix-table">
         <colgroup><col style="width:28%"><col style="width:20%"><col style="width:18%"><col style="width:11%"><col style="width:23%"></colgroup>
@@ -495,7 +500,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     </button></li>`).join("");
 
   const picked = document.getElementById("picked");
-  const idle = '<span class="k">Tocá un envío para ver su estado.</span>';
+  const idle = '<span class="k">Elegí un envío para ver su estado.</span>';
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const tiles = [...map.querySelectorAll(".tile")];
   const rows = [...document.querySelectorAll(".fix-table tbody tr")];
@@ -564,6 +569,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   const STEP = 70, START = 200, TAIL = 250;
   const total = shipments.length;
   const live = document.getElementById("live-n");
+  const legend = document.querySelector(".legend");
+  const finalBox = document.querySelector(".answer .final");
+  const liveBox = document.querySelector(".answer .live");
   const announce = document.getElementById("announce");
   const replayLabel = document.getElementById("replay-label");
   const labels = tiles.map(t => t.getAttribute("aria-label"));
@@ -616,6 +624,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       t.setAttribute("aria-label", `${shipments[i][1]}, ${shipments[i][0]}: esperando`);
     });
     rows.forEach(hideRow);
+    // The live block is shorter than the final one; lift the legend by the difference (re-measured: the width may have changed)
+    legend.style.setProperty("--lift", `${Math.max(0, finalBox.offsetHeight - liveBox.offsetHeight)}px`);
     document.body.classList.add("running");
     replayLabel.textContent = "Volver a empezar";
     announce.textContent = `Cargando ${total} envíos.`;

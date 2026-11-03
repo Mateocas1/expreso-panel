@@ -92,3 +92,13 @@ The physical remito pad: carbon copies (original, duplicado, triplicado), stamp 
 | Weights | unslop 400/500; better-typography 600 headings | 600 only where it replaces color |
 | Mono | unslop accepts it for data; impeccable calls it a costume | Only real code (technical detail) |
 | Process | unslop: show the direction and wait | The user delegated judgment in L7; the canvas is the review |
+
+## Round 2 (T1.2)
+
+Asked by the parent after reviewing T1.1, accepted by Mateo (Log L8-L9).
+
+1. **Calmer attention tiles.** Fill, 2px ring and bold name said the same thing three times, and the three yellow blocks competed with the answer. Keep the ring and the bold name as the signal; lighten the fill to a washed highlighter (around `oklch(0.95 0.07 90)`), re-measure every pair on it. The legend swatch and the mini cells follow.
+2. **Say it once.** Remove "Después, volvé a cargar el export." next to "Ver qué falta". The fix sheet's note becomes one line: "Cuando los corrijas, volvé a cargar el export. No se duplica nada."
+3. **Desktop verb.** "Tocá un envío para ver su estado." becomes "Elegí un envío para ver su estado." (both places it appears).
+4. **No empty band during the live replay.** While the replay runs, the legend moves up under the live counter and counts there; when it ends it returns under the final sentence without a jump (same motion rules: ease-out, ≤250ms, opacity-only under reduced motion).
+5. **Typeface by looking, not by reasoning.** Atkinson Hyperlegible Next draws 0 with a slash and has no unslashed alternate: good for codes, too technical in times and dates ("10:47", "2026-09-30"). New artboard `04-el-mapa-public-sans.html`: identical to 03 (with items 1-4) but set in Public Sans (USWDS, OFL), embedded the same way. Mateo picks one; the other is dropped.

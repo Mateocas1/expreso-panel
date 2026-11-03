@@ -22,7 +22,14 @@
       "title": "El mapa",
       "tradeoff": "One tile per shipment shows the whole batch at a glance and the same tiles fill in during the upload; the successes stay visible (quiet), motion only on demand (live replay of the run, selection, disclosures), and past a few hundred shipments the map needs grouping",
       "width": 1440,
-      "height": 1740
+      "height": 1711
+    },
+    {
+      "file": "04-el-mapa-public-sans.html",
+      "title": "El mapa · Public Sans",
+      "tradeoff": "Same screen as El mapa, set in Public Sans to compare typefaces: the unslashed zero reads friendlier in times and dates (10:47, 2026-09-30), while Atkinson Hyperlegible Next disambiguates codes (0/O, 1/l/I) in remito numbers and tracking codes; Mateo picks one and the other is dropped",
+      "width": 1440,
+      "height": 1730
     }
   ]
 }

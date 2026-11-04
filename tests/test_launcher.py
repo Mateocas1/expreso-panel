@@ -73,6 +73,44 @@ class ReadConfigTest(unittest.TestCase):
             "En expreso.ini, url tiene que empezar con https:// o http://, por ejemplo https://api.example.com.",
         )
 
+    def test_plain_http_only_for_this_computer(self):
+        self.write("[expreso_andino]\nurl = http://api.example.com\napi_key = secret-key\n")
+        with self.assertRaises(launcher.LaunchError) as caught:
+            launcher.read_config(self.path)
+        self.assertEqual(
+            str(caught.exception),
+            "En expreso.ini, url tiene que empezar con https://. http:// solo sirve para una API en esta misma "
+            "computadora (localhost o 127.0.0.1): con otra dirección, la clave viajaría sin cifrar.",
+        )
+        self.write("[expreso_andino]\nurl = http://localhost:8000\napi_key = secret-key\n")
+        self.assertEqual(launcher.read_config(self.path), ("http://localhost:8000", "secret-key"))
+        self.write("[expreso_andino]\nurl = http://127.0.0.1:8000\napi_key = secret-key\n")
+        self.assertEqual(launcher.read_config(self.path), ("http://127.0.0.1:8000", "secret-key"))
+
+    def test_notepad_byte_order_mark_is_accepted(self):
+        self.path.write_bytes("\ufeff[expreso_andino]\nurl = https://api.example.com\napi_key = k\n".encode("utf-8"))
+        self.assertEqual(launcher.read_config(self.path), ("https://api.example.com", "k"))
+
+    def test_other_encodings_are_explained(self):
+        self.path.write_bytes("[expreso_andino]\nurl = https://api.example.com\napi_key = año\n".encode("latin-1"))
+        with self.assertRaises(launcher.LaunchError) as caught:
+            launcher.read_config(self.path)
+        self.assertEqual(str(caught.exception),
+                         "No se pudo leer expreso.ini: guardalo con codificación UTF-8 y volvé a abrir el panel.")
+
+    def test_a_folder_named_like_the_config_is_not_test_mode(self):
+        self.path.mkdir()
+        with self.assertRaises(launcher.LaunchError) as caught:
+            launcher.read_config(self.path)
+        self.assertTrue(str(caught.exception).startswith("No se pudo leer expreso.ini: "))
+
+    def test_duplicate_keys_are_explained(self):
+        self.write("[expreso_andino]\nurl = https://a.example.com\nurl = https://b.example.com\napi_key = k\n")
+        with self.assertRaises(launcher.LaunchError) as caught:
+            launcher.read_config(self.path)
+        self.assertEqual(str(caught.exception),
+                         "No se pudo leer expreso.ini: url aparece dos veces. Dejá una sola línea con url.")
+
     def test_unreadable_file_is_explained(self):
         self.write("url = https://api.example.com\n")  # no [expreso_andino] section
         with self.assertRaises(launcher.LaunchError) as caught:
@@ -201,7 +239,22 @@ class LaunchTest(unittest.TestCase):
             "Para apagarlo, cerrá esta ventana.\n"))
 
 
+class ReuseAddressTest(unittest.TestCase):
+    def test_windows_never_shares_a_listening_port(self):
+        from panel.server import reuse_address
+        self.assertFalse(reuse_address("win32"))  # SO_REUSEADDR there lets a second panel bind the same port
+        self.assertTrue(reuse_address("linux"))
+
+
 class MainTest(unittest.TestCase):
+    def test_an_unexpected_failure_is_explained_and_paused(self):
+        err = io.StringIO()
+        with mock.patch.object(launcher, "launch", side_effect=OSError(13, "Permission denied")), \
+                redirect_stderr(err), mock.patch("builtins.input", return_value="") as asked:
+            self.assertEqual(launcher.main(["--pause-on-error"]), 1)
+        self.assertEqual(err.getvalue(), "No se pudo abrir el panel: PermissionError: [Errno 13] Permission denied\n")
+        asked.assert_called_once_with("Apretá Enter para cerrar esta ventana.")
+
     def test_a_launch_error_is_printed_and_exits_with_2(self):
         err = io.StringIO()
         with mock.patch.object(launcher, "launch", side_effect=launcher.LaunchError("Algo falta.")), \

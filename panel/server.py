@@ -12,6 +12,7 @@ import logging
 import re
 import shutil
 import socket
+import sys
 import threading
 import uuid
 from datetime import date
@@ -180,9 +181,14 @@ def overdue_item(shipment: dict, today: date) -> dict:
     }
 
 
+def reuse_address(platform: str) -> bool:
+    """On Windows SO_REUSEADDR lets a second server bind a port that is already listening."""
+    return platform != "win32"
+
+
 class PanelServer(ThreadingHTTPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    allow_reuse_address = reuse_address(sys.platform)
 
     def __init__(
         self,

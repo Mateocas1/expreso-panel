@@ -17,12 +17,14 @@ from dataclasses import dataclass
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from typing import Callable, List, Optional, TextIO, Tuple
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_NAME = "expreso.ini"
 SECTION = "expreso_andino"
 TEST_API_KEY = "andino-test-7f3a91"  # the kit's published test key, not a secret
 DEFAULT_PORT = 8080
+_THIS_COMPUTER = {"localhost", "127.0.0.1", "::1"}
 
 _INCOMPLETE = "En expreso.ini falta %s. Completalo y volvé a abrir el panel. (Sin expreso.ini, el panel abre en modo prueba.)"
 
@@ -33,12 +35,21 @@ class LaunchError(Exception):
 
 def read_config(path: Path) -> Optional[Tuple[str, str]]:
     """(url, api_key) of the real API, or None when there is no file (test mode)."""
-    if not path.is_file():
+    if not path.exists():
         return None
+    try:
+        text = path.read_text(encoding="utf-8-sig")  # Notepad's "UTF-8 with BOM" is still UTF-8
+    except UnicodeDecodeError:
+        raise LaunchError("No se pudo leer expreso.ini: guardalo con codificación UTF-8 y volvé a abrir el panel.")
+    except OSError as error:
+        raise LaunchError("No se pudo leer expreso.ini: %s." % (error.strerror or error))
     parser = configparser.ConfigParser(interpolation=None)
     try:
-        parser.read(path, encoding="utf-8")
-    except (configparser.Error, UnicodeDecodeError):
+        parser.read_string(text, source=CONFIG_NAME)
+    except configparser.DuplicateOptionError as error:
+        raise LaunchError("No se pudo leer expreso.ini: %s aparece dos veces. Dejá una sola línea con %s."
+                          % (error.option, error.option))
+    except configparser.Error:
         parser = None
     if parser is None or not parser.has_section(SECTION):
         raise LaunchError("No se pudo leer expreso.ini: tiene que empezar con la línea [expreso_andino]. "
@@ -50,6 +61,9 @@ def read_config(path: Path) -> Optional[Tuple[str, str]]:
             raise LaunchError(_INCOMPLETE % name)
     if not url.startswith(("https://", "http://")):
         raise LaunchError("En expreso.ini, url tiene que empezar con https:// o http://, por ejemplo https://api.example.com.")
+    if url.startswith("http://") and urlsplit(url).hostname not in _THIS_COMPUTER:
+        raise LaunchError("En expreso.ini, url tiene que empezar con https://. http:// solo sirve para una API en esta "
+                          "misma computadora (localhost o 127.0.0.1): con otra dirección, la clave viajaría sin cifrar.")
     return url, api_key
 
 
@@ -145,6 +159,13 @@ def launch(
     return launched
 
 
+def _fail(message: str, code: int, pause: bool) -> int:
+    print(message, file=sys.stderr)
+    if pause:
+        input("Apretá Enter para cerrar esta ventana.")
+    return code
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(prog="python3 -m panel.launcher", description="Abre el panel en el navegador")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
@@ -155,10 +176,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     try:
         launched = launch(ROOT, port=args.port)
     except LaunchError as error:
-        print(error, file=sys.stderr)
-        if args.pause_on_error:
-            input("Apretá Enter para cerrar esta ventana.")
-        return 2
+        return _fail(str(error), 2, args.pause_on_error)
+    except Exception as error:  # a traceback means nothing to whoever double-clicked; the window must stay open
+        return _fail("No se pudo abrir el panel: %s: %s" % (type(error).__name__, error), 1, args.pause_on_error)
     try:
         launched.panel.serve_forever()
     except KeyboardInterrupt:

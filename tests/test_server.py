@@ -31,7 +31,7 @@ class GatedClient(ExpresoClient):
 
 
 def answer_dict(answer: phrases.Answer) -> dict:
-    return {"headline": answer.headline, "sub": answer.sub, "button": answer.button}
+    return {"headline": answer.headline, "sub": answer.sub, "button": answer.button, "action": answer.action}
 
 
 class PanelClient:
@@ -203,6 +203,7 @@ class FirstRunTest(PanelTestCase):
                 "headline": "3 de 23 envíos esperan un dato de LogiSur.",
                 "sub": "Los otros 20 ya están en Expreso Andino. No hace falta hacer nada con ellos.",
                 "button": "Ver qué falta",
+                "action": "show_fixes",
             },
         )
         self.assertEqual([r["index"] for r in done["results"]], list(range(24)))
@@ -234,6 +235,13 @@ class FirstRunTest(PanelTestCase):
             }],
         )
         self.assertEqual(view["technical"], "destinatario.codigo_postal: required non-empty string")
+
+    def test_empty_street_reads_city_and_province(self):
+        _, events = self.finish_kit_run()
+
+        view = self.results_by_remito(events)["R-10000516"]
+        self.assertEqual(view["recipient"], "Sanitarios Rivera")
+        self.assertEqual(view["address"], "Caballito, Capital Federal")
 
     def test_zero_packages_reads_the_value_from_the_export(self):
         _, events = self.finish_kit_run()
@@ -460,7 +468,8 @@ class OverdueWithoutKeyTest(PanelTestCase):
         status, body = self.panel.json("GET", "/api/exports/%s/overdue?today=2026-10-03" % export_id)
 
         self.assertEqual(status, 503)
-        self.assertEqual(body["answer"], answer_dict(phrases.cannot_run("missing_key")))
+        self.assertEqual(body["answer"], answer_dict(phrases.cannot_run("missing_key", context="overdue")))
+        self.assertNotIn("No se cargó", body["answer"]["sub"])
         self.assertTrue(body["technical"])
 
 

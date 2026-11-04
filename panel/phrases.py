@@ -52,6 +52,8 @@ class Answer:
     headline: str
     sub: str
     button: Optional[str]
+    # What the button does, so the page never decides by its text: show_fixes | reload | retry | pick_other
+    action: Optional[str] = None
 
 
 # --- Problems of a shipment to fix ------------------------------------------------------------
@@ -239,7 +241,7 @@ def run_answer(results: List[UploadResult]) -> Answer:
             sub += " %s." % (
                 "Los otros %d ya están cargados" % loaded if loaded > 1 else "El otro ya está cargado"
             )
-        return Answer("%d de %d %s no se cargaron." % (fix + none, total, envios), sub, "Ver qué pasó")
+        return Answer("%d de %d %s no se cargaron." % (fix + none, total, envios), sub, "Ver qué pasó", "show_fixes")
 
     if fix:
         others = total - fix
@@ -259,7 +261,7 @@ def run_answer(results: List[UploadResult]) -> Answer:
             sub = "Los otros %d ya están en Expreso Andino. No hace falta hacer nada con ellos." % others
         else:
             sub = "El otro ya está en Expreso Andino. No hace falta hacer nada con él."
-        return Answer(headline, sub, "Ver qué falta")
+        return Answer(headline, sub, "Ver qué falta", "show_fixes")
 
     if none:
         verb = plural(none, "se cargó", "se cargaron")
@@ -267,11 +269,12 @@ def run_answer(results: List[UploadResult]) -> Answer:
             "%d de %d %s no %s." % (none, total, envios, verb),
             "Expreso Andino no respondió. No se perdió nada: volvé a cargar el export en unos minutos.",
             "Volver a cargar el export",
+            "reload",
         )
 
     headline = "No tenés que hacer nada."
     if total == 0:
-        return Answer(headline, "Este export no tiene envíos para Expreso Andino.", None)
+        return Answer(headline, "Este export no tiene envíos para Expreso Andino.", None, None)
     if ok and prev:
         return Answer(
             headline,
@@ -279,45 +282,58 @@ def run_answer(results: List[UploadResult]) -> Answer:
             "No se cargó nada dos veces."
             % (total, ok, plural(ok, "se cargó", "se cargaron"), prev),
             None,
+            None,
         )
     if prev:
         subject = "Los %d envíos ya estaban" % total if total > 1 else "El envío ya estaba"
-        return Answer(headline, subject + " en Expreso Andino. No se cargó nada dos veces.", None)
+        return Answer(headline, subject + " en Expreso Andino. No se cargó nada dos veces.", None, None)
     subject = "Los %d envíos ya están" % total if total > 1 else "El envío ya está"
-    return Answer(headline, subject + " en Expreso Andino.", None)
+    return Answer(headline, subject + " en Expreso Andino.", None, None)
 
 
 # --- No se pudo correr -------------------------------------------------------------------------
 
 _NOTHING_LOADED = "No se cargó ningún envío."
+_NOTHING_CHECKED = "No se pudo consultar el estado de los envíos."
 
 
-def cannot_run(kind: str, export_name: str = "") -> Answer:
-    """kind: export_unreadable | missing_key | auth_rejected | api_unavailable | auth_rejected_midrun."""
+def cannot_run(kind: str, export_name: str = "", context: str = "upload") -> Answer:
+    """kind: export_unreadable | missing_key | auth_rejected | api_unavailable | auth_rejected_midrun.
+
+    context: "upload" (the load) or "overdue" (the overdue query, which loads nothing, so the
+    "No se cargó ningún envío." sentence goes, and where it fits the sub-line says what could not be done).
+    """
+    overdue = context == "overdue"
+    nothing = "" if overdue else " " + _NOTHING_LOADED
     if kind == "export_unreadable":
         return Answer(
             "No se pudo leer el archivo.",
             "«%s» no parece un export de LogiSur o está dañado. "
-            "Descargalo de nuevo desde LogiSur y volvé a elegirlo. %s" % (export_name, _NOTHING_LOADED),
+            "Descargalo de nuevo desde LogiSur y volvé a elegirlo.%s" % (export_name, nothing),
             "Elegir otro archivo",
+            "pick_other",
         )
     if kind == "missing_key":
         return Answer(
             "El panel no está conectado con Expreso Andino.",
-            "Falta configurar la clave de acceso. Avisale a sistemas. " + _NOTHING_LOADED,
+            "Falta configurar la clave de acceso. Avisale a sistemas." + nothing,
+            None,
             None,
         )
     if kind == "auth_rejected":
         return Answer(
             "Expreso Andino no aceptó la conexión.",
-            "La clave de acceso del panel no es válida. Avisale a sistemas. " + _NOTHING_LOADED,
+            "La clave de acceso del panel no es válida. Avisale a sistemas." + nothing,
+            None,
             None,
         )
     if kind == "api_unavailable":
         return Answer(
             "Expreso Andino no responde.",
-            _NOTHING_LOADED + " Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.",
+            (_NOTHING_CHECKED if overdue else _NOTHING_LOADED)
+            + " Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.",
             "Volver a intentar",
+            "retry",
         )
     if kind == "auth_rejected_midrun":
         return Answer(
@@ -325,13 +341,14 @@ def cannot_run(kind: str, export_name: str = "") -> Answer:
             "Expreso Andino dejó de aceptar la conexión. Avisale a sistemas. "
             "Lo que se llegó a cargar no se va a duplicar cuando vuelvas a cargar el export.",
             None,
+            None,
         )
     raise KeyError(kind)
 
 
 def run_in_progress() -> Answer:
     """A second load was asked for while one is still running."""
-    return Answer("Ya hay una carga en curso.", "Esperá a que termine para cargar otro export.", None)
+    return Answer("Ya hay una carga en curso.", "Esperá a que termine para cargar otro export.", None, None)
 
 
 # --- Before and during the load ----------------------------------------------------------------
@@ -392,3 +409,10 @@ def overdue_title(n: int) -> str:
 
 def overdue_empty(today: date) -> str:
     return "Ningún envío atrasado al %s." % spanish_date(today)
+
+
+def address_line(street: str, city: str, province: str) -> str:
+    """"street, city"; with no street (blank counts as none) "city, province". Only non-empty parts."""
+    street, city, province = street.strip(), city.strip(), province.strip()
+    parts = (street, city) if street else (city, province)
+    return ", ".join(part for part in parts if part)

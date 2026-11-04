@@ -381,6 +381,7 @@ class RunAnswerTests(unittest.TestCase):
                 "3 de 23 envíos esperan un dato de LogiSur.",
                 "Los otros 20 ya están en Expreso Andino. No hace falta hacer nada con ellos.",
                 "Ver qué falta",
+                "show_fixes",
             ),
         )
 
@@ -392,6 +393,7 @@ class RunAnswerTests(unittest.TestCase):
                 "3 esperan un dato de LogiSur y 2 no tuvieron respuesta de Expreso Andino. "
                 "Los otros 18 ya están cargados.",
                 "Ver qué pasó",
+                "show_fixes",
             ),
         )
 
@@ -402,13 +404,14 @@ class RunAnswerTests(unittest.TestCase):
                 "2 de 23 envíos no se cargaron.",
                 "Expreso Andino no respondió. No se perdió nada: volvé a cargar el export en unos minutos.",
                 "Volver a cargar el export",
+                "reload",
             ),
         )
 
     def test_all_good_first_load(self):
         self.assertEqual(
             phrases.run_answer(shipments(ok=23)),
-            Answer("No tenés que hacer nada.", "Los 23 envíos ya están en Expreso Andino.", None),
+            Answer("No tenés que hacer nada.", "Los 23 envíos ya están en Expreso Andino.", None, None),
         )
 
     def test_second_load_with_things_left_to_fix(self):
@@ -419,6 +422,7 @@ class RunAnswerTests(unittest.TestCase):
                 "Los otros 20 ya estaban en Expreso Andino desde una carga anterior. "
                 "No se cargó nada dos veces.",
                 "Ver qué falta",
+                "show_fixes",
             ),
         )
 
@@ -428,6 +432,7 @@ class RunAnswerTests(unittest.TestCase):
             Answer(
                 "No tenés que hacer nada.",
                 "Los 23 envíos ya estaban en Expreso Andino. No se cargó nada dos veces.",
+                None,
                 None,
             ),
         )
@@ -439,6 +444,7 @@ class RunAnswerTests(unittest.TestCase):
                 "No tenés que hacer nada.",
                 "Los 23 envíos ya están en Expreso Andino: 3 se cargaron ahora y los otros 20 ya estaban. "
                 "No se cargó nada dos veces.",
+                None,
                 None,
             ),
         )
@@ -466,7 +472,7 @@ class RunAnswerTests(unittest.TestCase):
         answer = phrases.run_answer(shipments(fix=3))
         self.assertEqual(answer.headline, "3 de 3 envíos esperan un dato de LogiSur.")
         self.assertEqual(answer.sub, "")
-        self.assertEqual(answer.button, "Ver qué falta")
+        self.assertEqual((answer.button, answer.action), ("Ver qué falta", "show_fixes"))
 
     def test_empty_run(self):
         answer = phrases.run_answer([])
@@ -478,7 +484,7 @@ class RunInProgressTests(unittest.TestCase):
     def test_run_in_progress(self):
         self.assertEqual(
             phrases.run_in_progress(),
-            Answer("Ya hay una carga en curso.", "Esperá a que termine para cargar otro export.", None),
+            Answer("Ya hay una carga en curso.", "Esperá a que termine para cargar otro export.", None, None),
         )
 
 
@@ -491,6 +497,7 @@ class CannotRunTests(unittest.TestCase):
                 "«planilla_octubre.xlsx» no parece un export de LogiSur o está dañado. "
                 "Descargalo de nuevo desde LogiSur y volvé a elegirlo. No se cargó ningún envío.",
                 "Elegir otro archivo",
+                "pick_other",
             ),
         )
 
@@ -500,6 +507,7 @@ class CannotRunTests(unittest.TestCase):
             Answer(
                 "El panel no está conectado con Expreso Andino.",
                 "Falta configurar la clave de acceso. Avisale a sistemas. No se cargó ningún envío.",
+                None,
                 None,
             ),
         )
@@ -511,6 +519,7 @@ class CannotRunTests(unittest.TestCase):
                 "Expreso Andino no aceptó la conexión.",
                 "La clave de acceso del panel no es válida. Avisale a sistemas. No se cargó ningún envío.",
                 None,
+                None,
             ),
         )
 
@@ -521,6 +530,7 @@ class CannotRunTests(unittest.TestCase):
                 "Expreso Andino no responde.",
                 "No se cargó ningún envío. Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.",
                 "Volver a intentar",
+                "retry",
             ),
         )
 
@@ -532,12 +542,69 @@ class CannotRunTests(unittest.TestCase):
                 "Expreso Andino dejó de aceptar la conexión. Avisale a sistemas. "
                 "Lo que se llegó a cargar no se va a duplicar cuando vuelvas a cargar el export.",
                 None,
+                None,
             ),
         )
 
     def test_unknown_kind_is_an_error(self):
         with self.assertRaises(KeyError):
             phrases.cannot_run("nope")
+
+
+class CannotRunOverdueTests(unittest.TestCase):
+    """The overdue query loads nothing: the "No se cargó ningún envío." sentence must not appear."""
+
+    def test_no_kind_mentions_a_load(self):
+        for kind in ("export_unreadable", "missing_key", "auth_rejected", "api_unavailable"):
+            with self.subTest(kind=kind):
+                answer = phrases.cannot_run(kind, "x.json", context="overdue")
+                self.assertNotIn("No se cargó ningún envío", answer.sub)
+
+    def test_api_unavailable_says_what_could_not_be_done(self):
+        self.assertEqual(
+            phrases.cannot_run("api_unavailable", context="overdue"),
+            Answer(
+                "Expreso Andino no responde.",
+                "No se pudo consultar el estado de los envíos. "
+                "Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.",
+                "Volver a intentar",
+                "retry",
+            ),
+        )
+
+    def test_missing_key_and_auth_rejected(self):
+        self.assertEqual(
+            phrases.cannot_run("missing_key", context="overdue").sub,
+            "Falta configurar la clave de acceso. Avisale a sistemas.",
+        )
+        self.assertEqual(
+            phrases.cannot_run("auth_rejected", context="overdue").sub,
+            "La clave de acceso del panel no es válida. Avisale a sistemas.",
+        )
+
+    def test_export_unreadable_keeps_its_button(self):
+        answer = phrases.cannot_run("export_unreadable", "a.xlsx", context="overdue")
+        self.assertEqual(answer.sub,
+            "«a.xlsx» no parece un export de LogiSur o está dañado. "
+            "Descargalo de nuevo desde LogiSur y volvé a elegirlo.")
+        self.assertEqual(answer.action, "pick_other")
+
+    def test_upload_is_the_default_context(self):
+        self.assertEqual(phrases.cannot_run("missing_key"), phrases.cannot_run("missing_key", context="upload"))
+
+
+class AddressLineTests(unittest.TestCase):
+    def test_street_and_city(self):
+        self.assertEqual(phrases.address_line("Belgrano 2184", "Pilar", "Buenos Aires"), "Belgrano 2184, Pilar")
+
+    def test_empty_street_falls_back_to_city_and_province(self):
+        self.assertEqual(phrases.address_line("", "Caballito", "Capital Federal"), "Caballito, Capital Federal")
+        self.assertEqual(phrases.address_line("  ", "Caballito", "Capital Federal"), "Caballito, Capital Federal")
+
+    def test_only_non_empty_parts(self):
+        self.assertEqual(phrases.address_line("", "Caballito", ""), "Caballito")
+        self.assertEqual(phrases.address_line("Belgrano 2184", "", ""), "Belgrano 2184")
+        self.assertEqual(phrases.address_line("", "", ""), "")
 
 
 class BeforeAndDuringTests(unittest.TestCase):

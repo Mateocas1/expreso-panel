@@ -14,7 +14,10 @@
     <svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
     Envíos a Expreso Andino
   </div>
-  <p class="meta num" id="meta"></p>
+  <div class="top-end">
+    <p class="meta num" id="meta"></p>
+    <button type="button" class="textbtn" id="open-overdue" hidden>Ver envíos atrasados</button>
+  </div>
 </header>
 
 <main id="main" class="page">
@@ -58,6 +61,16 @@
       <div class="sheet" id="sheet"></div>
     </section>
   </div>
+  <section class="od" id="overdue" aria-labelledby="od-title" hidden>
+    <button type="button" class="btn btn-quiet od-back" id="od-back">Volver al resultado</button>
+    <h1 class="big" id="od-title" tabindex="-1"></h1>
+    <p class="vh" role="status" id="od-announce"></p>
+    <div class="od-field">
+      <label for="od-date">Atrasados al</label>
+      <input type="date" id="od-date">
+    </div>
+    <div class="od-body" id="od-body"></div>
+  </section>
 </main>
 <script src="/static/app.js"></script>
 </body>

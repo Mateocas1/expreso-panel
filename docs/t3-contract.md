@@ -114,11 +114,12 @@ class Answer:
     headline: str
     sub: str
     button: str | None
+    action: str | None   # show_fixes | reload | retry | pick_other; None when there is no button
 
 def run_answer(results: list[UploadResult]) -> Answer    # every row of the T2 "frase de arriba" table
 # problems() takes optional values={"bultos", "peso_kg", "servicio", "provincia"} read from the
 # export remito, because the bridge detail does not carry them ("Los bultos figuran en 0").
-def cannot_run(kind: str, export_name: str = "") -> Answer
+def cannot_run(kind: str, export_name: str = "", context: str = "upload") -> Answer  # context "overdue": no "No se cargó ningún envío."
 def plural(n: int, one: str, other: str) -> str         # Spanish one/other, never "+ s"
 ```
 
@@ -154,7 +155,9 @@ OverdueView = { title, empty, items: [{ remito, recipient, client, city, trackin
                 status, status_text, late_line, days_late, estimated_delivery }] }
 ```
 
-`title` is "N envío(s) atrasado(s)" (also for 0), `empty` is the sentence for a day with none. The cannot-run phrases end in "No se cargó ningún envío.", which is wrong for this view; the overdue UI should use `technical` or its own wording until `cannot_run` learns about it.
+`title` is "N envío(s) atrasado(s)" (also for 0), `empty` is the sentence for a day with none. The cannot-run phrases end in "No se cargó ningún envío.", which is wrong for this view; the overdue endpoint uses `cannot_run(kind, name, context="overdue")`, which drops that sentence (and says "No se pudo consultar el estado de los envíos." for `api_unavailable`).
+
+`ResultView.address` is "street, city", or "city, province" when the street is blank (`phrases.address_line`). `Answer.action` tells the page what a button does; the page never decides by the button's text.
 
 Configuration from the environment, read at start: `EXPRESO_API_URL` (default `http://localhost:8000`), `EXPRESO_API_KEY`. The key never reaches the browser.
 

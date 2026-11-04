@@ -153,6 +153,7 @@ p { margin: 0; text-wrap: pretty; }
 .ico.b { stroke-width: 1.75; }
 
 .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding: 1rem 2.5rem; }
+.top-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.25rem 1.5rem; }
 .brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }
 .top .meta { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; display: flex; gap: 1rem; flex-wrap: wrap; }
 .top .meta span { white-space: nowrap; }
@@ -173,6 +174,10 @@ p { margin: 0; text-wrap: pretty; }
   .btn { transition: background-color 150ms ease, transform 150ms var(--ease-out); }
   .btn:active { transform: scale(0.97); }
 }
+
+/* Quiet entry point: text, not a button shape; the target is still 44px tall */
+.textbtn { min-height: 2.75rem; padding: 0 0.25rem; background: none; border: 0; border-radius: var(--r-sm); font: 500 var(--t-md)/1 var(--sans); color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+@media (hover: hover) { .textbtn:hover { color: var(--accent-hover); text-decoration-thickness: 2px; } }
 
 .page { padding: 2rem 2.5rem 4rem; max-width: 90rem; margin: 0 auto; }
 .big { font-size: var(--t-xl); line-height: 1.08; letter-spacing: -0.025em; font-weight: 500; }
@@ -347,6 +352,23 @@ details[open].tech summary svg { transform: rotate(90deg); }
 }
 .tech-body { margin-block-start: 0.5rem; padding: 0.5rem 0.75rem; border-radius: var(--r-sm); background: var(--sunken); font: 400 var(--t-sm)/1.4 var(--mono); max-width: 24rem; white-space: normal; overflow-wrap: break-word; }
 
+/* Overdue: a list on the page itself, rows with hairlines like the fix sheet; no surface of its own */
+.od { max-width: 60rem; }
+.od h1:focus { outline: none; }
+.od-back { margin-block-end: 2rem; }
+.od-field { margin-block-start: 1.5rem; display: grid; justify-items: start; gap: 0.25rem; }
+.od-field label { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; }
+.od-field input { min-height: 2.75rem; padding: 0 0.75rem; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); color: var(--text); font: 400 var(--t-md)/1.5 var(--sans); font-variant-numeric: tabular-nums; }
+.od-body { margin-block-start: 2rem; }
+.od-body[aria-busy="true"] { opacity: 0.5; }
+.od-list { list-style: none; margin: 0; padding: 0; border-block-end: 1px solid var(--hair); }
+.od-row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr); gap: 0.25rem 1.5rem; padding-block: 1rem; border-block-start: 1px solid var(--hair); overflow-wrap: anywhere; }
+.od-row .sub-line { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; }
+.od-who { font-weight: 600; }
+.od-status { font-weight: 600; }
+.od-empty { color: var(--text-2); }
+.od-body .answer { max-width: 45rem; }
+
 /* Forced colors: box-shadow rings and fills are dropped, so state is redrawn with borders and system colors */
 @media (forced-colors: active) {
   .tile.fix { border-width: 3px; padding: calc(0.75rem - 2px); }
@@ -363,6 +385,8 @@ details[open].tech summary svg { transform: rotate(90deg); }
 @media (max-width: 64rem) {
   .overview, .overview.solo { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
   .top { padding-inline: 1.25rem; }
+  .top-end { justify-content: flex-start; }
+  .od-row { grid-template-columns: minmax(0, 1fr); }
   .top .meta { gap: 0 1rem; }
   .page { padding: 1.5rem 1.25rem 3rem; }
   .big { font-size: 2.25rem; }

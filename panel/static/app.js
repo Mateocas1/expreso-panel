@@ -24,6 +24,13 @@
     headline: "El panel no responde.",
     sub: "No se cargó ningún envío. Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.",
     button: "Elegir otro archivo",
+    action: "pick_other",
+  };
+  const OVERDUE_FALLBACK = {
+    headline: "El panel no responde.",
+    sub: "No se pudo consultar el estado de los envíos. Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.",
+    button: "Volver a intentar",
+    action: "retry",
   };
   const IDLE = "Elegí un envío para ver su estado.";
 
@@ -82,7 +89,9 @@
   const setView = v => {
     body.dataset.view = v;
     $("pick").hidden = v !== "pick";
-    $("board").hidden = v === "pick";
+    $("board").hidden = v === "pick" || v === "overdue";
+    $("overdue").hidden = v !== "overdue";
+    $("open-overdue").hidden = v !== "preview" && v !== "result";
   };
   const envios = n => `${n} ${pl(n, "envío", "envíos")}`;
   const closeStream = () => { if (S.es) { S.es.close(); S.es = null; } };
@@ -158,7 +167,7 @@
   }
 
   // The answer block: one headline, one sentence, at most one button. The count gets the highlighter band.
-  function renderFinal({ headline, sub, buttons = [], extra = null }) {
+  function buildAnswer({ headline, sub, buttons = [], extra = null }) {
     const h1 = el("h1", "big num");
     h1.tabIndex = -1;
     const m = /^(\d+ de \d+ envíos?)([\s\S]*)$/.exec(headline);
@@ -172,6 +181,10 @@
       a.append(...actions);
       kids.push(a);
     }
+    return { h1, kids };
+  }
+  function renderFinal(opts) {
+    const { h1, kids } = buildAnswer(opts);
     final.replaceChildren(...kids);
     return h1;
   }
@@ -387,13 +400,16 @@
 
   // ---- Step 3: result ---------------------------------------------------------------------------
 
-  function buttonsFor(a) {
+  // What a button does comes from the server's `action`, never from its text. `retry` is the caller's.
+  function buttonsFor(a, retry = retryRun) {
     const t = a.button;
-    if (!t) return [];
-    if (/^Ver qu/.test(t)) return [{ text: t, cls: "btn-primary", href: "#para-corregir", fn: toFixes }];
-    if (/^Volver a intentar/.test(t)) return [{ text: t, cls: "btn-primary", fn: retryRun }];
-    const hint = /^Volver a cargar/.test(t) ? S.name : "";
-    return [{ text: t, cls: "btn-primary", fn: () => showPick(hint, true) }];
+    const act = {
+      show_fixes: { href: "#para-corregir", fn: toFixes },
+      reload: { fn: () => showPick(S.name, true) },
+      retry: { fn: retry },
+      pick_other: { fn: () => showPick("", true) },
+    }[a.action];
+    return t && act ? [{ text: t, cls: "btn-primary", ...act }] : [];
   }
 
   function problemsOf(r) {
@@ -469,7 +485,7 @@
     fixesSection.setAttribute("aria-labelledby", "fixes-title");
     const actions = el("div", "sheet-actions");
     // The answer already carries this button when only "Sin respuesta" is left
-    if (!/^Volver a cargar/.test(rv.answer.button || "")) {
+    if (rv.answer.action !== "reload") {
       actions.append(mkButton({ text: "Volver a cargar el export", cls: "btn-quiet", icon: UPLOAD, fn: () => showPick(S.name, true) }));
     }
     const dups = rv.results.filter(r => r.duplicate).length;
@@ -652,6 +668,103 @@
     e.preventDefault();
     fixesSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  // ---- Overdue shipments ------------------------------------------------------------------------
+
+  const odTitle = $("od-title");
+  const odBody = $("od-body");
+  const odDate = $("od-date");
+  const odBack = $("od-back");
+  const openOverdue = $("open-overdue");
+  let odFrom = "result";
+  let odToken = 0;
+
+  const todayISO = () => {
+    const d = new Date();
+    const p = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  };
+
+  function overdueRow(item) {
+    const li = el("li", "od-row");
+    const who = el("div");
+    who.append(el("div", "od-who", item.recipient));
+    const sub = el("div", "sub-line");
+    sub.append(el("span", "vh", "Cliente: "), item.client, " · ", el("span", "vh", "Ciudad: "), item.city);
+    who.append(sub);
+    const remito = el("div", "num");
+    remito.append(el("span", "vh", "Remito: "), item.remito);
+    const status = el("div");
+    status.append(el("div", "od-status", item.status_text), el("div", "sub-line", item.late_line));
+    li.append(who, remito, status);
+    return li;
+  }
+
+  function renderOverdue(data) {
+    odTitle.textContent = data.title;
+    setTitle(data.title);
+    $("od-announce").textContent = data.title;
+    if (!data.items.length) {
+      odBody.replaceChildren(el("p", "od-empty", data.empty));
+      return;
+    }
+    const ul = el("ul", "od-list");
+    ul.setAttribute("aria-label", data.title);
+    ul.append(...data.items.map(overdueRow));
+    odBody.replaceChildren(ul);
+  }
+
+  function renderOverdueCannot(res) {
+    const d = res.data;
+    const answer = d && d.answer ? d.answer : OVERDUE_FALLBACK;
+    const technical = d && d.answer ? d.technical || "" : "";
+    const extra = technical ? techDetails("Ver detalle técnico", technical) : null;
+    const { h1, kids } = buildAnswer({ headline: answer.headline, sub: answer.sub, buttons: buttonsFor(answer, loadOverdue), extra });
+    // The heading is the page's h1 for this view; the answer's own headline is only text here
+    odTitle.textContent = answer.headline;
+    setTitle(answer.headline);
+    $("od-announce").textContent = answer.headline;
+    const box = el("div", "answer");
+    box.append(...kids.slice(1));
+    odBody.replaceChildren(box);
+  }
+
+  async function loadOverdue() {
+    const iso = odDate.value;
+    if (!iso || !S.exportId) return;
+    const token = ++odToken;
+    odBody.setAttribute("aria-busy", "true");
+    const res = await api(`/api/exports/${encodeURIComponent(S.exportId)}/overdue?today=${encodeURIComponent(iso)}`);
+    if (token !== odToken) return; // a newer date was asked for
+    odBody.removeAttribute("aria-busy");
+    if (res.ok && res.data && Array.isArray(res.data.items)) renderOverdue(res.data);
+    else renderOverdueCannot(res);
+  }
+
+  function showOverdue() {
+    if (!S.exportId) return;
+    odFrom = body.dataset.view === "preview" ? "preview" : "result";
+    odBack.textContent = odFrom === "preview" ? "Volver a los envíos" : "Volver al resultado";
+    odDate.value = todayISO();
+    odTitle.textContent = "Buscando envíos atrasados…";
+    odBody.replaceChildren();
+    setView("overdue");
+    setTitle("Envíos atrasados");
+    odTitle.focus();
+    loadOverdue();
+  }
+
+  function hideOverdue() {
+    odToken++;
+    odBody.removeAttribute("aria-busy");
+    setView(odFrom);
+    setTitle(odFrom === "preview" ? (S.preview && S.preview.title) || "" : (final.querySelector("h1") || {}).textContent || "");
+    openOverdue.focus();
+  }
+
+  openOverdue.addEventListener("click", showOverdue);
+  odBack.addEventListener("click", hideOverdue);
+  odDate.addEventListener("change", loadOverdue);
 
   showPick("", false);
 })();

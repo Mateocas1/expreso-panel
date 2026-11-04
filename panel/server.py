@@ -124,7 +124,7 @@ def result_view(index: int, result: UploadResult, export: Export) -> dict:
         "remito": result.remito_number,
         "recipient": (shipment.recipient if shipment else "") or result.recipient,
         "client": shipment.client if shipment else "",
-        "address": ", ".join(part for part in (shipment.street, shipment.city) if part) if shipment else "",
+        "address": phrases.address_line(shipment.street, shipment.city, shipment.province) if shipment else "",
         "state": state,
         "label": phrases.LABELS[state] if state else "",
         "duplicate": duplicate,
@@ -454,7 +454,7 @@ class Handler(BaseHTTPRequestHandler):
             )
         except bridge.CannotRun as error:
             name = export.preview.export_name
-            payload = _answer(phrases.cannot_run(error.kind, name))
+            payload = _answer(phrases.cannot_run(error.kind, name, context="overdue"))
             payload["technical"] = error.technical
             return self._json(_CANNOT_RUN_STATUS.get(error.kind, HTTPStatus.BAD_GATEWAY), payload)
         items = [overdue_item(shipment, today) for shipment in found]

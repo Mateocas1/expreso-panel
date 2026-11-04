@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Envíos a Expreso Andino</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body data-view="pick">
+<a class="skip" href="#main">Ir al contenido</a>
+<header class="top">
+  <div class="brand">
+    <svg class="ico" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.75"/><circle cx="17" cy="18" r="1.75"/></svg>
+    Envíos a Expreso Andino
+  </div>
+  <div class="top-end">
+    <p class="meta num" id="meta"></p>
+    <button type="button" class="textbtn" id="open-overdue" hidden>Ver envíos atrasados</button>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <section class="pick" id="pick" aria-labelledby="pick-title">
+    <h1 class="big" id="pick-title" tabindex="-1">Elegir el export</h1>
+    <p class="sub">Es el archivo que descarga LogiSur con los remitos del día.</p>
+    <p class="sub" id="pick-hint" hidden></p>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept=".json,application/json">
+      <svg class="ico" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+      <span class="t" id="drop-text" role="status">Arrastrá el archivo acá o</span>
+      <span class="btn btn-primary">Elegir archivo</span>
+    </label>
+  </section>
+
+  <div id="board" hidden>
+    <div class="overview" id="overview">
+      <div class="answer">
+        <div class="stack">
+          <div class="final" id="final"></div>
+          <div class="live">
+            <p class="big num" id="live-text" tabindex="-1">Cargando <span id="live-k">0</span> de <span id="live-n">0</span>…</p>
+            <p class="sub">Cada casillero se completa cuando Expreso Andino confirma el envío.</p>
+          </div>
+        </div>
+        <ul class="legend num" id="legend" aria-label="Resumen por estado" hidden></ul>
+        <p class="vh" role="status" id="announce"></p>
+      </div>
+
+      <section class="fixes" id="para-corregir" aria-labelledby="fixes-title" hidden>
+        <div class="sheet" id="sheet"></div>
+      </section>
+
+      <section class="map-section" id="map-section" aria-labelledby="map-title">
+        <div class="map-head">
+          <h2 id="map-title"></h2>
+          <p class="num" id="map-sub" hidden></p>
+        </div>
+        <ul class="map" id="map" aria-label="Envíos de la carga, en orden de remito"></ul>
+        <p class="picked" id="picked" aria-live="polite" hidden></p>
+      </section>
+    </div>
+  </div>
+  <section class="od" id="overdue" aria-labelledby="od-title" hidden>
+    <button type="button" class="btn btn-quiet od-back" id="od-back">Volver al resultado</button>
+    <h1 class="big" id="od-title" tabindex="-1"></h1>
+    <p class="vh" role="status" id="od-announce"></p>
+    <div class="od-field">
+      <label for="od-date">Atrasados al</label>
+      <input type="date" id="od-date">
+    </div>
+    <div class="od-body" id="od-body"></div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

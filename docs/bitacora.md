@@ -60,7 +60,7 @@ Salen de recorrer todos los mensajes que el puente puede producir (rechazos loca
 | Cargado (`201`) | Cargado | "Cargado. Seguimiento ANDC4BD591C." | Nada |
 | Cargado después de reintentar (`5xx` y después `409`) | Cargado | La misma que Cargado. "Confirmado en el intento 2" queda solo en el detalle técnico | Nada |
 | Ya existía (`409` al primer intento) | Ya estaba | "Ya estaba cargado de antes. No se duplicó." | Nada |
-| Duplicado en el export | No tiene casillero propio: es el mismo envío | En el casillero del primero: "Venía dos veces en el archivo. Se cargó una sola vez." | Nada |
+| Duplicado en el export | No tiene casillero propio: es el mismo envío | En el casillero del primero: "Venía dos veces en el archivo. Se cargó una sola vez." Si ese día ya estaba cargado de antes: "Ya estaba cargado de antes. No se duplicó. Venía dos veces en el archivo." (ajuste de T4.1) | Nada |
 | Rechazado (dato que no se puede traducir, o `422`) | **Para corregir** (antes "Falta un dato") | Una frase por problema (tabla siguiente) | Corregir en LogiSur y volver a cargar el export |
 | Falló (`500`-`504` o sin conexión, después de 4 intentos) | **Sin respuesta** | "Expreso Andino no respondió. No se perdió nada: volvé a cargar el export en unos minutos." | Volver a cargar más tarde |
 | Falló (cualquier otra respuesta, por ejemplo `400` o `404`) | **Sin respuesta** | "Expreso Andino respondió algo inesperado. Volvé a cargar el export más tarde; si sigue igual, avisale a sistemas con el número de remito." | Volver a cargar; si se repite, avisar |
@@ -108,7 +108,7 @@ La etiqueta "Falta un dato" se cambia por "Para corregir" porque no todos los re
 
 **Antes y durante la carga.** "23 envíos para Expreso Andino" con "El archivo tiene 51 remitos. Los otros 27 van con otros transportistas y no se tocan." y el botón "Cargar 23 envíos". Durante la carga: "Cargando 14 de 23…" y "Cada casillero se completa cuando Expreso Andino confirma el envío."
 
-**Atrasados** (la vista aparte, para T3). El estado de la API pasa a palabras: `CREATED` → "Todavía no salió", `IN_TRANSIT` → "En viaje", `EXCEPTION` → "Con un problema en el viaje". Cada fila dice cuánto se atrasó: "Atrasado 1 día: tenía que llegar el 2 de octubre." Título: "2 envíos atrasados"; sin atrasados: "Ningún envío atrasado al 3 de octubre."
+**Atrasados** (la vista aparte, para T3). El estado de la API pasa a palabras: `CREATED` → "Todavía no salió", `IN_TRANSIT` → "En viaje", `EXCEPTION` → "Con un problema en el viaje". Cada fila dice cuánto se atrasó: "Atrasado 1 día: tenía que llegar el 2 de octubre." Título: "2 envíos atrasados al 3 de octubre" (la fecha en palabras desde T4.1, porque el campo de fecha del navegador muestra 10/03/2026 y se puede leer como 10 de marzo); sin atrasados: "Ningún envío atrasado al 3 de octubre."
 
 **Huecos del puente que aparecieron al recorrer los mensajes** (el panel no cambia la lógica, pero tiene que cubrirlos al envolver la llamada, en T3):
 
@@ -172,6 +172,23 @@ Encontró dos cosas medias y tres chicas, todas corregidas con un test que prime
 - **Detalles chicos:** un archivo de más de 20 MB ya no dice que está "dañado" sino que es "demasiado grande", los exports mal formados ya no dejan carpetas sueltas, y un pedido incompleto ya no deja al servidor esperando para siempre.
 
 Después volvimos a correr cada prueba del revisor contra el panel real: todas quedaron cerradas.
+
+### La prueba final (T4 y T4.1)
+
+Para cerrar, otro revisor usó el panel como lo usaría la persona de operaciones, siguiendo el README al pie de la letra: primera carga, segunda carga, atrasados y Expreso Andino caído, en Chromium y Firefox, en pantalla grande y en celular. Los cuatro pasos dieron bien y los números coincidieron con los resúmenes que escribe el propio puente. En la revisión de UX sacó 30 sobre 40 en las heurísticas de Nielsen, sin problemas graves, y su veredicto fue que el diseño es "de autor, no una plantilla". Todas las frases que vio coincidían palabra por palabra con la tabla de T2.
+
+Lo que encontró y se corrigió:
+
+- **Volver atrás perdía la respuesta.** En el celular "atrás" es un reflejo, y te sacaba del panel. Ahora vuelve al resultado, y recargar la página también lo conserva, incluso a mitad de una carga.
+- **En el celular, lo que había que corregir quedaba a más de dos pantallas**, debajo de los 23 casilleros. Ahora va antes del mapa, como habíamos decidido al elegirlo. En pantalla grande se ve igual que el diseño aprobado; quien navega con teclado llega primero a los arreglos y después al mapa, a propósito.
+- **Detalles:**
+  - el reintento de Pinturerías del Oeste se puede ver en "Ver detalle técnico";
+  - la leyenda usa las mismas palabras que los casilleros;
+  - la fecha de atrasados se repite en palabras para que nadie lea 10 de marzo;
+  - los enlaces chicos son más fáciles de tocar;
+  - si el puerto está ocupado, el panel lo explica en una oración en vez de mostrar un error de Python.
+
+Lo único que no se pudo probar fue Safari, porque WebKit no corre en esta máquina.
 
 ## 8. Datos reales para diseñar
 
@@ -316,3 +333,5 @@ Al ver los 20 "Ya estaba" juntos, la trama de carbónico ensuciaba justo el día
 | 2026-11-03 | La vista de atrasados vive en la misma página, con una fecha y una lista simple | Es una consulta ocasional; no merece otra aplicación ni un menú | Una sección o pantalla aparte |
 | 2026-11-03 | Revisión independiente del servidor antes de cerrar T3, y corrección de todo lo que encontró | Es la parte que recibe archivos de afuera y habla con Expreso Andino; un error ahí es caro | Darlo por bueno con los tests propios |
 | 2026-11-03 | Validar los tipos del export antes de cargar | Un dato con tipo raro rompía el puente a mitad de camino; es mejor rechazarlo entero que cargar a medias | Dejar que el puente falle y explicar después |
+| 2026-11-03 | En el celular, los arreglos van antes del mapa; en pantalla grande el orden de teclado también pone primero los arreglos | Lo accionable no puede quedar a dos pantallas; el mapa es la vista general | Mantener el mapa primero en todos los tamaños |
+| 2026-11-03 | Volver atrás y recargar conservan el resultado | La respuesta a "¿Tengo que hacer algo?" no se puede perder por un gesto reflejo | Una página que olvida todo al recargar |

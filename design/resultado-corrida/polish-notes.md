@@ -1,6 +1,6 @@
-# Polish round T1.1 · `03-el-mapa.html`
+# Polish round 1 · `03-el-mapa.html`
 
-Decisions for the polish round asked in `odd/tasks/panel-operaciones.md` (T1.1, S6-S8, Log L7). Sources: a motion audit (remove-animations → improve-animations → animation-performance → animate, emil-design-eng) and a visual audit (better-interface and the better-* family, impeccable critique and craft-floor, unslop signs and tokens). Where the skills disagreed, the rule was: what makes the screen clearer for the operations person wins, and the user's explicit brief beats a skill default.
+Decisions for the first polish round of `03-el-mapa.html`. Sources: a motion audit that follows Emil Kowalski's order (remove, improve, check performance, and only then add) and a visual audit against interface, layout, typography, color and accessibility guidelines and a list of signs of generic interfaces. Where the guidelines disagreed, the rule was: what makes the screen clearer for the operations person wins, and the explicit brief beats a guideline's default.
 
 ## Diagnosis
 
@@ -12,10 +12,10 @@ The physical remito pad: carbon copies (original, duplicado, triplicado), stamp 
 
 ## Typography
 
-- Typeface: **Atkinson Hyperlegible Next** (Braille Institute, OFL). Reason: it was drawn so that similar characters never get confused (0/O, 1/l/I), which is exactly the risk with remito numbers (R-10000477) and tracking codes (AND4BD591C) read by non-technical staff. It has its own shapes at display sizes, it is not on any burned list (impeccable `new-work.md` flags Inter, DM Sans, Plus Jakarta, Instrument Sans, IBM Plex, Space Grotesk, Outfit and others; Geist and Roboto excluded by our own judgment).
+- Typeface: **Atkinson Hyperlegible Next** (Braille Institute, OFL). Reason: it was drawn so that similar characters never get confused (0/O, 1/l/I), which is exactly the risk with remito numbers (R-10000477) and tracking codes (AND4BD591C) read by non-technical staff. It has its own shapes at display sizes, it is not on any burned list (the design guidelines flag Inter, DM Sans, Plus Jakarta, Instrument Sans, IBM Plex, Space Grotesk, Outfit and others as overused; Geist and Roboto excluded by our own judgment).
 - Fallback if it lacks tabular figures or weight 500, or is too wide for the tiles: Public Sans (USWDS, OFL).
 - Embedded as a woff2 data URI, subset to Latin-1 plus « » ¿ ¡ … — – ’ “ ”, keeping `kern` and `tnum`; OFL notice in an HTML comment; respect any Reserved Font Name. Stack: `"Atkinson Hyperlegible Next", system-ui, sans-serif`. System mono only inside the technical detail (real code).
-- This is a deliberate deviation from gentle-design's "system font stacks only": the file stays self-contained and works offline.
+- This is a deliberate deviation from the earlier "system font stacks only" decision: the file stays self-contained and works offline.
 - Scale (5 steps, rem, unitless line-height):
   - 0.8125rem / 1.4: meta, remito in tile, table headers, legend, technical detail.
   - 0.9375rem / 1.5: secondary text, buttons, picked line, header meta, summaries.
@@ -80,27 +80,27 @@ The physical remito pad: carbon copies (original, duplicado, triplicado), stamp 
 
 ## Conflicts and how they were resolved
 
-| Topic | Skills | Decision |
+| Topic | Guidelines | Decision |
 | --- | --- | --- |
-| Typeface | gentle-design and impeccable Operate accept system stacks; better-typography says do not propose a typeface unless asked | The user asked (S8). Embedded OFL font with system fallback |
-| Depth | better-ui: layered ring shadows; impeccable, unslop, better-layout: no nested cards, group with space | Delete boxes first; one hairline ring only on the surviving sheet |
-| Radii | better-ui formula; unslop scale 12-16 for cards | Formula kept; scale tightened to 2/4/6/10 because large radii were the template look |
-| Easing | better-ui `(0.2, 0, 0, 1)`; Emil `(0.23, 1, 0.32, 1)`; unslop `(0.22, 1, 0.36, 1)` | Emil's, as the user asked for his flow |
-| Exit | better-ui: -12px + blur; Emil: exit like the enter, faster | Emil: in-place swaps, 5px, shorter exit |
-| Blur | better-ui 4px; Emil 2px for crossfades | 4px on small icons, 2px on large text |
-| Hover | better-ui allows ≤150ms; Emil: remove on high-frequency surfaces | Remove on tiles, keep on buttons |
-| Weights | unslop 400/500; better-typography 600 headings | 600 only where it replaces color |
-| Mono | unslop accepts it for data; impeccable calls it a costume | Only real code (technical detail) |
-| Process | unslop: show the direction and wait | The user delegated judgment in L7; the canvas is the review |
+| Typeface | Operate-style interfaces accept system stacks; the typography guide says not to propose a typeface unless asked | The brief asked for one. Embedded OFL font with system fallback |
+| Depth | One guide: layered ring shadows; the others: no nested cards, group with space | Delete boxes first; one hairline ring only on the surviving sheet |
+| Radii | Radius formula from the UI guide; the generic-interface list suggests 12-16 for cards | Formula kept; scale tightened to 2/4/6/10 because large radii were the template look |
+| Easing | UI guide `(0.2, 0, 0, 1)`; Emil `(0.23, 1, 0.32, 1)`; generic-interface list `(0.22, 1, 0.36, 1)` | Emil's, as the brief asked for his flow |
+| Exit | UI guide: -12px + blur; Emil: exit like the enter, faster | Emil: in-place swaps, 5px, shorter exit |
+| Blur | UI guide 4px; Emil 2px for crossfades | 4px on small icons, 2px on large text |
+| Hover | UI guide allows ≤150ms; Emil: remove on high-frequency surfaces | Remove on tiles, keep on buttons |
+| Weights | Generic-interface list 400/500; typography guide 600 headings | 600 only where it replaces color |
+| Mono | Accepted for data by one guide; another calls it a costume | Only real code (technical detail) |
+| Process | Generic-interface list: show the direction and wait | Judgment was delegated in the brief; the canvas is the review |
 
-## Round 2 (T1.2)
+## Round 2
 
-Asked by the parent after reviewing T1.1, accepted by Mateo (Log L8-L9).
+Proposed after reviewing round 1 and accepted.
 
 1. **Calmer attention tiles.** Fill, 2px ring and bold name said the same thing three times, and the three yellow blocks competed with the answer. Keep the ring and the bold name as the signal; lighten the fill to a washed highlighter (around `oklch(0.95 0.07 90)`), re-measure every pair on it. The legend swatch and the mini cells follow.
 2. **Say it once.** Remove "Después, volvé a cargar el export." next to "Ver qué falta". The fix sheet's note becomes one line: "Cuando los corrijas, volvé a cargar el export. No se duplica nada."
 3. **Desktop verb.** "Tocá un envío para ver su estado." becomes "Elegí un envío para ver su estado." (both places it appears).
 4. **No empty band during the live replay.** While the replay runs, the legend moves up under the live counter and counts there; when it ends it returns under the final sentence without a jump (same motion rules: ease-out, ≤250ms, opacity-only under reduced motion).
-5. **Typeface by looking, not by reasoning.** Atkinson Hyperlegible Next draws 0 with a slash and has no unslashed alternate: good for codes, too technical in times and dates ("10:47", "2026-09-30"). New artboard `04-el-mapa-public-sans.html`: identical to 03 (with items 1-4) but set in Public Sans (USWDS, OFL), embedded the same way. Mateo picks one; the other is dropped.
+5. **Typeface by looking, not by reasoning.** Atkinson Hyperlegible Next draws 0 with a slash and has no unslashed alternate: good for codes, too technical in times and dates ("10:47", "2026-09-30"). A second artboard, identical to 03 (with items 1-4) but set in Public Sans (USWDS, OFL) and embedded the same way, was built to compare them side by side. One is kept; the other is dropped.
 
-**Outcome (Log L10):** Mateo chose Public Sans. `03-el-mapa.html` now carries the Public Sans version and `04-el-mapa-public-sans.html` was removed. The Atkinson section above stays as history.
+**Outcome:** Public Sans was chosen. `03-el-mapa.html` now carries the Public Sans version and the comparison artboard was removed. The Atkinson section above stays as history.

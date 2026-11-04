@@ -75,7 +75,7 @@ runs/           (no se versiona) exports subidos y resúmenes de cada corrida
 
 **`panel/server.py`** es el servidor HTTP, con `http.server` y sin dependencias. Guarda los exports subidos, ejecuta cada carga en un hilo, publica los eventos del puente como eventos en vivo y aplica las defensas descritas más abajo. La clave de la API nunca llega al navegador.
 
-**`panel/launcher.py`** es lo que corren `Abrir panel.bat` (Windows) y `Abrir panel.desktop` (Linux), sobre `python3 -m panel.launcher`.
+**`panel/launcher.py`** es lo que corren `Abrir panel.bat` (Windows) y `Abrir panel.sh` (Linux), sobre `python3 -m panel.launcher`.
 
 - Si existe `expreso.ini` (local, fuera de git), usa la API real con su dirección y su clave. Si no existe, levanta en el mismo proceso la API de prueba del kit, usa la clave de prueba publicada en el kit y la página muestra «Modo prueba».
 - Usa el puerto 8080 o uno libre, abre el navegador y, al cerrar la ventana, apaga todo.
@@ -85,7 +85,7 @@ runs/           (no se versiona) exports subidos y resúmenes de cada corrida
 
 ## Las revisiones independientes
 
-Hubo tres, hechas por alguien distinto de quien escribió el código. En las tres, cada hallazgo se corrigió con un test que primero fallaba, y después se repitió la prueba original del revisor contra el panel real.
+Hubo tres, hechas por alguien distinto de quien escribió el código, y un cuarto hallazgo salió del primer uso real. En las tres revisiones, cada hallazgo se corrigió con un test que primero fallaba, y después se repitió la prueba original del revisor contra el panel real.
 
 ### 1. El servidor
 
@@ -131,7 +131,17 @@ Se sumaron cuatro ajustes baratos: fecha estricta en la vista de atrasados (`YYY
 | En Windows, `SO_REUSEADDR` permite que dos procesos escuchen el mismo puerto, así que un segundo doble clic no detectaba el puerto ocupado | En Windows no se usa esa opción | El segundo doble clic no se enteraba de que el puerto ya estaba tomado y dos paneles compartían el puerto |
 | Un error inesperado no tenía un mensaje pensado para quien hizo doble clic: mostraba un traceback y la ventana podía cerrarse sola | Mensaje en español con el tipo de error, y la ventana espera Enter | Quien hizo doble clic necesita ver qué pasó antes de que desaparezca |
 
-Windows no se pudo probar en esta máquina. En Linux se verificó con un doble clic real: modo prueba, una carga de punta a punta (19 cargados, 1 ya estaba, 3 para corregir) y cierre de la ventana.
+Windows queda sin probar en un equipo real.
+
+### 4. El primer uso real en Linux
+
+**Cómo se encontró.** No lo encontró una revisión, sino el primer uso: en el escritorio GNOME, «Ejecutar como un programa» sobre `Abrir panel.desktop` no hacía nada. La prueba anterior había abierto el archivo con `gio launch`, un camino que el gestor de archivos no usa.
+
+| Hallazgo | Corrección | Por qué importa |
+| --- | --- | --- |
+| El gestor de archivos de GNOME ya no abre archivos `.desktop`: los corre como un script de shell, que falla sin mostrar nada | `Abrir panel.sh`, un script ejecutable que, si lo arranca el gestor de archivos sin ventana, se vuelve a abrir solo en una terminal (`xdg-terminal-exec` o la que haya instalada) y explica si falta Python | El lanzador existe para no usar la terminal; si no abre, no sirve |
+
+Los tests corren el script como lo haría el gestor de archivos, con una terminal y un Python falsos, y comprueban cada camino. Además se probó de verdad arrancándolo sin terminal: abrió la ventana y el panel, la carga dio 19 cargados, 1 ya estaba y 3 para corregir, y al cerrar la ventana se apagó todo.
 
 ## Contrato de la API HTTP
 

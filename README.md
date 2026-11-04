@@ -7,12 +7,12 @@ Solo usa la librería estándar (Python 3.9+): no hay nada que instalar.
 ## Abrirlo con doble clic
 
 1. Cloná el repositorio con su submódulo: `git clone --recurse-submodules https://github.com/Mateocas1/expreso-panel`. La descarga en ZIP de GitHub no trae el puente.
-2. Doble clic en **`Abrir panel.bat`** (Windows) o **`Abrir panel.desktop`** (Linux). Se abre una ventana con el estado y el panel en el navegador.
+2. En Windows, doble clic en **`Abrir panel.bat`**. En Linux, **`Abrir panel.sh`**: con clic derecho → «Ejecutar como un programa» en GNOME, o doble clic en KDE y Xfce. Se abre una ventana con el estado y el panel en el navegador.
 3. Para apagarlo, cerrá esa ventana.
 
 Sin configuración, el panel abre en **modo prueba**: levanta la API de prueba del kit en la misma computadora y lo avisa en la cabecera. Para usar la API real de Expreso Andino, copiá `expreso.ini.ejemplo` como `expreso.ini` y completá `url` y `api_key`; ese archivo no se versiona.
 
-Hace falta Python 3.9 o superior. En Windows, al instalarlo, marcá «Add python.exe to PATH». En algunos escritorios de Linux hay que permitir el lanzador la primera vez (clic derecho → «Permitir ejecutar»). Desde una terminal, lo mismo es `python3 -m panel.launcher`.
+Hace falta Python 3.9 o superior. En Windows, al instalarlo, marcá «Add python.exe to PATH». Desde una terminal, lo mismo es `python3 -m panel.launcher`.
 
 Si el puerto 8080 está ocupado (por ejemplo, porque el panel ya estaba abierto), usa uno libre y abre el navegador ahí; la dirección que quedó se ve en la ventana. Si el navegador no se abre solo, copiá esa dirección en la barra.
 
@@ -59,7 +59,7 @@ Son 187 tests. Levantan solos la API de prueba del kit y recorren la primera y l
 
 ```
 Abrir panel.bat      doble clic en Windows
-Abrir panel.desktop  doble clic en Linux
+Abrir panel.sh       lanzador para Linux
 expreso.ini.ejemplo  configuración de la API real (copiar como expreso.ini)
 panel/
   launcher.py   lo que corre el doble clic: modo prueba o API real, navegador, puerto libre

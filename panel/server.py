@@ -1,4 +1,4 @@
-"""HTTP + SSE server for the panel. Standard library only; see docs/t3-contract.md "HTTP API (T3.3)".
+"""HTTP + SSE server for the panel. Standard library only; see docs/como-se-construyo.md "Contrato de la API HTTP".
 
 The server never holds business rules: it stores the uploaded export, runs `bridge.run_upload` in a
 background thread and turns what the bridge reports into the views the page draws, with the sentences

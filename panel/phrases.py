@@ -1,6 +1,6 @@
-"""T2 phrases as code: bridge results in, Spanish sentences out. Pure functions, no I/O.
+"""The operations phrases as code: bridge results in, Spanish sentences out. Pure functions, no I/O.
 
-Copy comes from docs/bitacora.md section 5 ("Frases finales (T2)") plus the adaptations in
+Copy comes from docs/bitacora.md section 6 ("De códigos a frases") plus the adaptations in
 design/resultado-corrida/04-estados.html. The matchers below rely on the exact strings the bridge
 produces (see the comments on each one).
 """
@@ -414,7 +414,7 @@ def progress(done: int, total: int) -> str:
     return "Cargando %d de %d…" % (done, total)
 
 
-# --- Overdue shipments (docs/bitacora.md section 5, "Atrasados") -------------------------------
+# --- Overdue shipments (docs/bitacora.md section 6, "Atrasados") -------------------------------
 
 # Spanish month names written out: the panel never depends on the machine's locale.
 MONTHS = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",

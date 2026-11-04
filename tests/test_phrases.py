@@ -1,4 +1,4 @@
-"""One test per row of the T2 tables (docs/bitacora.md section 5), asserting the exact strings.
+"""One test per row of the phrase tables (docs/bitacora.md section 6), asserting the exact strings.
 
 Detail strings are the ones the bridge really produces:
 upload.py `_describe_validation_errors` (export field + API message), remitos.py `to_shipment`

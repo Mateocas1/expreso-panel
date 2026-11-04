@@ -1,14 +1,14 @@
 # Brief · Result screen of an upload run
 
-Working notes for T1 (`odd/tasks/panel-operaciones.md`). Not shipped in any artboard.
+Working notes for the three visual directions. Not shipped in any artboard.
 
-## Shape (impeccable)
+## Shape
 
 - **Job and audience.** The person who runs shipments at LogiSur opens the panel after the daily export is loaded. They know clients, remitos and LogiSur's system. They do not know HTTP, APIs or error codes.
 - **Outcome and proof.** In five seconds they can answer "¿Tengo que hacer algo?". Proof: the first sentence on screen answers it, and every pending item says what is missing, for whom and where to fix it.
 - **Scope.** One screen (the result) in full; the two earlier moments (pick the export, upload in progress) only as hints.
 - **States and ranges.** Data from the kit: 51 remitos in the export, 24 for Expreso Andino; 19 loaded (one of them confirmed on the second attempt), 1 already existed, 1 repeated in the export, 3 rejected. A second run gives 0 loaded, 20 already existed, the same 3 rejected. Directions must survive 0 pending and many pending.
-- **Constraints.** Self-contained HTML, system fonts, no external URLs. Mode: Operate (impeccable): ambition shows as precision and restraint. Color strategy: Restrained, neutrals tinted toward each direction's world plus one accent and the status colors actually used.
+- **Constraints.** Self-contained HTML, system fonts, no external URLs. Mode: operate. Ambition shows as precision and restraint. Color strategy: Restrained, neutrals tinted toward each direction's world plus one accent and the status colors actually used.
 
 ## Shared content decisions
 
@@ -20,7 +20,7 @@ Working notes for T1 (`odd/tasks/panel-operaciones.md`). Not shipped in any artb
 - **Technical detail is kept, not deleted.** The HTTP status, the API field path and message, the report file and the exit code sit behind "Ver detalle técnico".
 - **Voice.** Spanish with voseo and no slang: it is how Argentine software talks to its users (argentina.gob.ar does too). One form across the whole flow.
 
-## Directions (unslop: Product / Character / World / Moments / Signature)
+## Directions (each described by product, character, world, moments and signature)
 
 ### 01 · La nota
 - Character: a colleague who leaves you a note before going home.

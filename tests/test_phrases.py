@@ -81,7 +81,7 @@ class PickedLineTests(unittest.TestCase):
         prev = result(Outcome.ALREADY_EXISTS)
         self.assertEqual(
             phrases.picked_line(prev, True),
-            "Ya estaba cargado de antes. No se duplicó. Venía dos veces en el archivo. Se cargó una sola vez.",
+            "Ya estaba cargado de antes. No se duplicó. Venía dos veces en el archivo.",
         )
 
     def test_the_duplicate_result_itself_says_the_same(self):
@@ -680,8 +680,10 @@ class OverdueTests(unittest.TestCase):
             self.assertEqual(phrases.spanish_date(date(2026, number, 15)), "15 de %s" % name)
 
     def test_title_and_empty(self):
-        self.assertEqual(phrases.overdue_title(2), "2 envíos atrasados")
-        self.assertEqual(phrases.overdue_title(1), "1 envío atrasado")
+        # The title echoes the date in words: the native date input shows 10/03/2026, which reads two ways
+        self.assertEqual(phrases.overdue_title(2, date(2026, 10, 3)), "2 envíos atrasados al 3 de octubre")
+        self.assertEqual(phrases.overdue_title(1, date(2026, 10, 3)), "1 envío atrasado al 3 de octubre")
+        self.assertEqual(phrases.overdue_title(0, date(2026, 10, 3)), "0 envíos atrasados al 3 de octubre")
         self.assertEqual(phrases.overdue_empty(date(2026, 10, 3)), "Ningún envío atrasado al 3 de octubre.")
 
 

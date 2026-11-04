@@ -528,7 +528,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(_CANNOT_RUN_STATUS.get(error.kind, HTTPStatus.BAD_GATEWAY), payload)
         items = [overdue_item(shipment, today) for shipment in found]
         self._json(HTTPStatus.OK, {
-            "title": phrases.overdue_title(len(items)),
+            "title": phrases.overdue_title(len(items), today),
             "empty": phrases.overdue_empty(today),
             "items": items,
         })

@@ -302,6 +302,9 @@ class FirstRunTest(PanelTestCase):
         done = self.panel.events(body["run_id"])[-1][1]
 
         self.assertEqual(done["counts"], {"ok": 0, "prev": 20, "fix": 3, "none": 0})
+        # The repeated remito did not load "once" on a run that loaded nothing
+        repeated = next(v for v in done["results"] if v["remito"] == "R-10000507" and not v["duplicate"])
+        self.assertEqual(repeated["picked"], "Ya estaba cargado de antes. No se duplicó. Venía dos veces en el archivo.")
         self.assertEqual(done["answer"]["headline"], "3 de 23 envíos esperan un dato de LogiSur.")
         self.assertEqual(
             done["answer"]["sub"],
@@ -416,7 +419,7 @@ class OverdueTest(PanelTestCase):
         status, body = self.overdue(export_id, "?today=2026-10-03")
 
         self.assertEqual(status, 200)
-        self.assertEqual(body["title"], "2 envíos atrasados")
+        self.assertEqual(body["title"], "2 envíos atrasados al 3 de octubre")
         self.assertEqual(body["empty"], "Ningún envío atrasado al 3 de octubre.")
         items = sorted(body["items"], key=lambda item: item["remito"])
         self.assertEqual([item["remito"] for item in items], ["R-10000513", "R-10000548"])
@@ -442,7 +445,7 @@ class OverdueTest(PanelTestCase):
 
         self.assertEqual(status, 200)
         self.assertEqual(body["items"], [])
-        self.assertEqual(body["title"], "0 envíos atrasados")
+        self.assertEqual(body["title"], "0 envíos atrasados al 2 de octubre")
         self.assertEqual(body["empty"], "Ningún envío atrasado al 2 de octubre.")
 
     def test_default_today_is_accepted(self):
@@ -453,7 +456,7 @@ class OverdueTest(PanelTestCase):
 
         self.assertEqual(status, 200)
         self.assertEqual(body["empty"], phrases.overdue_empty(date.today()))
-        self.assertEqual(body["title"], phrases.overdue_title(len(body["items"])))
+        self.assertEqual(body["title"], phrases.overdue_title(len(body["items"]), date.today()))
 
     def test_bad_date_is_400(self):
         export_id = self.upload_kit()
@@ -703,6 +706,27 @@ class StrictDateAndOverdueItemTest(PanelTestCase):
         item = body["items"][0]
         self.assertEqual((item["late_line"], item["days_late"], item["estimated_delivery"]), ("", None, "pronto"))
         self.assertEqual(item["remito"], "R-1")
+
+
+class BusyPortTest(unittest.TestCase):
+    def test_a_port_in_use_is_one_spanish_sentence_and_exit_code_2(self):
+        from contextlib import redirect_stderr, redirect_stdout
+        from io import StringIO
+        from panel import __main__ as entry
+
+        with socket.socket() as busy:
+            busy.bind(("127.0.0.1", 0))
+            busy.listen()
+            port = busy.getsockname()[1]
+            err = StringIO()
+            with mock.patch("sys.argv", ["panel", "--port", str(port)]), redirect_stderr(err), redirect_stdout(StringIO()):
+                code = entry.main()
+
+        self.assertEqual(code, 2)
+        self.assertEqual(
+            err.getvalue().strip().splitlines()[-1],
+            "El puerto %d ya está en uso. Probá con otro: python3 -m panel --port %d" % (port, port + 10),
+        )
 
 
 if __name__ == "__main__":

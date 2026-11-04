@@ -29,6 +29,8 @@ _TILE_BY_OUTCOME = {
 }
 
 DUPLICATED_LINE = "Venía dos veces en el archivo. Se cargó una sola vez."
+# On a run that loaded nothing "se cargó una sola vez" would be false: say only what came in the file.
+DUPLICATED_ALREADY_LINE = "Venía dos veces en el archivo."
 
 
 def tile_state(outcome: Outcome) -> Optional[str]:
@@ -201,10 +203,12 @@ def failure(detail: str) -> Problem:
 def picked_line(result: UploadResult, duplicated: bool) -> str:
     """`duplicated`: the same remito came again in the export (shown on the first one's tile)."""
     outcome = result.outcome
+    repeated = DUPLICATED_LINE
     if outcome is Outcome.CREATED:
         line = "Cargado. Seguimiento %s." % result.tracking_id
     elif outcome is Outcome.ALREADY_EXISTS:
         line = "Ya estaba cargado de antes. No se duplicó."
+        repeated = DUPLICATED_ALREADY_LINE
     elif outcome is Outcome.DUPLICATE:
         return DUPLICATED_LINE
     elif outcome is Outcome.REJECTED:
@@ -214,7 +218,7 @@ def picked_line(result: UploadResult, duplicated: bool) -> str:
     else:
         problem = failure(result.detail)
         return "%s. %s" % (problem.title, problem.hint)
-    return "%s %s" % (line, DUPLICATED_LINE) if duplicated else line
+    return "%s %s" % (line, repeated) if duplicated else line
 
 
 # --- The answer at the top ---------------------------------------------------------------------
@@ -438,8 +442,11 @@ def late_line(days_late: int, estimated_delivery: date) -> str:
     )
 
 
-def overdue_title(n: int) -> str:
-    return "%d %s %s" % (n, plural(n, "envío", "envíos"), plural(n, "atrasado", "atrasados"))
+def overdue_title(n: int, today: date) -> str:
+    """The date goes in words: the native date input shows 10/03/2026, which reads two ways."""
+    return "%d %s %s al %s" % (
+        n, plural(n, "envío", "envíos"), plural(n, "atrasado", "atrasados"), spanish_date(today),
+    )
 
 
 def overdue_empty(today: date) -> str:

@@ -16,7 +16,7 @@ Technical contract for T3 (`odd/tasks/panel-operaciones.md`). Every T3 worker re
 vendor/caso-expreso/      submodule, read-only
 panel/
   __init__.py
-  __main__.py             python3 -m panel  (127.0.0.1:8080 by default; --port)
+  __main__.py             python3 -m panel  (127.0.0.1:8080 by default; --port; a busy port prints one Spanish sentence and exits 2)
   bridge.py               adapter over expreso_bridge (T3.1)
   phrases.py              T2 phrases as code (T3.2)
   server.py               HTTP + SSE server (T3.3)
@@ -136,7 +136,7 @@ def cannot_run(kind: str, export_name: str = "", context: str = "upload",
 def plural(n: int, one: str, other: str) -> str         # Spanish one/other, never "+ s"
 ```
 
-Overdue (docs/bitacora.md §5 "Atrasados"): `status_text(status)` (`CREATED` "Todavía no salió", `IN_TRANSIT` "En viaje", `EXCEPTION` "Con un problema en el viaje"; an unknown status is returned as is), `late_line(days_late, estimated_delivery)` ("Atrasado 1 día: tenía que llegar el 2 de octubre."), `overdue_title(n)` ("2 envíos atrasados"), `overdue_empty(today)` ("Ningún envío atrasado al 3 de octubre."), `spanish_date(day)` (month names in a tuple, no locale).
+Overdue (docs/bitacora.md §5 "Atrasados"): `status_text(status)` (`CREATED` "Todavía no salió", `IN_TRANSIT` "En viaje", `EXCEPTION` "Con un problema en el viaje"; an unknown status is returned as is), `late_line(days_late, estimated_delivery)` ("Atrasado 1 día: tenía que llegar el 2 de octubre."), `overdue_title(n, today)` ("2 envíos atrasados al 3 de octubre": the date goes in words because the native date input shows 10/03/2026, which reads two ways), `overdue_empty(today)` ("Ningún envío atrasado al 3 de octubre."), `spanish_date(day)` (month names in a tuple, no locale).
 
 Counting: shipments are results minus `DUPLICATE`. A run with 0 created and at least one already-existing is a second run ("desde una carga anterior"). Created > 0 and already-existing > 0 with nothing to fix uses the 04 sub-line ("3 se cargaron ahora y los otros 20 ya estaban").
 
@@ -172,7 +172,7 @@ OverdueView = { title, empty, items: [{ remito, recipient, client, city, trackin
 
 An item whose `estimated_delivery` is not an ISO date is still listed, with `late_line` `""` and `days_late` `null`.
 
-`title` is "N envío(s) atrasado(s)" (also for 0), `empty` is the sentence for a day with none. The cannot-run phrases end in "No se cargó ningún envío.", which is wrong for this view; the overdue endpoint uses `cannot_run(kind, name, context="overdue")`, which drops that sentence (and says "No se pudo consultar el estado de los envíos." for `api_unavailable`).
+`title` is "N envío(s) atrasado(s) al D de mes" (also for 0), `empty` is the sentence for a day with none. The cannot-run phrases end in "No se cargó ningún envío.", which is wrong for this view; the overdue endpoint uses `cannot_run(kind, name, context="overdue")`, which drops that sentence (and says "No se pudo consultar el estado de los envíos." for `api_unavailable`).
 
 `ResultView.address` is "street, city", or "city, province" when the street is blank (`phrases.address_line`). `Answer.action` tells the page what a button does; the page never decides by the button's text.
 
@@ -184,7 +184,14 @@ Configuration from the environment, read at start: `EXPRESO_API_URL` (default `h
 
 ## Frontend (T3.4)
 
-`static/index.html` + `app.css` + `app.js`, no framework. Three moments on one page, with the 03 visual system and motion rules: pick the export (preview with empty tiles and "Cargar N envíos"), live progress (tiles fill from SSE `result` events), result (answer, legend, map, fix sheet, "Sin respuesta" group, technical details). Cannot-run states per 04. Public Sans served from `static/` (not a data URI). Reduced motion, keyboard and forced-colors rules from 03 carry over.
+`static/index.html` + `app.css` + `app.js`, no framework. Three moments on one page, with the 03 visual system and motion rules: pick the export (preview with empty tiles and "Cargar N envíos"), live progress (tiles fill from SSE `result` events), result (answer, legend, map, fix sheet, "Sin respuesta" group, technical details). Cannot-run states per 04, with "Carga de hoy, HH:MM · file" (the time of the attempt) in the header.
+
+T4.1 decisions:
+- **DOM order is answer, legend, fix sheet, map** (`#overview` is one grid; areas `answer | map` over `fixes` on wide screens, one column in that order below 64rem). On wide screens the tab order is therefore answer → sheet → map, while the picture is answer | map, sheet. This is deliberate: what needs a person comes first for keyboard and screen readers on every width; the map keeps its own heading ("Los N envíos de esta carga") and label.
+- **Back and reload.** Opening the overdue view does `history.pushState({panel: "overdue"})`; Back (`popstate`) returns to the view it came from, and "Volver" calls `history.back()`. The tab's `sessionStorage` key `expreso-panel` keeps `{runId, exportId, name, at, preview}` from the moment a run starts (just `{name}` on the pick screen, for the "La última vez cargaste…" hint). On load the page asks `GET /api/runs/<id>`: `200` RunView restores the result, `200` failed restores the cannot-run screen, `202` re-subscribes to the events, anything else (a `404` after the server restarted) falls back to the pick screen without a message.
+- A shipment with a non-empty `technical` that is `ok` or `prev` shows "Ver detalle técnico de R-…" under its picked line.
+- The legend uses the tiles' singular labels (`LABELS`).
+- T2 table deviations: the overdue title carries the date in words, and the picked line of a `prev` remito that came twice is "Ya estaba cargado de antes. No se duplicó. Venía dos veces en el archivo." (the T2 text "Se cargó una sola vez" is only true on a run that loaded it). Public Sans served from `static/` (not a data URI). Reduced motion, keyboard and forced-colors rules from 03 carry over.
 
 ## Tests
 

@@ -19,7 +19,7 @@
   const CHEVRON = svg(12, false, '<path d="M9 6l6 6-6 6"/>');
   const UPLOAD = svg(16, false, '<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>');
   const STATES = ["ok", "prev", "fix", "none"];
-  const LEGEND = [["ok", "Cargados"], ["prev", "Ya estaba"], ["fix", "Para corregir"], ["none", "Sin respuesta"]];
+  const LEGEND = [["ok", "Cargado"], ["prev", "Ya estaba"], ["fix", "Para corregir"], ["none", "Sin respuesta"]];
   const FALLBACK = {
     headline: "El panel no responde.",
     sub: "No se cargó ningún envío. Probá de nuevo en unos minutos; si sigue igual, avisale a sistemas.",
@@ -57,8 +57,18 @@
 
   const S = {
     exportId: null, preview: null, name: "", runId: null, es: null, busy: false,
-    tiles: new Map(), byRemito: new Map(), dupLine: new Map(), seen: new Set(),
+    at: "", tiles: new Map(), byRemito: new Map(), seen: new Set(),
     counts: { ok: 0, prev: 0, fix: 0, none: 0 }, filled: 0, n: 0, selected: null,
+  };
+
+  // The run in progress (or the last export name, for the hint) survives a reload for as long as the tab does
+  const memory = {
+    read() { try { return JSON.parse(sessionStorage.getItem("expreso-panel")); } catch (_) { return null; } },
+    write(value) {
+      try {
+        if (value) sessionStorage.setItem("expreso-panel", JSON.stringify(value)); else sessionStorage.removeItem("expreso-panel");
+      } catch (_) { /* storage blocked: reloading just starts over */ }
+    },
   };
 
   // ---- Small helpers ----------------------------------------------------------------------------
@@ -103,6 +113,7 @@
     body.classList.remove("running");
     S.exportId = null;
     S.preview = null;
+    memory.write(hintName ? { name: hintName } : null);
     setView("pick");
     setMeta([]);
     setTitle("");
@@ -119,6 +130,7 @@
   async function handleFile(file) {
     if (!file || S.busy) return;
     S.busy = true;
+    S.at = new Date().toISOString();
     drop.classList.remove("over");
     drop.classList.add("busy");
     dropText.textContent = `Leyendo «${file.name}»…`;
@@ -271,7 +283,7 @@
   }
 
   function resetBoard() {
-    S.byRemito.clear(); S.dupLine.clear(); S.seen.clear();
+    S.byRemito.clear(); S.seen.clear();
     S.counts = { ok: 0, prev: 0, fix: 0, none: 0 };
     S.filled = 0;
     renderLegend(S.counts);
@@ -323,12 +335,14 @@
   async function startRun() {
     if (S.busy || !S.exportId) return showPick("", true);
     S.busy = true;
+    S.at = new Date().toISOString();
     final.querySelectorAll("button").forEach(b => { b.disabled = true; });
     const res = await api("/api/runs", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ export_id: S.exportId }),
     });
     S.busy = false;
     if (res.status !== 202 || !res.data || !res.data.run_id) return showCannot(answerOf(res), "", !!S.preview);
+    memory.write({ runId: res.data.run_id, exportId: S.exportId, name: S.name, at: S.at, preview: S.preview });
     beginLive(res.data.run_id);
   }
   const retryRun = () => (S.exportId ? startRun() : showPick("", true));
@@ -343,7 +357,7 @@
     setMap(`Los ${n} envíos de esta carga`);
     $("live-k").textContent = "0";
     $("live-n").textContent = String(n);
-    setMeta([timeLabel(), p.export_name]);
+    setMeta([timeLabel(S.at), p.export_name]);
     // The live block is shorter than the sentence it replaces; lift the legend by the difference
     legend.style.setProperty("--lift", `${Math.max(0, final.offsetHeight - liveBox.offsetHeight)}px`);
     body.classList.add("running");
@@ -382,10 +396,7 @@
   function onResult(rv) {
     if (S.seen.has(rv.index)) return;
     S.seen.add(rv.index);
-    if (rv.duplicate || !rv.state) {
-      S.dupLine.set(rv.remito, rv.picked);
-      return;
-    }
+    if (rv.duplicate || !rv.state) return;
     const tile = S.tiles.get(rv.remito);
     if (!tile || !PATHS[rv.state]) return;
     S.byRemito.set(rv.remito, rv);
@@ -518,10 +529,8 @@
     const natural = body.classList.contains("running");
     S.name = rv.export_name || S.name;
     S.byRemito.clear();
-    S.dupLine.clear();
     rv.results.forEach(r => {
-      if (r.duplicate || !r.state) S.dupLine.set(r.remito, r.picked);
-      else S.byRemito.set(r.remito, r);
+      if (!r.duplicate && r.state) S.byRemito.set(r.remito, r);
     });
     // The RunView is the source of truth: tiles that missed their event are filled now, wrong ones corrected
     S.byRemito.forEach((r, remito) => {
@@ -585,7 +594,7 @@
     fixesSection.hidden = true;
     sheet.replaceChildren();
     renderLegend(S.counts);
-    setMeta(p ? [p.export_name] : S.name ? [S.name] : []);
+    setMeta([timeLabel(S.at), p ? p.export_name : S.name]);
     setTitle(answer.headline);
     setView("cannot");
     const extra = technical ? techDetails("Ver detalle técnico", technical) : null;
@@ -622,10 +631,9 @@
       nodes.push(a);
       return nodes;
     }
-    let line = r.picked;
-    const dup = S.dupLine.get(r.remito);
-    if (dup && !line.includes(dup)) line = dup.includes(line) ? dup : `${line} ${dup}`;
-    nodes.push(el("span", null, line), el("span", "k", r.remito));
+    nodes.push(el("span", null, r.picked), el("span", "k", r.remito));
+    // A shipment confirmed after a retry keeps the bridge's own words one click away
+    if (r.technical) nodes.push(techDetails(`Ver detalle técnico de ${r.remito}`, r.technical));
     return nodes;
   }
 
@@ -743,8 +751,11 @@
     else renderOverdueCannot(res);
   }
 
-  function showOverdue() {
+  const inOverdueEntry = () => !!(history.state && history.state.panel === "overdue");
+
+  function showOverdue(fromHistory) {
     if (!S.exportId) return;
+    if (fromHistory !== true) history.pushState({ panel: "overdue" }, "");
     odFrom = body.dataset.view === "preview" ? "preview" : "result";
     odBack.textContent = odFrom === "preview" ? "Volver a los envíos" : "Volver al resultado";
     odDate.value = todayISO();
@@ -764,9 +775,49 @@
     openOverdue.focus();
   }
 
-  openOverdue.addEventListener("click", showOverdue);
-  odBack.addEventListener("click", hideOverdue);
+  openOverdue.addEventListener("click", () => showOverdue());
+  // Going back is the browser's Back: the pushed entry is popped and popstate does the rest
+  odBack.addEventListener("click", () => (inOverdueEntry() ? history.back() : hideOverdue()));
   odDate.addEventListener("change", loadOverdue);
+  addEventListener("popstate", () => {
+    const view = body.dataset.view;
+    if (view === "overdue") hideOverdue();
+    else if (inOverdueEntry() && (view === "preview" || view === "result")) showOverdue(true);
+  });
 
-  showPick("", false);
+  // ---- Reload: bring back the run this tab was showing ------------------------------------------
+
+  const shipmentsOf = rv => rv.results.filter(r => r.state && !r.duplicate).map(r => ({ remito: r.remito, recipient: r.recipient }));
+
+  async function restoreRun(mem) {
+    const res = await api(`/api/runs/${encodeURIComponent(mem.runId)}`);
+    const d = res.data;
+    S.exportId = mem.exportId || null;
+    S.preview = mem.preview || null;
+    S.name = mem.name || "";
+    S.at = mem.at || "";
+    body.classList.remove("booting"); // what follows is one synchronous render: the pick screen never shows
+    if (res.status === 202 && d && d.running && S.preview) {
+      beginLive(mem.runId);
+    } else if (res.status === 200 && d && d.results) {
+      resetBoard();
+      buildMap(shipmentsOf(d), "Sin cargar");
+      onDone(d);
+    } else if (res.status === 200 && d && d.answer) {
+      showCannot(d.answer, d.technical || "", false);
+    } else {
+      showPick(mem.name || "", false); // the server forgot the run (or is gone): back to the start, without a word
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => body.classList.remove("restoring")));
+  }
+
+  // An overdue entry that survived a reload has no view behind it any more
+  if (inOverdueEntry()) history.replaceState(null, "");
+  const remembered = memory.read();
+  if (remembered && remembered.runId) {
+    body.classList.add("booting", "restoring");
+    restoreRun(remembered);
+  } else {
+    showPick((remembered && remembered.name) || "", false);
+  }
 })();

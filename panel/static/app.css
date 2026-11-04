@@ -201,8 +201,13 @@ p { margin: 0; text-wrap: pretty; }
 @media (hover: hover) { .drop:hover .btn-primary { background: var(--accent-hover); } }
 
 /* Answer + map */
-.overview { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; align-items: start; }
-.overview.solo { grid-template-columns: minmax(0, 1fr); max-width: 45rem; }
+/* DOM order is answer, fix sheet, map: what needs a person comes first on a phone and in the tab order.
+   Wide screens keep the approved picture through the areas: answer | map, then the sheet across. */
+.overview { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-areas: "answer map" "fixes fixes"; column-gap: 3rem; align-items: start; }
+.overview.solo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "answer"; max-width: 45rem; }
+.overview > .answer { grid-area: answer; }
+.overview > .map-section { grid-area: map; }
+.overview > .fixes { grid-area: fixes; }
 .answer .stack { display: grid; }
 .answer .stack > * { grid-area: 1 / 1; }
 .answer .live { align-self: start; }
@@ -230,7 +235,8 @@ p { margin: 0; text-wrap: pretty; }
 .running .legend { margin-block-start: calc(2.5rem - var(--lift)); }
 @media (prefers-reduced-motion: no-preference) {
   .legend { transition: margin-block-start 170ms var(--ease-out) 80ms; }
-  .running .legend { transition-duration: 190ms; transition-delay: 60ms; }
+  /* The lift waits for the preview buttons' fade (120ms) so the two do not overlap */
+  .running .legend { transition-duration: 190ms; transition-delay: 120ms; }
 }
 .legend li { display: grid; grid-template-columns: 1.75rem 1fr auto; gap: 1rem; align-items: center; padding-block: 0.5rem; border-block-end: 1px solid var(--hair); font-size: var(--t-md); line-height: 1.5; }
 .legend .n { color: var(--text-2); text-align: end; min-width: 2ch; }
@@ -304,6 +310,9 @@ p { margin: 0; text-wrap: pretty; }
 
 /* Fixes: the only raised surface, because it is the one thing to act on */
 .fixes { margin-block-start: 3rem; }
+/* Reloading into a run: the page waits for the server's answer (booting), then nothing animates into place (restoring) */
+.booting .page { visibility: hidden; }
+.restoring *, .restoring *::before, .restoring *::after { transition: none !important; animation: none !important; }
 .sheet { background: var(--paper); border: 1px solid transparent; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--hair); padding: 2rem 2rem 1.5rem; }
 .fixes-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem 2rem; flex-wrap: wrap; }
 .fixes-head p { color: var(--text-2); max-width: 40rem; }
@@ -336,7 +345,7 @@ p { margin: 0; text-wrap: pretty; }
 .sheet-actions { margin-block-start: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
 .answer .actions details.tech { align-self: center; }
 
-details.tech summary { cursor: pointer; color: var(--text-2); font-size: var(--t-sm); line-height: 1.4; list-style: none; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap; }
+details.tech summary { cursor: pointer; min-block-size: 24px; color: var(--text-2); font-size: var(--t-sm); line-height: 1.4; list-style: none; display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap; }
 details.tech summary::-webkit-details-marker { display: none; }
 details[open].tech summary svg { transform: rotate(90deg); }
 @media (prefers-reduced-motion: no-preference) { details.tech summary svg { transition: transform 200ms var(--ease-out); } }
@@ -383,7 +392,8 @@ details[open].tech summary svg { transform: rotate(90deg); }
 }
 
 @media (max-width: 64rem) {
-  .overview, .overview.solo { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .overview, .overview.solo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "answer" "fixes" "map"; }
+  .overview > .map-section { margin-block-start: 2rem; }
   .top { padding-inline: 1.25rem; }
   .top-end { justify-content: flex-start; }
   .od-row { grid-template-columns: minmax(0, 1fr); }

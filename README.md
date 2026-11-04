@@ -17,6 +17,10 @@ EXPRESO_API_KEY=andino-test-7f3a91 python3 -m panel
 # opcional: EXPRESO_API_URL (por defecto http://localhost:8000) y --port (por defecto 8080)
 ```
 
+Si el puerto está ocupado, el panel lo dice y no arranca: «El puerto 8080 ya está en uso. Probá con otro: python3 -m panel --port 8090».
+
+La API del kit guarda sus datos en memoria: si la reiniciás, la próxima carga vuelve a ser una primera corrida (todo se carga de nuevo, nada figura como «Ya estaba»).
+
 Abrir http://127.0.0.1:8080, elegir el export (`vendor/caso-expreso/kit/remitos_2026-09-30.json`) y cargar. Los exports subidos y los resúmenes quedan en `runs/`, que no se versiona. La clave nunca llega al navegador.
 
 ## Cómo usa el puente sin cambiarlo

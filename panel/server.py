@@ -12,6 +12,7 @@ import logging
 import re
 import shutil
 import socket
+import sys
 import threading
 import uuid
 from datetime import date
@@ -180,9 +181,14 @@ def overdue_item(shipment: dict, today: date) -> dict:
     }
 
 
+def reuse_address(platform: str) -> bool:
+    """On Windows SO_REUSEADDR lets a second server bind a port that is already listening."""
+    return platform != "win32"
+
+
 class PanelServer(ThreadingHTTPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    allow_reuse_address = reuse_address(sys.platform)
 
     def __init__(
         self,
@@ -193,10 +199,12 @@ class PanelServer(ThreadingHTTPServer):
         runs_dir: Path,
         client_factory: Optional[Callable] = None,
         max_upload_bytes: int = DEFAULT_MAX_UPLOAD_BYTES,
+        test_mode: bool = False,
     ):
         super().__init__(address, Handler)
         self.base_url = base_url
         self.api_key = api_key or None
+        self.test_mode = test_mode  # pointed at the kit's mock API: the page says so
         self.exports_dir = runs_dir / "exports"
         self.reports_dir = runs_dir / "reports"
         self.client_factory = client_factory
@@ -304,6 +312,7 @@ def create_server(
     runs_dir: Path,
     client_factory: Optional[Callable] = None,
     max_upload_bytes: int = DEFAULT_MAX_UPLOAD_BYTES,
+    test_mode: bool = False,
 ) -> PanelServer:
     return PanelServer(
         (host, port),
@@ -312,6 +321,7 @@ def create_server(
         runs_dir=runs_dir,
         client_factory=client_factory,
         max_upload_bytes=max_upload_bytes,
+        test_mode=test_mode,
     )
 
 
@@ -383,6 +393,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._static(STATIC_DIR / "index.html")
             elif path.startswith("/static/"):
                 self._static_file(path[len("/static/"):])
+            elif path == "/api/config":
+                self._json(HTTPStatus.OK, {"testMode": self.server.test_mode})
             elif events:
                 self._events(events.group(1))
             elif run:

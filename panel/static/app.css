@@ -157,6 +157,9 @@ p { margin: 0; text-wrap: pretty; }
 .brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; }
 .top .meta { color: var(--text-2); font-size: var(--t-md); line-height: 1.5; display: flex; gap: 1rem; flex-wrap: wrap; }
 .top .meta span { white-space: nowrap; }
+/* Test mode reads like a rubber stamp on the carbon copy: stamp ink, never the attention yellow */
+.mode { margin: 0; display: flex; align-items: baseline; gap: 0.5rem; color: var(--text-2); font-size: var(--t-md); line-height: 1.5; }
+.mode .stamp { padding: 0.0625rem 0.375rem; border: 1px solid currentColor; border-radius: var(--r-xs); color: var(--accent); font-size: var(--t-sm); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;

@@ -63,6 +63,10 @@ Las tres responden lo mismo y en el mismo orden: primero la frase que contesta �
 
 Las tres direcciones se revisaron contra criterios de escritura de interfaz, color, accesibilidad y tipografía, y contra una lista de señales de interfaz genérica, que sirvió para darle a cada una un carácter propio. Se aplicaron con criterio y no como receta: la ambición está en la precisión y en lo que se saca, sin métricas gigantes, sin etiquetas en mayúsculas arriba de los títulos, sin degradados ni vidrio. Cada problema dice qué falta, para quién y qué hacer; los botones arrancan con un verbo («Volver a cargar el export»); los «Ver detalle técnico» llevan el remito, para que se entiendan leídos solos (un lector de pantalla los lista sin contexto). Los colores están en OKLCH, con contraste medido: todo el texto por encima de 4,5:1 y los bordes de los casilleros pendientes por encima de 3:1. El estado nunca depende solo del color, siempre hay ícono y texto. Se puede usar con teclado, el foco se ve y se respeta «reducir movimiento».
 
+| La nota | La bandeja | El mapa (la elegida) |
+| --- | --- | --- |
+| ![Dirección 1, la nota](img/direccion-1-la-nota.png) | ![Dirección 2, la bandeja](img/direccion-2-la-bandeja.png) | ![Dirección 3, el mapa](img/direccion-3-el-mapa.png) |
+
 ### Por qué el mapa
 
 Elegimos el mapa. Las razones:
@@ -125,6 +129,12 @@ Hasta acá habíamos diseñado un solo día: el lunes, con 3 envíos para correg
 - **Viernes, no se pudo correr.** No hay resultado que mostrar, así que en el lugar del mapa van los 23 casilleros vacíos: se ve que no se tocó nada. Al lado, el caso del archivo que no se puede leer.
 
 La semana también sirve para mostrar el producto: en un minuto se ve qué ve operaciones cada día, incluso cuando algo falla.
+
+Así quedaron en el panel terminado la segunda carga y el día en que Expreso Andino no responde:
+
+| Segunda carga | Expreso Andino no responde |
+| --- | --- |
+| ![Segunda carga del mismo export: todo figura como «Ya estaba»](img/segunda-carga.png) | ![Pantalla de «Expreso Andino no responde» con los casilleros sin cargar](img/no-se-pudo-cargar.png) |
 
 En paralelo cerramos los cabos sueltos de verificación del mapa:
 

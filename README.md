@@ -2,7 +2,25 @@
 
 Panel web para que el equipo de operaciones de LogiSur vea, sin conocimientos técnicos, qué pasó al cargar el export diario de remitos en Expreso Andino: una frase que dice si hay algo para hacer, un casillero por envío, y el detalle técnico plegado. Funciona como una capa sobre el puente [caso-expreso](https://github.com/Mateocas1/caso-expreso); no reemplaza su línea de comandos.
 
+Nació de una pregunta en la entrevista técnica con Geno Insights: cómo se le vendería esta automatización a un cliente, si quien la usa no es técnico y en la terminal ve códigos como 409 o 503.
+
 Solo usa la librería estándar (Python 3.9+): no hay nada que instalar.
+
+## Cómo se ve
+
+Una carga en vivo: cada casillero es un envío y se completa cuando Expreso Andino lo confirma. Al terminar, la frase de arriba dice si hay algo para hacer.
+
+![Carga en vivo del export del kit: los casilleros se completan y aparece el resultado](docs/img/carga-en-vivo.gif)
+
+| Resultado de la primera carga | Lo que hay que corregir, envío por envío |
+| --- | --- |
+| ![Resultado: 3 de 23 envíos esperan un dato de LogiSur](docs/img/resultado.png) | ![Un envío seleccionado con la explicación de qué falta](docs/img/detalle-envio.png) |
+| **Segunda carga del mismo export: no se duplica nada** | **Envíos atrasados a una fecha** |
+| ![Segunda carga: todo figura como «Ya estaba»](docs/img/segunda-carga.png) | ![Vista de envíos atrasados al 3 de octubre](docs/img/atrasados.png) |
+| **Expreso Andino no responde** | **En el celular, lo que hay que corregir va primero** |
+| ![Expreso Andino no responde: los casilleros quedan sin cargar](docs/img/no-se-pudo-cargar.png) | ![Resultado en un celular](docs/img/celular.png) |
+
+Las tres direcciones de diseño que se exploraron antes de construirlo están en la [bitácora](docs/bitacora.md#tres-direcciones).
 
 ## Abrirlo con doble clic
 
@@ -69,12 +87,12 @@ panel/
   static/       la página
 tests/          unitarios y de punta a punta contra la API del kit
 design/         direcciones visuales y decisiones de diseño
-docs/           bitácora y cómo se construyó (etapas, revisiones, API HTTP)
+docs/           bitácora, cómo se construyó (etapas, revisiones, API HTTP) e imágenes (docs/img/)
 vendor/         el puente (submódulo, solo lectura)
 ```
 
 ## Dónde seguir leyendo
 
-- [`docs/bitacora.md`](docs/bitacora.md): el razonamiento y las decisiones, incluidas las frases de cada resultado.
-- [`docs/como-se-construyo.md`](docs/como-se-construyo.md): las etapas del trabajo, cómo se conecta con el puente, las revisiones independientes y la API HTTP.
+- [`docs/bitacora.md`](docs/bitacora.md): el porqué. El problema, para quién se diseñó, los principios, las tres direcciones y por qué se eligió el mapa, la tabla de códigos a frases y un registro de cada decisión con su motivo y la alternativa descartada.
+- [`docs/como-se-construyo.md`](docs/como-se-construyo.md): el cómo. Las etapas del trabajo y en qué se basó cada una, cómo se conecta con el puente sin cambiarlo, los módulos, lo que encontró cada revisión independiente y cómo se corrigió, y la API HTTP.
 - [`design/resultado-corrida/`](design/resultado-corrida/): las tres direcciones visuales, la elegida (`03-el-mapa.html`) y los estados.

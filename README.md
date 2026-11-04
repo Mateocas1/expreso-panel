@@ -28,34 +28,11 @@ Las tres direcciones de diseño que se exploraron antes de construirlo están en
 2. En Windows, doble clic en **`Abrir panel.bat`**. En Linux, **`Abrir panel.sh`**: con clic derecho → «Ejecutar como un programa» en GNOME, o doble clic en KDE y Xfce. Se abre una ventana con el estado y el panel en el navegador.
 3. Para apagarlo, cerrá esa ventana.
 
-Sin configuración, el panel abre en **modo prueba**: levanta la API de prueba del kit en la misma computadora y lo avisa en la cabecera. Para usar la API real de Expreso Andino, copiá `expreso.ini.ejemplo` como `expreso.ini` y completá `url` y `api_key`; ese archivo no se versiona.
+Sin configuración, el panel abre en **modo prueba**: levanta la API de prueba del kit en la misma computadora y lo avisa en la cabecera. Para probarlo, elegí el export de ejemplo del kit: `vendor/caso-expreso/kit/remitos_2026-09-30.json`. Para usar la API real de Expreso Andino, copiá `expreso.ini.ejemplo` como `expreso.ini` y completá `url` y `api_key`; ese archivo no se versiona.
 
-Hace falta Python 3.9 o superior. En Windows, al instalarlo, marcá «Add python.exe to PATH». Desde una terminal, lo mismo es `python3 -m panel.launcher`.
+Hace falta Python 3.9 o superior. En Windows, al instalarlo, marcá «Add python.exe to PATH». En macOS, o desde una terminal en cualquier sistema, el panel se abre con `python3 -m panel.launcher` dentro de la carpeta del repositorio.
 
 Si el puerto 8080 está ocupado (por ejemplo, porque el panel ya estaba abierto), usa uno libre y abre el navegador ahí; la dirección que quedó se ve en la ventana. Si el navegador no se abre solo, copiá esa dirección en la barra.
-
-## Cómo correrlo a mano
-
-```bash
-git submodule update --init
-
-# 1. Levantar la API de prueba (en otra terminal)
-python3 vendor/caso-expreso/kit/expreso_api.py
-
-# 2. Levantar el panel
-EXPRESO_API_KEY=andino-test-7f3a91 python3 -m panel
-# opcional: EXPRESO_API_URL (por defecto http://localhost:8000) y --port (por defecto 8080)
-```
-
-`andino-test-7f3a91` es la clave de prueba publicada en el kit del puente, no un secreto. La API del kit usa el puerto 8000; si está ocupado, pasale otro (`python3 vendor/caso-expreso/kit/expreso_api.py 8001`) y apuntá el panel ahí con `EXPRESO_API_URL=http://localhost:8001`. A mano, la cabecera no muestra «Modo prueba»: ese aviso solo aparece con el doble clic.
-
-Si el puerto está ocupado, el panel lo dice y no arranca: «El puerto 8080 ya está en uso. Probá con otro: python3 -m panel --port 8090».
-
-La API del kit guarda sus datos en memoria: si la reiniciás, la próxima carga vuelve a ser una primera corrida (todo se carga de nuevo, nada figura como «Ya estaba»).
-
-Abrir http://127.0.0.1:8080, elegir el export (`vendor/caso-expreso/kit/remitos_2026-09-30.json`) y cargar. Los exports subidos y los resúmenes quedan en `runs/`, que no se versiona. La clave nunca llega al navegador.
-
-Para comprobar que el panel responde: `curl http://127.0.0.1:8080/api/config` devuelve `{"testMode": false}` (`true` si lo abriste con el doble clic sin `expreso.ini`). El panel solo atiende pedidos dirigidos a `127.0.0.1`, `localhost` o `[::1]` con su puerto; con otro `Host` responde `403`.
 
 ## Cómo usa el puente sin cambiarlo
 
@@ -63,6 +40,22 @@ Para comprobar que el panel responde: `curl http://127.0.0.1:8080/api/config` de
 - El panel importa sus funciones públicas en el mismo proceso (`load_remitos`, `is_andino`, `ExpresoClient`, `upload_remitos`, `render_run_report`, `find_overdue`). No corre la línea de comandos, no llama funciones privadas y no repite ninguna regla del puente (deduplicado, clasificación, reintentos, validación).
 - El avance en vivo sale de la línea de log que `upload_remitos` ya escribe por cada remito: el panel la escucha mientras dura la carga y la reenvía al navegador.
 - Lo que el puente no cubre (un JSON que no es una lista de remitos, un remito sin `nro_remito`, un `401` a mitad de la carga) el panel lo atrapa al envolver la llamada. Detalle en [`docs/como-se-construyo.md`](docs/como-se-construyo.md).
+
+## Para desarrollo: el panel y la API por separado
+
+Para usar el panel alcanza con el lanzador. Esto es para trabajar sobre el código o apuntar a otra API:
+
+```bash
+git submodule update --init
+python3 vendor/caso-expreso/kit/expreso_api.py          # API de prueba en http://localhost:8000
+EXPRESO_API_KEY=andino-test-7f3a91 python3 -m panel     # panel en http://127.0.0.1:8080
+```
+
+- `EXPRESO_API_URL` cambia la API (por defecto `http://localhost:8000`) y `--port` cambia el puerto del panel; si está ocupado, el panel lo avisa y propone otro. La API del kit recibe su puerto como argumento (`expreso_api.py 8001`).
+- `andino-test-7f3a91` es la clave de prueba publicada en el kit, no un secreto. La clave nunca llega al navegador.
+- La API del kit guarda todo en memoria: si se reinicia, la próxima carga vuelve a ser una primera corrida.
+- Los exports subidos y los resúmenes quedan en `runs/`, que no se versiona. Corrido así, la cabecera no muestra «Modo prueba».
+- `curl http://127.0.0.1:8080/api/config` responde `{"testMode": false}`. El panel solo atiende pedidos dirigidos a `127.0.0.1`, `localhost` o `[::1]`; con otro `Host` responde `403`.
 
 ## Tests
 

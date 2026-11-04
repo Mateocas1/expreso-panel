@@ -8,7 +8,7 @@ Solo usa la librería estándar (Python 3.9+): no hay nada que instalar.
 
 ## Cómo se ve
 
-Una carga en vivo: cada casillero es un envío y se completa cuando Expreso Andino lo confirma. Al terminar, la frase de arriba dice si hay algo para hacer.
+Una carga en vivo: cada casillero es un envío y se completa cuando Expreso Andino lo confirma. Al terminar, la frase de arriba dice si hay algo para hacer. La pausa a mitad de camino es real: Expreso Andino rechaza un envío la primera vez y el puente espera antes de reintentarlo. La grabación está en tiempo real, sin acelerar ni recortar.
 
 ![Carga en vivo del export del kit: los casilleros se completan y aparece el resultado](docs/img/carga-en-vivo.gif)
 

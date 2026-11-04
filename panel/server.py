@@ -193,10 +193,12 @@ class PanelServer(ThreadingHTTPServer):
         runs_dir: Path,
         client_factory: Optional[Callable] = None,
         max_upload_bytes: int = DEFAULT_MAX_UPLOAD_BYTES,
+        test_mode: bool = False,
     ):
         super().__init__(address, Handler)
         self.base_url = base_url
         self.api_key = api_key or None
+        self.test_mode = test_mode  # pointed at the kit's mock API: the page says so
         self.exports_dir = runs_dir / "exports"
         self.reports_dir = runs_dir / "reports"
         self.client_factory = client_factory
@@ -304,6 +306,7 @@ def create_server(
     runs_dir: Path,
     client_factory: Optional[Callable] = None,
     max_upload_bytes: int = DEFAULT_MAX_UPLOAD_BYTES,
+    test_mode: bool = False,
 ) -> PanelServer:
     return PanelServer(
         (host, port),
@@ -312,6 +315,7 @@ def create_server(
         runs_dir=runs_dir,
         client_factory=client_factory,
         max_upload_bytes=max_upload_bytes,
+        test_mode=test_mode,
     )
 
 
@@ -383,6 +387,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._static(STATIC_DIR / "index.html")
             elif path.startswith("/static/"):
                 self._static_file(path[len("/static/"):])
+            elif path == "/api/config":
+                self._json(HTTPStatus.OK, {"testMode": self.server.test_mode})
             elif events:
                 self._events(events.group(1))
             elif run:

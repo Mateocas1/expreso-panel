@@ -1,0 +1,8 @@
+# Configuración del panel para la API real de Expreso Andino.
+# Copiá este archivo como expreso.ini (en esta misma carpeta) y completá los dos datos.
+# expreso.ini no se sube a git: la clave queda solo en esta computadora.
+# Sin expreso.ini, el panel abre en modo prueba contra la API de prueba del kit.
+
+[expreso_andino]
+url = https://api.example.com
+api_key = 

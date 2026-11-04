@@ -811,6 +811,9 @@
     requestAnimationFrame(() => requestAnimationFrame(() => body.classList.remove("restoring")));
   }
 
+  // Opened by the launcher without expreso.ini: loads go to the kit's mock API, and the header says so
+  api("/api/config").then(res => { $("mode").hidden = !(res.ok && res.data && res.data.testMode === true); });
+
   // An overdue entry that survived a reload has no view behind it any more
   if (inOverdueEntry()) history.replaceState(null, "");
   const remembered = memory.read();

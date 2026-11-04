@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Abrir panel
+Comment=Panel de envíos a Expreso Andino
+Exec=sh -c "cd \\"\\$(dirname \\"\\$1\\")\\" && exec python3 -m panel.launcher --pause-on-error" sh %k
+Terminal=true
+Icon=utilities-terminal

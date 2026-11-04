@@ -146,6 +146,21 @@ Elegimos la segunda, con tres cuidados:
 
 Lo que el panel sí agrega es lo que el puente no tenía por qué saber: el cliente de cada remito (lo lee del export), las frases para operaciones y los avisos claros para los huecos que encontramos (un archivo con otra forma, la clave rechazada a mitad de camino).
 
+### Lo que salió al construirlo (T3)
+
+El panel quedó hecho en cinco piezas chicas: el adaptador que habla con el puente, las frases como código, el servidor, la página y la vista de atrasados. Tiene 134 tests, todos contra la API del kit, igual que los del puente. Probado de punta a punta: primera carga (19 cargados, 1 ya estaba, 3 para corregir), segunda carga (20 ya estaban, nada duplicado), atrasados al 3 de octubre (Kiosco El Sol y Veterinaria Patitas, "Atrasado 1 día") y Expreso Andino caído ("Expreso Andino no responde.", sin tocar ningún envío).
+
+Cosas que aparecieron en el camino y vale la pena contar:
+
+- **El puente avisaba en voz baja.** Escribe una línea por remito, pero con un nivel que Python no muestra por defecto. Sin ajustar eso, el panel nunca se enteraba del avance. Se resolvió del lado del panel, mientras dura la carga, sin tocar el puente.
+- **Una cuenta mal hecha que nadie habría notado.** La vista previa decía "los otros 28 van con otros transportistas", pero eran 27: restaba envíos en vez de remitos (uno viene repetido). Lo agarró la revisión, con un test que primero falló.
+- **El resumen técnico tenía que seguir sirviendo.** Al principio el resumen que deja el puente nombraba el archivo con un código interno. Ahora conserva el nombre real del export, así soporte puede ubicarlo.
+- **"Sanitarios Rivera, , Caballito".** Un remito sin calle dejaba una coma colgando. Ahora se arma solo con lo que hay: "Caballito, Capital Federal".
+- **Los botones ya no dependen de su texto.** La página decidía qué hacía cada botón leyendo lo que decía; si alguien cambiaba "Ver qué falta" se rompía sin avisar. Ahora el servidor manda la acción explícita.
+- **El puente no trae el valor del error.** Dice "bultos: integer >= 1", no "bultos: 0". Para poder decir "Los bultos figuran en 0", el panel lo lee del export.
+
+Lo que no se pudo verificar: Safari, porque WebKit no corre en esta máquina (le faltan librerías del sistema), y la reconexión de la página si se corta la red a mitad de una carga.
+
 ## 8. Datos reales para diseñar
 
 Los diseños usan los datos del kit del challenge, no datos inventados:
@@ -284,3 +299,6 @@ Al ver los 20 "Ya estaba" juntos, la trama de carbónico ensuciaba justo el día
 | 2026-11-03 | El panel usa el puente como librería, en el mismo proceso, fijado como submódulo de git en 5147381 | Recibe cada resultado como dato sin interpretar texto; la lógica sigue en un solo lugar y en una versión exacta | Correr la línea de comandos y leer el Markdown; copiar el código del puente |
 | 2026-11-03 | El avance en vivo sale de la línea de registro que el puente ya escribe por cada remito | Permite llenar los casilleros a medida que llegan sin cambiar el puente | Modificar el puente para que avise el avance |
 | 2026-11-03 | Solo biblioteca estándar de Python y una página sin frameworks | Igual que el puente: nada que instalar y todo explicable de punta a punta | Flask, React u otros frameworks |
+| 2026-11-03 | Cada acción de la pantalla viaja como dato (`action`), no se deduce del texto del botón | Las frases se pueden ajustar sin romper el comportamiento | Elegir la acción por el texto |
+| 2026-11-03 | El panel lee del export los valores que el puente no informa (bultos, peso, servicio, provincia) | Para decir "Los bultos figuran en 0" en vez de un genérico "no son válidos" | Frases sin el valor |
+| 2026-11-03 | La vista de atrasados vive en la misma página, con una fecha y una lista simple | Es una consulta ocasional; no merece otra aplicación ni un menú | Una sección o pantalla aparte |

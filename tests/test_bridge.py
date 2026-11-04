@@ -92,6 +92,54 @@ class PreviewExportTest(TempDirTestCase):
     def test_remito_without_number(self):
         self.assert_unreadable(self.write_export(json.dumps([{"transportista": "Expreso Andino"}])))
 
+    def andino(self, **fields) -> dict:
+        return dict({"nro_remito": "A1", "transportista": "Expreso Andino"}, **fields)
+
+    def assert_unreadable_content(self, content, *needles: str) -> CannotRun:
+        error = self.assert_unreadable(self.write_export(json.dumps(content)))
+        for needle in needles:
+            self.assertIn(needle, error.technical)
+        return error
+
+    def test_wrong_types_are_unreadable_and_name_the_remito_and_field(self):
+        cases = [
+            ([self.andino(nro_remito=12)], ("remito 1", "nro_remito")),
+            ([self.andino(nro_remito=["a"])], ("remito 1", "nro_remito")),
+            ([self.andino(), self.andino(nro_remito="A2", transportista=5)], ("remito 2", "transportista")),
+            ([self.andino(destinatario="x")], ("remito 1", "destinatario")),
+            ([self.andino(destinatario=[])], ("remito 1", "destinatario")),
+            ([self.andino(destinatario={"razon_social": 12345})], ("remito 1", "destinatario.razon_social")),
+            ([self.andino(destinatario={"codigo_postal": 1900})], ("remito 1", "destinatario.codigo_postal")),
+            ([self.andino(destinatario={"telefono": 1148})], ("remito 1", "destinatario.telefono")),
+            ([self.andino(servicio=3)], ("remito 1", "servicio")),
+            ([self.andino(cliente=3)], ("remito 1", "cliente")),
+            ([self.andino(observaciones=7)], ("remito 1", "observaciones")),
+        ]
+        for content, needles in cases:
+            with self.subTest(content=content):
+                self.assert_unreadable_content(content, *needles)
+
+    def test_numbers_where_the_export_allows_them_stay_valid(self):
+        remito = self.andino(
+            bultos=2, peso_kg=82.9, valor_declarado=1888629.73, destinatario=None, cliente=None,
+            servicio=None, observaciones=None,
+        )
+        other = {"nro_remito": "B1", "transportista": "RETIRA CLIENTE", "destinatario": 5, "cliente": 9}
+
+        preview = preview_export(self.write_export(json.dumps([remito, other])))
+
+        self.assertEqual(preview.andino_remitos, 1)
+
+    def test_deeply_nested_json_is_unreadable(self):
+        self.assert_unreadable(self.write_export("[" * 100000))
+
+    def test_technical_message_has_no_absolute_path(self):
+        for path in (self.tmp / "nope.json", self.write_export("{not json", name="roto.json")):
+            with self.subTest(path=path.name):
+                error = self.assert_unreadable(path)
+                self.assertNotIn(str(self.tmp), error.technical)
+                self.assertIn(path.name, error.technical)
+
 
 class RunUploadTest(TempDirTestCase):
     def run_once(self, base_url: str, **kwargs):
@@ -176,14 +224,42 @@ class RunUploadTest(TempDirTestCase):
             self.run_once(base_url)
             self.assert_cannot_run("auth_rejected", base_url=base_url, api_key="wrong")
 
-            def boom(i, r):
-                raise RuntimeError("callback failed")
-
-            with self.assertRaises(Exception):
-                self.run_once(base_url, on_result=boom)
-
         self.assertEqual(upload_logger.handlers, handlers_before)
         self.assertEqual(upload_logger.level, level_before)
+
+    def test_a_failing_live_result_is_logged_and_the_run_keeps_going(self):
+        seen: list[int] = []
+
+        def flaky(index, result):
+            if index == 1:
+                raise RuntimeError("view failed")
+            seen.append(index)
+
+        with running_kit_api() as base_url:
+            with self.assertLogs("panel.bridge", "ERROR"):
+                outcome = self.run_once(base_url, on_result=flaky)
+
+        self.assertEqual(len(outcome.results), 24)
+        self.assertEqual(seen, [i for i in range(24) if i != 1])
+
+    def test_numeric_nro_remito_never_reaches_the_report(self):
+        path = self.write_export(json.dumps([{"nro_remito": 5, "transportista": "Expreso Andino"}]))
+        with self.assertRaises(CannotRun) as caught:
+            run_upload(path, base_url="http://127.0.0.1:1", api_key=API_KEY, reports_dir=self.tmp / "runs")
+        self.assertEqual(caught.exception.kind, "export_unreadable")
+
+    def test_null_recipient_name_does_not_break_the_report(self):
+        remito = {
+            "nro_remito": "A1", "transportista": "Expreso Andino", "bultos": 1, "peso_kg": 1,
+            "servicio": "normal", "destinatario": {"razon_social": None, "provincia": "Córdoba"},
+        }
+        path = self.write_export(json.dumps([remito]))
+        with running_kit_api() as base_url:
+            outcome = run_upload(path, base_url=base_url, api_key=API_KEY, reports_dir=self.tmp / "runs",
+                                 client_factory=fast_client)
+
+        self.assertEqual(outcome.results[0].recipient, "")
+        self.assertTrue(outcome.report_path.is_file())
 
     def test_runs_are_serialized(self):
         started = threading.Event()
@@ -259,3 +335,24 @@ class FindOverdueTest(TempDirTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class _OddDateClient(ExpresoClient):
+    """Answers one shipment whose estimated delivery is not an ISO date."""
+
+    def find_shipments(self, external_ref):
+        return [{"tracking_id": "AND000"}]
+
+    def get_shipment(self, tracking_id):
+        return {"tracking_id": tracking_id, "status": "IN_TRANSIT", "estimated_delivery": "mañana"}
+
+
+class FindOverdueOddDataTest(TempDirTestCase):
+    def test_unreadable_api_data_is_unexpected_not_a_crash(self):
+        with self.assertRaises(bridge.CannotRun) as caught:
+            bridge.find_overdue_shipments(
+                KIT_EXPORT, base_url="http://127.0.0.1:9", api_key=API_KEY, today=date(2026, 10, 3),
+                client_factory=lambda url, key: _OddDateClient(url, key),
+            )
+        self.assertEqual(caught.exception.kind, "unexpected")
+        self.assertIn("mañana", caught.exception.technical)

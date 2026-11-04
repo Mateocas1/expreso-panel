@@ -514,6 +514,7 @@
 
   function onDone(rv) {
     closeStream();
+    announce.textContent = ""; // the "Cargando…" progress status is over
     const natural = body.classList.contains("running");
     S.name = rv.export_name || S.name;
     S.byRemito.clear();
@@ -556,6 +557,7 @@
 
   function onFailed(f) {
     closeStream();
+    announce.textContent = "";
     showCannot(f.answer || FALLBACK, f.technical || "", true);
   }
 

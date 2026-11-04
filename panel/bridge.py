@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 import sys
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime
 from pathlib import Path
 from typing import Callable, Optional
@@ -23,6 +23,7 @@ from expreso_bridge.report import render_run_report  # noqa: E402
 from expreso_bridge.upload import Outcome, UploadResult, upload_remitos  # noqa: E402
 
 UPLOAD_LOGGER = "expreso_bridge.upload"
+LOGGER = logging.getLogger(__name__)
 
 # One run at a time: the progress handler is attached to a process-wide logger.
 RUN_LOCK = threading.Lock()
@@ -62,11 +63,20 @@ class RunResult:
     export_total: int
 
 
+# Fields the bridge (remitos.py, report.py) and the panel treat as text: each must be a string or null.
+_TEXT_FIELDS = ("cliente", "servicio", "observaciones")
+_RECIPIENT_TEXT_FIELDS = ("razon_social", "direccion", "localidad", "provincia", "codigo_postal", "telefono")
+
+
 def _read_export(path: Path) -> list[dict]:
     try:
         remitos = load_remitos(path)
-    except (OSError, ValueError) as error:
-        raise CannotRun("export_unreadable", f"No se pudo leer el export {path}: {error}") from error
+    except OSError as error:  # the message of an OSError carries the full path: keep only the file name
+        raise CannotRun(
+            "export_unreadable", f"No se pudo leer el export {path.name}: {error.strerror or type(error).__name__}"
+        ) from error
+    except (ValueError, RecursionError) as error:
+        raise CannotRun("export_unreadable", f"No se pudo leer el export {path.name}: {error}") from error
     if not isinstance(remitos, list):
         raise CannotRun(
             "export_unreadable",
@@ -83,7 +93,40 @@ def _read_export(path: Path) -> list[dict]:
                 "export_unreadable",
                 f"El remito {position} del export {path.name} no tiene nro_remito",
             )
+        _check_types(remito, position, path.name)
     return remitos
+
+
+def _check_types(remito: dict, position: int, export_name: str) -> None:
+    """The bridge calls string methods on these fields; a wrong type would crash a run halfway.
+
+    Fields of a remito for another carrier are never read by the bridge, so they are not checked.
+    """
+    def require_text(value: object, field: str, required: bool = False) -> None:
+        if isinstance(value, str) or (value is None and not required):
+            return
+        raise CannotRun(
+            "export_unreadable",
+            f"El remito {position} del export {export_name}: {field} debe ser texto (es {type(value).__name__})",
+        )
+
+    require_text(remito["nro_remito"], "nro_remito", required=True)
+    require_text(remito.get("transportista"), "transportista")
+    if not is_andino(remito):
+        return
+    for field in _TEXT_FIELDS:
+        require_text(remito.get(field), field)
+    recipient = remito.get("destinatario")
+    if recipient is None:
+        return
+    if not isinstance(recipient, dict):
+        raise CannotRun(
+            "export_unreadable",
+            f"El remito {position} del export {export_name}: destinatario debe ser un objeto "
+            f"(es {type(recipient).__name__})",
+        )
+    for field in _RECIPIENT_TEXT_FIELDS:
+        require_text(recipient.get(field), f"destinatario.{field}")
 
 
 def preview_export(path: Path) -> Preview:
@@ -130,20 +173,24 @@ class _ProgressHandler(logging.Handler):
         self.count = 0
 
     def emit(self, record: logging.LogRecord) -> None:
-        number, outcome_value, tracking_id, detail = record.args
-        remito = self._remitos[self.count]
-        recipient = remito.get("destinatario") or {}
-        result = UploadResult(
-            remito_number=number,
-            recipient=recipient.get("razon_social", ""),
-            outcome=Outcome(outcome_value),
-            tracking_id=tracking_id,
-            detail=detail,
-            observations=remito.get("observaciones") or "",
-        )
+        # A live result that cannot be built must not stop the run or desync the counter.
         index = self.count
         self.count += 1
-        self._on_result(index, result)
+        try:
+            number, outcome_value, tracking_id, detail = record.args
+            remito = self._remitos[index]
+            recipient = remito.get("destinatario") or {}
+            result = UploadResult(
+                remito_number=number,
+                recipient=recipient.get("razon_social") or "",
+                outcome=Outcome(outcome_value),
+                tracking_id=tracking_id,
+                detail=detail,
+                observations=remito.get("observaciones") or "",
+            )
+            self._on_result(index, result)
+        except Exception:
+            LOGGER.exception("No se pudo armar el avance en vivo del remito %d", index + 1)
 
 
 def run_upload(
@@ -178,6 +225,8 @@ def run_upload(
             upload_logger.removeHandler(progress)
             upload_logger.setLevel(previous_level)
 
+    # The bridge keeps a null razon_social as None, which its report cannot print.
+    results = [replace(r, recipient=r.recipient or "") for r in results]
     generated_at = datetime.now()
     report = render_run_report(
         results,
@@ -218,6 +267,9 @@ def find_overdue_shipments(
         raise CannotRun("auth_rejected", str(error)) from error
     except ApiError as error:
         raise CannotRun("api_unavailable", str(error)) from error
+    except (KeyError, TypeError, ValueError) as error:
+        # The API answered something the bridge cannot read (e.g. a non-ISO estimated_delivery).
+        raise CannotRun("unexpected", "%s: %s" % (type(error).__name__, error)) from error
 
     enriched = []
     for shipment in found:

@@ -546,6 +546,39 @@ class CannotRunTests(unittest.TestCase):
             ),
         )
 
+    def test_unexpected_before_anything_loaded(self):
+        self.assertEqual(
+            phrases.cannot_run("unexpected"),
+            Answer("No se pudo completar la carga.", "No se cargó ningún envío. Avisale a sistemas.", None, None),
+        )
+
+    def test_unexpected_midrun(self):
+        self.assertEqual(
+            phrases.cannot_run("unexpected_midrun"),
+            Answer(
+                "La carga se cortó a mitad de camino.",
+                "Hubo un problema inesperado. Avisale a sistemas. "
+                "Lo que se llegó a cargar no se va a duplicar cuando vuelvas a cargar el export.",
+                None,
+                None,
+            ),
+        )
+
+    def test_export_too_big_names_the_limit(self):
+        self.assertEqual(
+            phrases.cannot_run("export_too_big", limit_bytes=20 * 1024 * 1024),
+            Answer(
+                "El archivo es demasiado grande.",
+                "El panel acepta exports de hasta 20 MB. Revisá que sea el export del día de LogiSur.",
+                "Elegir otro archivo",
+                "pick_other",
+            ),
+        )
+
+    def test_export_too_big_with_a_small_limit_reads_in_kb(self):
+        sub = phrases.cannot_run("export_too_big", limit_bytes=1000).sub
+        self.assertIn("hasta 1 KB.", sub)
+
     def test_unknown_kind_is_an_error(self):
         with self.assertRaises(KeyError):
             phrases.cannot_run("nope")
@@ -661,4 +694,17 @@ class EmptyProvinceTests(unittest.TestCase):
         self.assertEqual(
             phrases.problems("provincia desconocida: ''"),
             [phrases.Problem("Falta la provincia", "Completala en el remito.")],
+        )
+
+
+class UnexpectedOverdueTests(unittest.TestCase):
+    def test_unexpected_answer_in_the_overdue_query_does_not_talk_about_a_load(self):
+        self.assertEqual(
+            phrases.cannot_run("unexpected", context="overdue"),
+            phrases.Answer(
+                "No se pudo consultar el estado de los envíos.",
+                "Expreso Andino respondió algo que el panel no entiende. Avisale a sistemas.",
+                None,
+                None,
+            ),
         )

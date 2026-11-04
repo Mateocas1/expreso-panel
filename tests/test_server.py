@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import http.client
 import json
+import socket
 import tempfile
 import threading
 import unittest
 from datetime import date
 from pathlib import Path
+from unittest import mock
 
 from panel import bridge, phrases  # first: puts vendor/caso-expreso on sys.path
-from panel.server import create_server
+from panel.server import Handler, Run, create_server
 
 from expreso_bridge.client import ExpresoClient
 
@@ -28,6 +30,9 @@ class GatedClient(ExpresoClient):
     def list_provinces(self):
         self.gate.wait(10)
         return super().list_provinces()
+
+
+JSON = {"Content-Type": "application/json"}
 
 
 def answer_dict(answer: phrases.Answer) -> dict:
@@ -180,7 +185,11 @@ class UploadCapTest(PanelTestCase):
         status, body = self.panel.upload(b" " * 2000, name="enorme.json")
 
         self.assertEqual(status, 413)
-        self.assertEqual(body["answer"]["headline"], "No se pudo leer el archivo.")
+        self.assertEqual(
+            body, {"answer": answer_dict(phrases.cannot_run("export_too_big", limit_bytes=1000))}
+        )
+        self.assertEqual(body["answer"]["headline"], "El archivo es demasiado grande.")
+        self.assertEqual(body["answer"]["action"], "pick_other")
 
 
 class FirstRunTest(PanelTestCase):
@@ -354,13 +363,13 @@ class FailureTest(PanelTestCase):
 class RoutesTest(PanelTestCase):
     def test_unknown_export_and_run_are_404(self):
         body = json.dumps({"export_id": "nope"}).encode()
-        self.assertEqual(self.panel.request("POST", "/api/runs", body)[0].status, 404)
+        self.assertEqual(self.panel.request("POST", "/api/runs", body, JSON)[0].status, 404)
         self.assertEqual(self.panel.request("GET", "/api/runs/nope")[0].status, 404)
         self.assertEqual(self.panel.request("GET", "/api/runs/nope/events")[0].status, 404)
         self.assertEqual(self.panel.request("GET", "/api/other")[0].status, 404)
 
     def test_bad_json_body_is_400_without_a_trace(self):
-        response, data = self.panel.request("POST", "/api/runs", b"{no")
+        response, data = self.panel.request("POST", "/api/runs", b"{no", JSON)
 
         self.assertEqual(response.status, 400)
         self.assertNotIn(b"Traceback", data)
@@ -471,6 +480,229 @@ class OverdueWithoutKeyTest(PanelTestCase):
         self.assertEqual(body["answer"], answer_dict(phrases.cannot_run("missing_key", context="overdue")))
         self.assertNotIn("No se cargó", body["answer"]["sub"])
         self.assertTrue(body["technical"])
+
+
+class WrongTypesTest(PanelTestCase):
+    def exports(self):
+        folder = self.runs_dir / "exports"
+        return sorted(folder.iterdir()) if folder.exists() else []
+
+    def test_exports_with_wrong_types_are_422_and_leave_no_folder(self):
+        cases = {
+            "destinatario text": b'[{"nro_remito":"A1","transportista":"Expreso Andino","destinatario":"x"}]',
+            "nro_remito list": b'[{"nro_remito":["a"]}]',
+            "transportista number": b'[{"nro_remito":"A1","transportista":5}]',
+            "nested": b"[" * 100000,
+        }
+        for label, content in cases.items():
+            with self.subTest(label):
+                status, body = self.panel.upload(content, name="malo.json")
+                self.assertEqual(status, 422)
+                self.assertEqual(body, {"answer": answer_dict(phrases.cannot_run("export_unreadable", "malo.json"))})
+                self.assertEqual(self.exports(), [])
+
+    def test_a_failure_while_storing_leaves_no_folder(self):
+        with mock.patch("panel.server.bridge.preview_export", side_effect=RuntimeError("boom")):
+            status, body = self.panel.json("POST", "/api/exports", KIT_EXPORT.read_bytes(), {"X-Export-Name": "a.json"})
+
+        self.assertEqual((status, body), (500, {"error": "internal"}))
+        self.assertEqual(self.exports(), [])
+
+    def test_the_reviewed_crash_never_reaches_the_run(self):
+        remitos = json.loads(KIT_EXPORT.read_text(encoding="utf-8"))
+        andino = [r for r in remitos if r["transportista"] == "Expreso Andino"]
+        for position, remito in enumerate(andino):
+            remito["nro_remito"] = "Z-%d" % position
+        andino[-1]["destinatario"]["razon_social"] = 12345
+
+        status, body = self.panel.upload(json.dumps(remitos).encode())
+
+        self.assertEqual(status, 422)
+        self.assertEqual(body["answer"]["headline"], "No se pudo leer el archivo.")
+
+
+class BoomClient(ExpresoClient):
+    """Raises a plain RuntimeError at its Nth create_shipment (0 = before the first result)."""
+
+    boom_at = 0
+    calls = 0
+
+    def create_shipment(self, shipment):
+        if type(self).calls == self.boom_at:
+            raise RuntimeError("boom")
+        type(self).calls += 1
+        return super().create_shipment(shipment)
+
+
+def boom_after(count: int):
+    client_class = type("Boom%d" % count, (BoomClient,), {"boom_at": count, "calls": 0})
+    return lambda base_url, api_key: client_class(base_url, api_key, sleep=lambda _: None, timeout_seconds=0.5)
+
+
+class UnexpectedFailureTest(PanelTestCase):
+    client_factory = staticmethod(boom_after(3))
+
+    def test_midrun_says_it_was_cut_in_half_and_keeps_the_exception(self):
+        _, events = self.finish_kit_run()
+
+        self.assertEqual([name for name, _ in events], ["result"] * 3 + ["failed"])
+        failed = events[-1][1]
+        self.assertEqual(failed["answer"], answer_dict(phrases.cannot_run("unexpected_midrun")))
+        self.assertEqual(failed["technical"], "RuntimeError: boom")
+        self.assertEqual(failed["answer"]["headline"], "La carga se cortó a mitad de camino.")
+
+
+class UnexpectedBeforeAnyTest(PanelTestCase):
+    client_factory = staticmethod(boom_after(0))
+
+    def test_before_any_result_says_nothing_was_loaded(self):
+        _, events = self.finish_kit_run()
+
+        self.assertEqual([name for name, _ in events], ["failed"])
+        self.assertEqual(events[0][1]["answer"], answer_dict(phrases.cannot_run("unexpected")))
+        self.assertEqual(events[0][1]["answer"]["sub"], "No se cargó ningún envío. Avisale a sistemas.")
+        self.assertEqual(events[0][1]["technical"], "RuntimeError: boom")
+
+
+class RawMixin:
+    def raw(self, request: bytes, timeout=5.0) -> bytes:
+        with socket.create_connection(("127.0.0.1", self.panel.port), timeout=timeout) as sock:
+            sock.sendall(request)
+            chunks = []
+            while True:
+                try:
+                    chunk = sock.recv(65536)
+                except socket.timeout:
+                    break
+                if not chunk:
+                    break
+                chunks.append(chunk)
+        return b"".join(chunks)
+
+
+class SameSiteTest(PanelTestCase):
+    def hosts(self):
+        port = self.panel.port
+        return ["127.0.0.1:%d" % port, "localhost:%d" % port, "[::1]:%d" % port]
+
+    def test_foreign_host_is_403_on_every_route(self):
+        port = self.panel.port
+        export_id = self.upload_kit()
+        calls = [
+            ("GET", "/"), ("GET", "/static/app.js"), ("GET", "/api/runs/%s" % ("0" * 32)),
+            ("GET", "/api/runs/%s/events" % ("0" * 32)), ("GET", "/api/exports/%s/overdue" % export_id),
+            ("POST", "/api/exports"), ("POST", "/api/runs"),
+        ]
+        for host in ("attacker.example:%d" % port, "127.0.0.1", "127.0.0.1:%d" % (port + 1), ""):
+            for method, path in calls:
+                with self.subTest(host=host, call=(method, path)):
+                    headers = {"Host": host, "Origin": "http://%s" % host, "Content-Type": "text/plain"}
+                    status, body = self.panel.json(method, path, b"{}" if method == "POST" else None, headers)
+                    self.assertEqual((status, body), (403, {"error": "forbidden_host"}))
+
+    def test_rebinding_post_stores_nothing_and_starts_nothing(self):
+        host = "attacker.example:%d" % self.panel.port
+        headers = {"Host": host, "Origin": "http://" + host, "Content-Type": "text/plain"}
+
+        status, _ = self.panel.json("POST", "/api/exports", KIT_EXPORT.read_bytes(), headers)
+
+        self.assertEqual(status, 403)
+        self.assertFalse((self.runs_dir / "exports").exists())
+        self.assertEqual(self.server.exports, {})
+
+    def test_loopback_names_are_accepted(self):
+        for host in self.hosts():
+            with self.subTest(host=host):
+                response, _ = self.panel.request("GET", "/", headers={"Host": host})
+                self.assertIn(response.status, (200, 404))
+                self.assertNotEqual(response.status, 403)
+
+    def test_origin_must_be_an_allowed_host(self):
+        port = self.panel.port
+        for origin in ("http://attacker.example:%d" % port, "https://127.0.0.1:%d" % port, "null",
+                       "http://127.0.0.1", "http://127.0.0.1:%d/x" % port):
+            with self.subTest(origin=origin):
+                status, body = self.panel.json("GET", "/api/runs/%s" % ("0" * 32), headers={"Origin": origin})
+                self.assertEqual((status, body), (403, {"error": "forbidden_origin"}))
+        for host in self.hosts():
+            with self.subTest(origin_ok=host):
+                headers = {"Host": host, "Origin": "http://" + host}
+                status, body = self.panel.json("GET", "/api/runs/%s" % ("0" * 32), headers=headers)
+                self.assertEqual((status, body), (404, {"error": "unknown_run"}))
+
+    def test_runs_require_a_json_content_type(self):
+        export_id = self.upload_kit()
+        body = json.dumps({"export_id": export_id}).encode()
+        for content_type in ("text/plain", "application/x-www-form-urlencoded", None):
+            with self.subTest(content_type=content_type):
+                headers = {"Content-Type": content_type} if content_type else {}
+                status, answer = self.panel.json("POST", "/api/runs", body, headers)
+                self.assertEqual((status, answer), (415, {"error": "unsupported_media_type"}))
+        self.assertIsNone(self.server.active)
+        status, _ = self.panel.json("POST", "/api/runs", body, {"Content-Type": "application/json; charset=utf-8"})
+        self.assertEqual(status, 202)
+
+
+class TimeoutTest(RawMixin, PanelTestCase):
+    def test_a_body_that_never_arrives_is_dropped(self):
+        with mock.patch.object(Handler, "timeout", 0.3):
+            reply = self.raw(
+                b"POST /api/exports HTTP/1.1\r\nHost: 127.0.0.1:%d\r\nContent-Length: 500\r\n\r\nabc"
+                % self.panel.port,
+                timeout=5,
+            )
+
+        self.assertTrue(reply.startswith(b"HTTP/1.0 408") or reply == b"", reply[:60])
+        self.assertFalse((self.runs_dir / "exports").exists() and list((self.runs_dir / "exports").iterdir()))
+
+
+class MethodsTest(PanelTestCase):
+    def test_other_methods_are_a_json_405(self):
+        for method in ("HEAD", "OPTIONS", "PUT", "DELETE", "PATCH"):
+            with self.subTest(method=method):
+                response, data = self.panel.request(method, "/")
+                self.assertEqual(response.status, 405)
+                self.assertEqual(response.getheader("Allow"), "GET, POST")
+                self.assertEqual(response.getheader("Content-Type"), "application/json; charset=utf-8")
+                if method != "HEAD":
+                    self.assertEqual(json.loads(data), {"error": "method_not_allowed"})
+
+
+class EventsErrorTest(RawMixin, PanelTestCase):
+    def test_an_error_after_the_headers_never_writes_a_second_response(self):
+        run_id = "a" * 32
+        run = Run(run_id, None)
+        run.publish("result", {"not": object()}, finished=True)  # json.dumps fails mid-stream
+        self.server.runs[run_id] = run
+
+        with self.assertLogs("panel.server", "ERROR"):
+            reply = self.raw(b"GET /api/runs/%s/events HTTP/1.1\r\nHost: 127.0.0.1:%d\r\n\r\n"
+                             % (run_id.encode(), self.panel.port))
+
+        self.assertEqual(reply.count(b"HTTP/1."), 1, reply)
+        self.assertTrue(reply.startswith(b"HTTP/1.0 200"))
+
+
+class StrictDateAndOverdueItemTest(PanelTestCase):
+    def test_only_yyyy_mm_dd_is_a_date(self):
+        export_id = self.upload_kit()
+        for value in ("20261020", "2026-W43-1", "2026-10-3", "%EF%BC%92%EF%BC%90%EF%BC%92%EF%BC%96-10-20", "2026-10-20T00:00"):
+            with self.subTest(value=value):
+                status, body = self.panel.json("GET", "/api/exports/%s/overdue?today=%s" % (export_id, value))
+                self.assertEqual((status, body), (400, {"error": "bad_date"}))
+
+    def test_overdue_item_with_an_unreadable_date_is_shown_without_late_line(self):
+        export_id = self.upload_kit()
+        found = [{"external_ref": "R-1", "tracking_id": "AND1", "status": "IN_TRANSIT",
+                  "estimated_delivery": "pronto", "recipient": "x", "client": "y", "city": "z"}]
+
+        with mock.patch("panel.server.bridge.find_overdue_shipments", return_value=found):
+            status, body = self.panel.json("GET", "/api/exports/%s/overdue?today=2026-10-03" % export_id)
+
+        self.assertEqual(status, 200)
+        item = body["items"][0]
+        self.assertEqual((item["late_line"], item["days_late"], item["estimated_delivery"]), ("", None, "pronto"))
+        self.assertEqual(item["remito"], "R-1")
 
 
 if __name__ == "__main__":

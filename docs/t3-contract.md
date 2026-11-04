@@ -53,11 +53,17 @@ class Preview:
 class CannotRun(Exception):
     kind: str              # "export_unreadable" | "missing_key" | "auth_rejected"
                            # | "api_unavailable" | "auth_rejected_midrun"
+                           # (the server adds "export_too_big", "unexpected", "unexpected_midrun")
     technical: str         # the bridge's original text, for "Ver detalle técnico"
 
 def preview_export(path: Path) -> Preview
     # load_remitos + is_andino. Also turns the bridge's known gaps into CannotRun("export_unreadable"):
-    # JSON that is not a list of objects, a remito without nro_remito.
+    # JSON that is not a list of objects, a remito without nro_remito, JSON nested too deep
+    # (RecursionError), and wrong types: nro_remito and transportista must be text; for Andino remitos
+    # also cliente, servicio, observaciones and destinatario.{razon_social, direccion, localidad,
+    # provincia, codigo_postal, telefono} must be text or null, and destinatario an object or null.
+    # The technical message names the remito's position and the field, and only the file name
+    # (never the server's path). Numbers in peso_kg, bultos and valor_declarado stay valid.
 
 @dataclass(frozen=True)
 class RunResult:
@@ -74,6 +80,8 @@ def run_upload(path: Path, *, base_url: str, api_key: str | None, reports_dir: P
     # first call (list_provinces) -> "api_unavailable". on_result(index, result) is called from
     # the logging handler, index counting from 0 over the Andino remitos (duplicates included).
     # The UploadResult passed to on_result is rebuilt from record.args (outcome via Outcome(value)).
+    # If building it or on_result raises, the error is logged ("panel.bridge") and the run goes on.
+    # A null razon_social comes back as "" in the results (the bridge's report cannot print None).
 ```
 
 ```python
@@ -119,7 +127,12 @@ class Answer:
 def run_answer(results: list[UploadResult]) -> Answer    # every row of the T2 "frase de arriba" table
 # problems() takes optional values={"bultos", "peso_kg", "servicio", "provincia"} read from the
 # export remito, because the bridge detail does not carry them ("Los bultos figuran en 0").
-def cannot_run(kind: str, export_name: str = "", context: str = "upload") -> Answer  # context "overdue": no "No se cargó ningún envío."
+def cannot_run(kind: str, export_name: str = "", context: str = "upload",
+               limit_bytes: int = 20 * 1024 * 1024) -> Answer  # context "overdue": no "No se cargó ningún envío."
+# Kinds: export_unreadable | export_too_big ("El archivo es demasiado grande.", names limit_bytes,
+# "pick_other") | missing_key | auth_rejected | api_unavailable | auth_rejected_midrun |
+# unexpected ("No se pudo completar la carga.", nothing was loaded) | unexpected_midrun ("La carga se
+# cortó a mitad de camino.", loaded ones will not be duplicated, tell sistemas)
 def plural(n: int, one: str, other: str) -> str         # Spanish one/other, never "+ s"
 ```
 
@@ -131,15 +144,17 @@ Counting: shipments are results minus `DUPLICATE`. A run with 0 created and at l
 
 All JSON is UTF-8. Errors use `{"answer": Answer}` with the `cannot_run` phrases, never a stack trace.
 
+Same-site rule, on every route (static and SSE included): the `Host` header must be `127.0.0.1:<port>`, `localhost:<port>` or `[::1]:<port>` (plus the bound host when given and not a wildcard), else `403 {"error": "forbidden_host"}` (this closes DNS rebinding). An `Origin` header, when present, must be `http://` + one of those hosts, else `403 {"error": "forbidden_origin"}`. `POST /api/runs` needs `Content-Type: application/json`, else `415 {"error": "unsupported_media_type"}`. Any other method (HEAD, OPTIONS, PUT, DELETE, PATCH) is `405 {"error": "method_not_allowed"}` with `Allow: GET, POST`. A client that stops sending its body for 30 s is dropped (`408 {"error": "request_timeout"}`).
+
 | Method and path | Body | Response |
 | --- | --- | --- |
 | `GET /` | | `static/index.html` |
 | `GET /static/<file>` | | the file, correct content type, no directory listing, no `..` |
-| `POST /api/exports` | raw file bytes; header `X-Export-Name` | `201 {"export_id", "preview": Preview}` or `422 {"answer"}` for unreadable |
+| `POST /api/exports` | raw file bytes; header `X-Export-Name` | `201 {"export_id", "preview": Preview}`; `422 {"answer"}` for unreadable (including wrong types; the upload's folder is removed); `413 {"answer"}` with `export_too_big` when over the cap (20 MB) |
 | `POST /api/runs` | `{"export_id"}` | `202 {"run_id"}`; `409 {"answer"}` if a run is active; `404` unknown export |
 | `GET /api/runs/<id>/events` | | `text/event-stream`: `event: result` per remito with a `ResultView`, then `event: done` with a `RunView`, or `event: failed` with `{"answer", "technical"}`. Late subscribers get the events so far, then the rest |
-| `GET /api/runs/<id>` | | `RunView` |
-| `GET /api/exports/<export_id>/overdue?today=YYYY-MM-DD` | | `200 OverdueView`; `today` defaults to the server's date. `400 {"error": "bad_date"}` if `today` is not a valid ISO date; `404 {"error": "unknown_export"}`; `{"answer", "technical"}` with the `cannot_run` phrases when it cannot run (`422` unreadable, `503` missing key, `502` key rejected or API down) |
+| `GET /api/runs/<id>` | | `200 RunView` when done; `200 {"answer", "technical", "run_id"}` when it failed; `202 {"run_id", "running": true}` while it runs; `404 {"error": "unknown_run"}` |
+| `GET /api/exports/<export_id>/overdue?today=YYYY-MM-DD` | | `200 OverdueView`; `today` defaults to the server's date. `400 {"error": "bad_date"}` unless `today` is exactly `YYYY-MM-DD` and a real date (`20261020` and `2026-W43-1` are refused, the same on every Python); `404 {"error": "unknown_export"}`; `{"answer", "technical"}` with the `cannot_run` phrases when it cannot run (`422` unreadable, `503` missing key, `502` key rejected or API down) |
 
 ```text
 ResultView = { index, remito, recipient, client, address, state (TileState|null), label,
@@ -155,9 +170,15 @@ OverdueView = { title, empty, items: [{ remito, recipient, client, city, trackin
                 status, status_text, late_line, days_late, estimated_delivery }] }
 ```
 
+An item whose `estimated_delivery` is not an ISO date is still listed, with `late_line` `""` and `days_late` `null`.
+
 `title` is "N envío(s) atrasado(s)" (also for 0), `empty` is the sentence for a day with none. The cannot-run phrases end in "No se cargó ningún envío.", which is wrong for this view; the overdue endpoint uses `cannot_run(kind, name, context="overdue")`, which drops that sentence (and says "No se pudo consultar el estado de los envíos." for `api_unavailable`).
 
 `ResultView.address` is "street, city", or "city, province" when the street is blank (`phrases.address_line`). `Answer.action` tells the page what a button does; the page never decides by the button's text.
+
+If the run stops on an exception nobody foresaw, the `failed` event carries `cannot_run("unexpected")` (nothing loaded) or `("unexpected_midrun")` (some results were already published); `technical` is `Type: message`. It is never mapped to "Expreso Andino no responde".
+
+Not implemented, on purpose: pruning of `runs/exports` and `runs/reports`. They grow with every upload; deleting old ones is left to the operator until it is worth building (the bridge's idempotence means an old export is safe to drop).
 
 Configuration from the environment, read at start: `EXPRESO_API_URL` (default `http://localhost:8000`), `EXPRESO_API_KEY`. The key never reaches the browser.
 

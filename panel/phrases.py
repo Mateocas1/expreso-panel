@@ -297,8 +297,18 @@ _NOTHING_LOADED = "No se cargó ningún envío."
 _NOTHING_CHECKED = "No se pudo consultar el estado de los envíos."
 
 
-def cannot_run(kind: str, export_name: str = "", context: str = "upload") -> Answer:
-    """kind: export_unreadable | missing_key | auth_rejected | api_unavailable | auth_rejected_midrun.
+def _size_text(limit_bytes: int) -> str:
+    megabytes = limit_bytes / (1024 * 1024)
+    if megabytes >= 1:
+        return "%d MB" % megabytes if megabytes == int(megabytes) else ("%.1f MB" % megabytes).replace(".", ",")
+    return "%d KB" % max(1, round(limit_bytes / 1024))
+
+
+def cannot_run(kind: str, export_name: str = "", context: str = "upload", limit_bytes: int = 20 * 1024 * 1024) -> Answer:
+    """kind: export_unreadable | export_too_big | missing_key | auth_rejected | api_unavailable |
+    auth_rejected_midrun | unexpected | unexpected_midrun.
+
+    limit_bytes: the upload cap, named by export_too_big.
 
     context: "upload" (the load) or "overdue" (the overdue query, which loads nothing, so the
     "No se cargó ningún envío." sentence goes, and where it fits the sub-line says what could not be done).
@@ -310,6 +320,14 @@ def cannot_run(kind: str, export_name: str = "", context: str = "upload") -> Ans
             "No se pudo leer el archivo.",
             "«%s» no parece un export de LogiSur o está dañado. "
             "Descargalo de nuevo desde LogiSur y volvé a elegirlo.%s" % (export_name, nothing),
+            "Elegir otro archivo",
+            "pick_other",
+        )
+    if kind == "export_too_big":
+        return Answer(
+            "El archivo es demasiado grande.",
+            "El panel acepta exports de hasta %s. Revisá que sea el export del día de LogiSur."
+            % _size_text(limit_bytes),
             "Elegir otro archivo",
             "pick_other",
         )
@@ -339,6 +357,23 @@ def cannot_run(kind: str, export_name: str = "", context: str = "upload") -> Ans
         return Answer(
             "La carga se cortó a mitad de camino.",
             "Expreso Andino dejó de aceptar la conexión. Avisale a sistemas. "
+            "Lo que se llegó a cargar no se va a duplicar cuando vuelvas a cargar el export.",
+            None,
+            None,
+        )
+    if kind == "unexpected" and overdue:
+        return Answer(
+            _NOTHING_CHECKED,
+            "Expreso Andino respondió algo que el panel no entiende. Avisale a sistemas.",
+            None,
+            None,
+        )
+    if kind == "unexpected":
+        return Answer("No se pudo completar la carga.", _NOTHING_LOADED + " Avisale a sistemas.", None, None)
+    if kind == "unexpected_midrun":
+        return Answer(
+            "La carga se cortó a mitad de camino.",
+            "Hubo un problema inesperado. Avisale a sistemas. "
             "Lo que se llegó a cargar no se va a duplicar cuando vuelvas a cargar el export.",
             None,
             None,

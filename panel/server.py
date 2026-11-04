@@ -8,7 +8,10 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import logging
 import re
+import shutil
+import socket
 import threading
 import uuid
 from datetime import date
@@ -27,6 +30,10 @@ ROOT = Path(__file__).resolve().parent.parent
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 DEFAULT_MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 KEEPALIVE_SECONDS = 15.0
+READ_TIMEOUT_SECONDS = 30.0
+LOGGER = logging.getLogger(__name__)
+_ISO_DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+_WILDCARD_HOSTS = {"", "0.0.0.0", "::"}
 
 CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
@@ -154,8 +161,11 @@ def run_view(run: Run, outcome: bridge.RunResult, views: List[dict]) -> dict:
 
 
 def overdue_item(shipment: dict, today: date) -> dict:
-    estimated = date.fromisoformat(shipment["estimated_delivery"])
-    days_late = (today - estimated).days
+    try:
+        estimated = date.fromisoformat(shipment["estimated_delivery"])
+    except (ValueError, TypeError):  # the API's date is not ISO: show the shipment, without the late sentence
+        estimated = None
+    days_late = (today - estimated).days if estimated else None
     return {
         "remito": shipment["external_ref"],
         "recipient": shipment["recipient"],
@@ -164,7 +174,7 @@ def overdue_item(shipment: dict, today: date) -> dict:
         "tracking": shipment["tracking_id"],
         "status": shipment["status"],
         "status_text": phrases.status_text(shipment["status"]),
-        "late_line": phrases.late_line(days_late, estimated),
+        "late_line": phrases.late_line(days_late, estimated) if estimated else "",
         "days_late": days_late,
         "estimated_delivery": shipment["estimated_delivery"],
     }
@@ -195,6 +205,15 @@ class PanelServer(ThreadingHTTPServer):
         self.runs: Dict[str, Run] = {}
         self.active: Optional[Run] = None
         self.state_lock = threading.Lock()
+        self.allowed_hosts = self._allowed_hosts(address[0])
+
+    def _allowed_hosts(self, bound_host: str) -> frozenset:
+        """The Host values a browser on this machine sends; anything else is a page from another site."""
+        port = self.server_address[1]
+        names = {"127.0.0.1", "localhost", "[::1]"}
+        if bound_host not in _WILDCARD_HOSTS:
+            names.add("[%s]" % bound_host if ":" in bound_host else bound_host)
+        return frozenset("%s:%d" % (name, port) for name in names)
 
     # --- uploads -----------------------------------------------------------------------------
 
@@ -205,16 +224,20 @@ class PanelServer(ThreadingHTTPServer):
         # writes path.name into its run report, so the report names the real export.
         folder = self.exports_dir / export_id
         folder.mkdir()
-        path = folder / file_name(name)
-        path.write_bytes(content)
+        stored = False
         try:
-            preview = bridge.preview_export(path)
+            path = folder / file_name(name)
+            path.write_bytes(content)
+            try:
+                preview = bridge.preview_export(path)
+            except bridge.CannotRun as error:
+                return None, error
             preview = dataclasses.replace(preview, export_name=name)
             export = Export(export_id, path, preview)
-        except bridge.CannotRun as error:
-            path.unlink()
-            folder.rmdir()
-            return None, error
+            stored = True
+        finally:
+            if not stored:  # an unreadable export or any other failure leaves no folder behind
+                shutil.rmtree(folder, ignore_errors=True)
         self.exports[export_id] = export
         return export, None
 
@@ -255,7 +278,10 @@ class PanelServer(ThreadingHTTPServer):
         except bridge.CannotRun as error:
             self._fail(run, error.kind, error.technical)
         except Exception as error:  # never a stack trace to the page: the phrase plus the message
-            self._fail(run, "api_unavailable", "%s: %s" % (type(error).__name__, error))
+            LOGGER.exception("La corrida %s se cortó por un error inesperado", run.run_id)
+            loaded = any(name == "result" for name, _ in run.events)
+            self._fail(run, "unexpected_midrun" if loaded else "unexpected",
+                       "%s: %s" % (type(error).__name__, error))
 
     def _fail(self, run: Run, kind: str, technical: str) -> None:
         name = run.export.preview.export_name
@@ -291,6 +317,7 @@ def create_server(
 
 class Handler(BaseHTTPRequestHandler):
     server: PanelServer
+    timeout = READ_TIMEOUT_SECONDS  # a client that declares a body and never sends it must not hold a thread
 
     def log_message(self, format: str, *args) -> None:  # keep the terminal for the operator
         pass
@@ -304,7 +331,8 @@ class Handler(BaseHTTPRequestHandler):
         for key, value in (extra or {}).items():
             self.send_header(key, value)
         self.end_headers()
-        self.wfile.write(body)
+        if self.command != "HEAD":
+            self.wfile.write(body)
 
     def _json(self, status: int, payload: object) -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -322,14 +350,31 @@ class Handler(BaseHTTPRequestHandler):
         if length > self.server.max_upload_bytes:
             self.close_connection = True
             self._json(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, _answer(phrases.cannot_run(
-                "export_unreadable", display_name(self.headers.get("X-Export-Name")))))
+                "export_too_big", display_name(self.headers.get("X-Export-Name")),
+                limit_bytes=self.server.max_upload_bytes)))
             return None
         return self.rfile.read(length) if length > 0 else b""
+
+    def _allowed(self) -> bool:
+        """Only pages served by this panel may talk to it: Host and Origin must be this machine's."""
+        allowed = self.server.allowed_hosts
+        if (self.headers.get("Host") or "").lower() not in allowed:
+            self.close_connection = True  # the body, if any, was not read
+            self._error(HTTPStatus.FORBIDDEN, "forbidden_host")
+            return False
+        origin = self.headers.get("Origin")
+        if origin is not None and not (origin.lower().startswith("http://") and origin[7:].lower() in allowed):
+            self.close_connection = True
+            self._error(HTTPStatus.FORBIDDEN, "forbidden_origin")
+            return False
+        return True
 
     # --- routing -----------------------------------------------------------------------------
 
     def do_GET(self) -> None:
         try:
+            if not self._allowed():
+                return
             path = urlsplit(self.path).path
             events = re.fullmatch(r"/api/runs/(%s)/events" % _RUN_ID, path)
             run = re.fullmatch(r"/api/runs/(%s)" % _RUN_ID, path)
@@ -353,6 +398,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         try:
+            if not self._allowed():
+                return
             path = urlsplit(self.path).path
             if path == "/api/exports":
                 self._post_export()
@@ -362,14 +409,30 @@ class Handler(BaseHTTPRequestHandler):
                 self._error(HTTPStatus.NOT_FOUND, "not_found")
         except (BrokenPipeError, ConnectionResetError):
             self.close_connection = True
+        except socket.timeout:  # the client stopped sending the body
+            self.close_connection = True
+            self._safe_error(HTTPStatus.REQUEST_TIMEOUT, "request_timeout")
         except Exception:
             self._safe_500()
 
-    def _safe_500(self) -> None:
+    def _not_allowed(self) -> None:
+        if not self._allowed():
+            return
+        self.close_connection = True
+        body = json.dumps({"error": "method_not_allowed"}).encode("utf-8")
+        self._send(HTTPStatus.METHOD_NOT_ALLOWED, body, "application/json; charset=utf-8",
+                   {"Allow": "GET, POST", "Cache-Control": "no-store"})
+
+    do_HEAD = do_OPTIONS = do_PUT = do_DELETE = do_PATCH = _not_allowed
+
+    def _safe_error(self, status: int, code: str) -> None:
         try:
-            self._error(HTTPStatus.INTERNAL_SERVER_ERROR, "internal")
+            self._error(status, code)
         except Exception:
             self.close_connection = True
+
+    def _safe_500(self) -> None:
+        self._safe_error(HTTPStatus.INTERNAL_SERVER_ERROR, "internal")
 
     # --- static ------------------------------------------------------------------------------
 
@@ -409,6 +472,10 @@ class Handler(BaseHTTPRequestHandler):
         self._json(HTTPStatus.CREATED, {"export_id": export.export_id, "preview": preview})
 
     def _post_run(self) -> None:
+        # A page from another site cannot send application/json without a CORS preflight, which this server never answers.
+        if (self.headers.get("Content-Type") or "").split(";")[0].strip().lower() != "application/json":
+            self.close_connection = True
+            return self._error(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "unsupported_media_type")
         content = self._read_body()
         if content is None:
             return
@@ -441,6 +508,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._error(HTTPStatus.NOT_FOUND, "unknown_export")
         raw = parse_qs(query, keep_blank_values=True).get("today", [None])[0]
         try:
+            if raw is not None and not _ISO_DATE.fullmatch(raw):  # fromisoformat takes more shapes on 3.11+
+                raise ValueError(raw)
             today = date.today() if raw is None else date.fromisoformat(raw)
         except ValueError:
             return self._error(HTTPStatus.BAD_REQUEST, "bad_date")
@@ -475,24 +544,29 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Accel-Buffering", "no")
         self.send_header("Connection", "close")
         self.end_headers()
-        sent = 0
-        while True:
-            with run.changed:
-                if sent == len(run.events) and not run.finished:
-                    run.changed.wait(KEEPALIVE_SECONDS)
-                pending = run.events[sent:]
-                finished = run.finished
-            if pending:
-                chunk = "".join(
-                    "event: %s\ndata: %s\n\n" % (name, json.dumps(data, ensure_ascii=False))
-                    for name, data in pending
-                )
-                sent += len(pending)
-            elif finished:
-                return
-            else:
-                chunk = ": keepalive\n\n"
-            self.wfile.write(chunk.encode("utf-8"))
-            self.wfile.flush()
-            if finished and sent == len(run.events):
-                return
+        try:
+            sent = 0
+            while True:
+                with run.changed:
+                    if sent == len(run.events) and not run.finished:
+                        run.changed.wait(KEEPALIVE_SECONDS)
+                    pending = run.events[sent:]
+                    finished = run.finished
+                if pending:
+                    chunk = "".join(
+                        "event: %s\ndata: %s\n\n" % (name, json.dumps(data, ensure_ascii=False))
+                        for name, data in pending
+                    )
+                    sent += len(pending)
+                elif finished:
+                    return
+                else:
+                    chunk = ": keepalive\n\n"
+                self.wfile.write(chunk.encode("utf-8"))
+                self.wfile.flush()
+                if finished and sent == len(run.events):
+                    return
+        except (BrokenPipeError, ConnectionResetError):
+            raise
+        except Exception:  # the headers are out: a second response would corrupt the stream, so log and close
+            LOGGER.exception("Se cortó el stream de eventos de la corrida %s", run_id)

@@ -26,6 +26,7 @@ Diseño primero (3 direcciones), después implementación. Razonamiento y decisi
   - [x] T3.3 · S1-S3 · `panel/server.py` y `python3 -m panel`: API JSON + eventos en vivo (SSE), sin dependencias, con tests.
   - [x] T3.4 · S1-S3 · `panel/static/`: la página real a partir de `03-el-mapa.html` y `04-estados.html` (elegir export, avance en vivo, resultado, estados).
   - [x] T3.5 · S1-S3 · Vista de atrasados y README con cómo correrlo.
+- [ ] T3.6 · S1 · Revisión independiente de `panel/server.py` (subida de archivos, rutas, clave, errores) por un verificador de solo lectura; corregir lo que confirme antes de T4.
 - [ ] T4 · S1-S3 · Prueba real contra la API del kit (primera y segunda corrida) y revisión final de UX.
 - [ ] T5 · S5 · Borrador del mail de seguimiento a partir de la bitácora (el envío lo decide Mateo).
 
@@ -46,3 +47,4 @@ Diseño primero (3 direcciones), después implementación. Razonamiento y decisi
 - L13 (2026-11-03, Mateo, verbatim): "y mas si hay que hacer mas"
 - L14 (2026-11-03, Mateo, verbatim): "dale, sigamos"
 - L15 (2026-11-03, parent): decisión técnica de T3: el panel importa las funciones públicas del puente en el mismo proceso (no corre la línea de comandos), con el puente como submódulo de git fijado en 5147381; el avance en vivo sale de la línea de log que el puente ya escribe por cada remito. Detalle en `docs/t3-contract.md`.
+- L16 (2026-11-03, Mateo, verbatim): "Dale, si me gusta. Hagamos la revisión independiente. Y probablemente después, si da bien, pasamos a T4. Si no da bien, analizamos si atacamos lo que haya dado mal. De la mejor forma posible. Entendiendo. Bueno, cómo venimos trabajando, prolijos y demás. Si pasamos a T4 y si da bien, probablemente toque hacer el push, el merge. Si no da bien, de nuevo atacamos los errores de la mejor forma posible. Manteniendo la estructura, manteniendo lo que estamos haciendo, la prolijidad."

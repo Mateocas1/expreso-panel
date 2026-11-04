@@ -161,6 +161,18 @@ Cosas que aparecieron en el camino y vale la pena contar:
 
 Lo que no se pudo verificar: Safari, porque WebKit no corre en esta máquina (le faltan librerías del sistema), y la reconexión de la página si se corta la red a mitad de una carga.
 
+### Revisión independiente (T3.6 y T3.7)
+
+Antes de dar el panel por terminado, un revisor aparte (que no escribió el código y no podía modificarlo) intentó romperlo con pedidos reales: leer archivos fuera de sus carpetas, encontrar la clave de acceso en alguna respuesta, meter código en la página con un export malicioso, mandar archivos gigantes o mal formados, lanzar treinta cargas a la vez. Nada de eso funcionó.
+
+Encontró dos cosas medias y tres chicas, todas corregidas con un test que primero falló:
+
+- **Un mensaje que mentía.** Si el export traía un dato con un tipo raro (un número donde va un nombre), el puente se rompía a mitad de la carga y la pantalla decía "No se cargó ningún envío" cuando ya se habían cargado 19. Ahora esos exports se rechazan antes de empezar, y si algo inesperado corta una carga, la frase dice la verdad: "La carga se cortó a mitad de camino" y que lo cargado no se va a duplicar.
+- **Pedidos desde otros sitios.** Una página web maliciosa podía, con una técnica conocida, usar el panel para cargar envíos con la clave de LogiSur. Ahora el panel solo atiende pedidos hechos desde sí mismo.
+- **Detalles chicos:** un archivo de más de 20 MB ya no dice que está "dañado" sino que es "demasiado grande", los exports mal formados ya no dejan carpetas sueltas, y un pedido incompleto ya no deja al servidor esperando para siempre.
+
+Después volvimos a correr cada prueba del revisor contra el panel real: todas quedaron cerradas.
+
 ## 8. Datos reales para diseñar
 
 Los diseños usan los datos del kit del challenge, no datos inventados:
@@ -302,3 +314,5 @@ Al ver los 20 "Ya estaba" juntos, la trama de carbónico ensuciaba justo el día
 | 2026-11-03 | Cada acción de la pantalla viaja como dato (`action`), no se deduce del texto del botón | Las frases se pueden ajustar sin romper el comportamiento | Elegir la acción por el texto |
 | 2026-11-03 | El panel lee del export los valores que el puente no informa (bultos, peso, servicio, provincia) | Para decir "Los bultos figuran en 0" en vez de un genérico "no son válidos" | Frases sin el valor |
 | 2026-11-03 | La vista de atrasados vive en la misma página, con una fecha y una lista simple | Es una consulta ocasional; no merece otra aplicación ni un menú | Una sección o pantalla aparte |
+| 2026-11-03 | Revisión independiente del servidor antes de cerrar T3, y corrección de todo lo que encontró | Es la parte que recibe archivos de afuera y habla con Expreso Andino; un error ahí es caro | Darlo por bueno con los tests propios |
+| 2026-11-03 | Validar los tipos del export antes de cargar | Un dato con tipo raro rompía el puente a mitad de camino; es mejor rechazarlo entero que cargar a medias | Dejar que el puente falle y explicar después |

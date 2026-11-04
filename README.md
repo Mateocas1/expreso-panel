@@ -2,17 +2,35 @@
 
 Panel web para que el equipo de operaciones de LogiSur vea, sin conocimientos técnicos, qué pasó al cargar el export diario de remitos en Expreso Andino: una frase que dice si hay algo para hacer, un casillero por envío, y el detalle técnico plegado. Funciona como una capa sobre el puente [caso-expreso](https://github.com/Mateocas1/caso-expreso); no reemplaza su línea de comandos.
 
+Nació de una pregunta en la entrevista técnica con Geno Insights: cómo se le vendería esta automatización a un cliente, si quien la usa no es técnico y en la terminal ve códigos como 409 o 503.
+
 Solo usa la librería estándar (Python 3.9+): no hay nada que instalar.
+
+## Cómo se ve
+
+Una carga en vivo: cada casillero es un envío y se completa cuando Expreso Andino lo confirma. Al terminar, la frase de arriba dice si hay algo para hacer.
+
+![Carga en vivo del export del kit: los casilleros se completan y aparece el resultado](docs/img/carga-en-vivo.gif)
+
+| Resultado de la primera carga | Lo que hay que corregir, envío por envío |
+| --- | --- |
+| ![Resultado: 3 de 23 envíos esperan un dato de LogiSur](docs/img/resultado.png) | ![Un envío seleccionado con la explicación de qué falta](docs/img/detalle-envio.png) |
+| **Segunda carga del mismo export: no se duplica nada** | **Envíos atrasados a una fecha** |
+| ![Segunda carga: todo figura como «Ya estaba»](docs/img/segunda-carga.png) | ![Vista de envíos atrasados al 3 de octubre](docs/img/atrasados.png) |
+| **Expreso Andino no responde** | **En el celular, lo que hay que corregir va primero** |
+| ![Expreso Andino no responde: los casilleros quedan sin cargar](docs/img/no-se-pudo-cargar.png) | ![Resultado en un celular](docs/img/celular.png) |
+
+Las tres direcciones de diseño que se exploraron antes de construirlo están en la [bitácora](docs/bitacora.md#tres-direcciones).
 
 ## Abrirlo con doble clic
 
 1. Cloná el repositorio con su submódulo: `git clone --recurse-submodules https://github.com/Mateocas1/expreso-panel`. La descarga en ZIP de GitHub no trae el puente.
-2. Doble clic en **`Abrir panel.bat`** (Windows) o **`Abrir panel.desktop`** (Linux). Se abre una ventana con el estado y el panel en el navegador.
+2. En Windows, doble clic en **`Abrir panel.bat`**. En Linux, **`Abrir panel.sh`**: con clic derecho → «Ejecutar como un programa» en GNOME, o doble clic en KDE y Xfce. Se abre una ventana con el estado y el panel en el navegador.
 3. Para apagarlo, cerrá esa ventana.
 
 Sin configuración, el panel abre en **modo prueba**: levanta la API de prueba del kit en la misma computadora y lo avisa en la cabecera. Para usar la API real de Expreso Andino, copiá `expreso.ini.ejemplo` como `expreso.ini` y completá `url` y `api_key`; ese archivo no se versiona.
 
-Hace falta Python 3.9 o superior. En Windows, al instalarlo, marcá «Add python.exe to PATH». En algunos escritorios de Linux hay que permitir el lanzador la primera vez (clic derecho → «Permitir ejecutar»). Desde una terminal, lo mismo es `python3 -m panel.launcher`.
+Hace falta Python 3.9 o superior. En Windows, al instalarlo, marcá «Add python.exe to PATH». Desde una terminal, lo mismo es `python3 -m panel.launcher`.
 
 Si el puerto 8080 está ocupado (por ejemplo, porque el panel ya estaba abierto), usa uno libre y abre el navegador ahí; la dirección que quedó se ve en la ventana. Si el navegador no se abre solo, copiá esa dirección en la barra.
 
@@ -59,7 +77,7 @@ Son 187 tests. Levantan solos la API de prueba del kit y recorren la primera y l
 
 ```
 Abrir panel.bat      doble clic en Windows
-Abrir panel.desktop  doble clic en Linux
+Abrir panel.sh       lanzador para Linux
 expreso.ini.ejemplo  configuración de la API real (copiar como expreso.ini)
 panel/
   launcher.py   lo que corre el doble clic: modo prueba o API real, navegador, puerto libre
@@ -69,12 +87,12 @@ panel/
   static/       la página
 tests/          unitarios y de punta a punta contra la API del kit
 design/         direcciones visuales y decisiones de diseño
-docs/           bitácora y cómo se construyó (etapas, revisiones, API HTTP)
+docs/           bitácora, cómo se construyó (etapas, revisiones, API HTTP) e imágenes (docs/img/)
 vendor/         el puente (submódulo, solo lectura)
 ```
 
 ## Dónde seguir leyendo
 
-- [`docs/bitacora.md`](docs/bitacora.md): el razonamiento y las decisiones, incluidas las frases de cada resultado.
-- [`docs/como-se-construyo.md`](docs/como-se-construyo.md): las etapas del trabajo, cómo se conecta con el puente, las revisiones independientes y la API HTTP.
+- [`docs/bitacora.md`](docs/bitacora.md): el porqué. El problema, para quién se diseñó, los principios, las tres direcciones y por qué se eligió el mapa, la tabla de códigos a frases y un registro de cada decisión con su motivo y la alternativa descartada.
+- [`docs/como-se-construyo.md`](docs/como-se-construyo.md): el cómo. Las etapas del trabajo y en qué se basó cada una, cómo se conecta con el puente sin cambiarlo, los módulos, lo que encontró cada revisión independiente y cómo se corrigió, y la API HTTP.
 - [`design/resultado-corrida/`](design/resultado-corrida/): las tres direcciones visuales, la elegida (`03-el-mapa.html`) y los estados.
